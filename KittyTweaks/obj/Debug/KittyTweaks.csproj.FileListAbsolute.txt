@@ -1,0 +1,17 @@
+C:\catsmackaroo\Modding\KittyTweaks\KittyTweaks\bin\Debug\KittyTweaks.dll
+C:\catsmackaroo\Modding\KittyTweaks\KittyTweaks\bin\Debug\KittyTweaks.pdb
+C:\catsmackaroo\Modding\KittyTweaks\KittyTweaks\bin\Debug\ClonksCodingLib.GTAIV.dll
+C:\catsmackaroo\Modding\KittyTweaks\KittyTweaks\bin\Debug\IVSDKDotNetWrapper.dll
+C:\catsmackaroo\Modding\KittyTweaks\KittyTweaks\bin\Debug\ClonksCodingLib.GTAIV.xml
+C:\catsmackaroo\Modding\KittyTweaks\KittyTweaks\bin\Debug\IVSDKDotNetWrapper.xml
+C:\catsmackaroo\Modding\KittyTweaks\KittyTweaks\obj\Debug\KittyTweaks.csproj.AssemblyReference.cache
+C:\catsmackaroo\Modding\KittyTweaks\KittyTweaks\obj\Debug\KittyTweaks.csproj.CoreCompileInputs.cache
+C:\catsmackaroo\Modding\KittyTweaks\KittyTweaks\obj\Debug\KittyTweaks.csproj.CopyComplete
+C:\SteamLibrary\steamapps\common\Grand Theft Auto IV\GTAIV - Playthrough\IVSDKDotNet\scripts\KittyTweaks.ivsdk.dll
+C:\SteamLibrary\steamapps\common\Grand Theft Auto IV\GTAIV - Playthrough\IVSDKDotNet\scripts\KittyTweaks.ivsdk.pdb
+C:\SteamLibrary\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll
+C:\SteamLibrary\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.pdb
+C:\catsmackaroo\Modding\KittyTweaks\KittyTweaks\obj\Debug\LibertyTweaks.ivsdk.dll
+C:\catsmackaroo\Modding\KittyTweaks\KittyTweaks\obj\Debug\LibertyTweaks.ivsdk.pdb
+C:\SteamLibrary\steamapps\common\Grand Theft Auto IV\GTAIV - Main\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll
+C:\SteamLibrary\steamapps\common\Grand Theft Auto IV\GTAIV - Main\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.pdb
