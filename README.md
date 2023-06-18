@@ -1,4 +1,4 @@
-![Banner](https://github.com/catsmackaroo/LibertyTweaks/assets/85026722/49f52ce9-85ae-4b9c-902a-913dc034036f)
+![Banner](https://cdn.discordapp.com/attachments/734888920046764105/1119994948968796210/main.png)
 A comprehensive yet highly configurable quality-of-life mod for Grand Theft Auto IV.
 
 This page hosts the source code. Requires: [IV SDK .NET](https://github.com/ClonkAndre/IV-SDK-DotNet) & [Clonk's Coding Library](https://github.com/ClonkAndre/ClonksCodingLib.GTAIV)
