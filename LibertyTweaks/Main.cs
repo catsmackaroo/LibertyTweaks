@@ -3,7 +3,6 @@ using System.Windows.Forms;
 
 using IVSDKDotNet;
 using LibertyTweaks.GunMags;
-using LibertyTweaks.HolsterWeapons;
 using LibertyTweaks.QuickSaveFunc;
 
 // DONE:
@@ -12,7 +11,7 @@ using LibertyTweaks.QuickSaveFunc;
 // WheelFix
 // QuickSave
 
-// todo: C Smack - Death Blips, RealisticReloading, Weapon Variety, Auto Run, PersonalVehicle/Mechanic, & Fix Holster for MoveWithSniper
+// todo: C Smack - Death Blips, RealisticReloading, Weapon Variety, Auto Run, TrainFix, PersonalVehicle/Mechanic, & Fix Holster for MoveWithSniper
 
 namespace LibertyTweaks
 {
@@ -25,7 +24,6 @@ namespace LibertyTweaks
         public float fovMulti;
         private Keys quickSaveKey;
         private Keys holsterKey;
-        private Keys vehicleLightsKey;
         #endregion
 
         #region Functions
@@ -48,80 +46,76 @@ namespace LibertyTweaks
             ProcessAutomobile += Main_ProcessAutomobile;
             ProcessCamera += Main_ProcessCamera;
             GameLoad += Main_GameLoad;
-            GameLoadPriority += Main_GameLoadPriority;
         }
         #endregion
 
         private void Main_Initialized(object sender, EventArgs e)
         {
-            // Check .INI Enable/Disable Section
+            // Check .INI
                 // MAIN
-            HolsterWeapons.HolsterWeapons.Init(Settings);
-            HigherPedAccuracy.HigherPedAccuracy.Init(Settings);
+            HolsterWeapons.Init(Settings);
+            HigherPedAccuracy.Init(Settings);
             WeaponMagazines.Init(Settings);
-            MoveWithSniper.MoveWithSniper.Init(Settings);
-            RemoveWeapons.RemoveWeapons.Init(Settings);
-            TweakableFOV.TweakableFOV.Init(Settings);
+            MoveWithSniper.Init(Settings);
+            RemoveWeapons.Init(Settings);
+            TweakableFOV.Init(Settings);
             QuickSave.Init(Settings);
+            BrakeLights.Init(Settings);
+            //IncreasedPedArsenal.Init(Settings);
+            //LessEuphoria.Init(Settings);
+
                 // FIXES
-            NoOvertaking.NoOvertaking.Init(Settings);
-            IceCreamSpeech.IceCreamSpeechFix.Init(Settings);
-            WheelFix.WheelFix.Init(Settings);
+            NoOvertaking.Init(Settings);
+            IceCreamSpeechFix.Init(Settings);
+            WheelFix.Init(Settings);
             
 
-            // HOTKEYS
-            // Quick-Save
+            // HOTKEYS & CONFIG
             quickSaveKey = Settings.GetKey("Hotkeys", "Quick Save Key", Keys.F9);
-
-            // Holstering
             holsterKey = Settings.GetKey("Hotkeys", "Holster Key", Keys.H);
-
-            // Field of View Multiplier
             fovMulti = Settings.GetFloat("Hotkeys", "Field of View Modifier", 1.07f);
         }
 
         private void Main_GameLoad(object sender, EventArgs e)
         {
-            GunMags.WeaponMagazines.LoadFiles();
-        }
-        private void Main_GameLoadPriority(object sender, EventArgs e)
-        {
-            GunMags.WeaponMagazines.LoadPriorityFiles();
+            WeaponMagazines.LoadFiles();
         }
 
         private void Main_ProcessCamera(object sender, EventArgs e)
         {
             // Here we can override camera things like fov
-            TweakableFOV.TweakableFOV.Tick(fovMulti);
+            TweakableFOV.Tick(fovMulti);
         }
         private void Main_ProcessAutomobile(UIntPtr vehPtr)
         {
             // Here we can override vehicle things like steering
-            WheelFix.WheelFix.Process(vehPtr);
+            WheelFix.Process(vehPtr);
         }
 
         private void Main_Tick(object sender, EventArgs e)
         {
-            NoOvertaking.NoOvertaking.Tick();
-            WheelFix.WheelFix.PreChecks();
-            RemoveWeapons.RemoveWeapons.Tick();
-            HigherPedAccuracy.HigherPedAccuracy.Tick();
-            GunMags.WeaponMagazines.Tick();
-            IceCreamSpeech.IceCreamSpeechFix.Tick();
-            MoveWithSniper.MoveWithSniper.Tick();
-            //RealisticReloading.RealisticReloading.Tick();
+            NoOvertaking.Tick();
+            WheelFix.PreChecks();
+            RemoveWeapons.Tick();
+            HigherPedAccuracy.Tick();
+            WeaponMagazines.Tick();
+            IceCreamSpeechFix.Tick();
+            MoveWithSniper.Tick();
+            BrakeLights.Tick();
+            //IncreasedPedArsenal.Tick();
+            //LessEuphoria.Tick();
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == quickSaveKey)
             {
-                QuickSaveFunc.QuickSave.Process();
+                QuickSave.Process();
             }
 
             if (e.KeyCode == holsterKey)
             {
-                HolsterWeapons.HolsterWeapons.Process();
+                HolsterWeapons.Process();
             }
         }
 

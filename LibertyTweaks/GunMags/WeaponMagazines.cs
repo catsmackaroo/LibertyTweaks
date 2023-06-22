@@ -20,9 +20,9 @@ namespace LibertyTweaks.GunMags
         private static List<string> disableForWeapons;
 
         private static float currentReloadAnimTime;
+        private static bool isAnyGunReloadingAnimPlaying;
         private static int magObj1, magObj2;
         
-
         public static void Init(SettingsFile settings)
         {
             enableFix = settings.GetBoolean("Main", "Gun Magazines", true);
@@ -78,6 +78,8 @@ namespace LibertyTweaks.GunMags
 
             if (isHandgunReloading || isDeagleReloading)
             {
+                isAnyGunReloadingAnimPlaying = true;
+
                 if (isHandgunReloading)
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@handgun", isPlayerDucking ? "reload_crouch" : "reload");
                 else
@@ -116,6 +118,10 @@ namespace LibertyTweaks.GunMags
                     magObj1 = 0;
                 }
             }
+            else
+            {
+                isAnyGunReloadingAnimPlaying = false;
+            }
         }
         private static void ProcessShotgunReloading(CPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
@@ -127,6 +133,8 @@ namespace LibertyTweaks.GunMags
 
             if (isBarettaReloading || isShotgunReloading)
             {
+                isAnyGunReloadingAnimPlaying = true;
+
                 if (isBarettaReloading)
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@baretta", isPlayerDucking ? "reload_crouch" : "reload");
                 else
@@ -167,6 +175,10 @@ namespace LibertyTweaks.GunMags
                     }
                 }
             }
+            else
+            {
+                isAnyGunReloadingAnimPlaying = false;
+            }
         }
         private static void ProcessUziReloading(CPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
@@ -178,6 +190,8 @@ namespace LibertyTweaks.GunMags
 
             if (isUziReloading || isMp5Reloading)
             {
+                isAnyGunReloadingAnimPlaying = true;
+
                 if (isUziReloading)
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@uzi", isPlayerDucking ? "reload_crouch" : "reload");
                 else
@@ -216,6 +230,10 @@ namespace LibertyTweaks.GunMags
                     magObj1 = 0;
                 }
             }
+            else
+            {
+                isAnyGunReloadingAnimPlaying = false;
+            }
         }
         private static void ProcessAssaultRifleReloading(CPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
@@ -227,6 +245,8 @@ namespace LibertyTweaks.GunMags
 
             if (ak47Reloading)
             {
+                isAnyGunReloadingAnimPlaying = true;
+
                 currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@ak47", isPlayerDucking ? "reload_crouch" : "p_load");
 
                 if (currentReloadAnimTime.InRange(0.16f, 0.2f)) // Create Old Mag Obj
@@ -262,6 +282,10 @@ namespace LibertyTweaks.GunMags
                     magObj1 = 0;
                 }
             }
+            else
+            {
+                isAnyGunReloadingAnimPlaying = false;
+            }
         }
         private static void ProcessRifleReloading(CPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
@@ -273,6 +297,8 @@ namespace LibertyTweaks.GunMags
 
             if (isRifleReloading || isRifle2Reloading)
             {
+                isAnyGunReloadingAnimPlaying = true;
+
                 if (isRifleReloading)
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@rifle", isPlayerDucking ? "reload_crouch" : "p_load");
                 else
@@ -311,6 +337,10 @@ namespace LibertyTweaks.GunMags
                     magObj1 = 0;
                 }
             }
+            else
+            {
+                isAnyGunReloadingAnimPlaying = false;
+            }
         }
         private static void ProcessRPGReloading(CPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
@@ -321,6 +351,8 @@ namespace LibertyTweaks.GunMags
             
             if (isRPGReloading)
             {
+                isAnyGunReloadingAnimPlaying = true;
+
                 currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@rocket", isPlayerDucking ? "reload_crouch" : "reload");
 
                 if (currentReloadAnimTime.InRange(0.28f, 0.35f)) // Create New Rocket Obj
@@ -341,6 +373,10 @@ namespace LibertyTweaks.GunMags
                     }
                 }
             }
+            else
+            {
+                isAnyGunReloadingAnimPlaying = false;
+            }
         }
         
         public static void LoadFiles()
@@ -348,18 +384,10 @@ namespace LibertyTweaks.GunMags
             if (!enableFix)
                 return;
 
-            CdStream.CdStreamAddImage("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags_collision.img", 1, -1);
             CdStream.CdStreamAddImage("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.img", 1, -1);
-        }
-        public static void LoadPriorityFiles()
-        {
-            if (!enableFix)
-                return;
-
             CFileLoader.LoadLevel("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.dat", 0);
         }
 
-        // Todo(Clonk): Check if this works on cats end
         public static void Tick()
         {
             if (!enableFix)
@@ -391,6 +419,10 @@ namespace LibertyTweaks.GunMags
                 CheckMagazineObjects();
                 return;
             }
+
+            // Check if the magazine objects are still attached somewhere but shouldn't
+            if (!isAnyGunReloadingAnimPlaying)
+                CheckMagazineObjects();
 
             // Gets if the player ped is ducking
             bool isPlayerDucking = IS_CHAR_DUCKING(playerPedHandle);
