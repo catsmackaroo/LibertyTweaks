@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
-
+using CorpseThief.SearchBody;
+using FallScreaming.VLikeScreaming;
+using ImprovedDialogue.CombatVoices;
 using IVSDKDotNet;
 using LibertyTweaks.GunMags;
 using LibertyTweaks.QuickSaveFunc;
@@ -61,8 +63,9 @@ namespace LibertyTweaks
             TweakableFOV.Init(Settings);
             QuickSave.Init(Settings);
             BrakeLights.Init(Settings);
-            //IncreasedPedArsenal.Init(Settings);
-            //LessEuphoria.Init(Settings);
+            MoreCombatLines.Init(Settings);
+            SearchBody.Init(Settings);
+            VLikeScreaming.Init(Settings);
 
                 // FIXES
             NoOvertaking.Init(Settings);
@@ -102,8 +105,9 @@ namespace LibertyTweaks
             IceCreamSpeechFix.Tick();
             MoveWithSniper.Tick();
             BrakeLights.Tick();
-            //IncreasedPedArsenal.Tick();
-            //LessEuphoria.Tick();
+            MoreCombatLines.Tick();
+            SearchBody.Tick();
+            VLikeScreaming.Tick();
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)

@@ -404,10 +404,10 @@ namespace LibertyTweaks.GunMags
             int playerPedHandle = playerPed.GetHandle();
 
             // Debug
-            if (Helper.IsKeyPressedAsync(System.Windows.Forms.Keys.K))
-                NativeGame.TimeScale = 0.15f;
-            if (Helper.IsKeyPressedAsync(System.Windows.Forms.Keys.L))
-                NativeGame.TimeScale = 1f;
+            //if (Helper.IsKeyPressedAsync(System.Windows.Forms.Keys.K))
+                //NativeGame.TimeScale = 0.15f;
+            //if (Helper.IsKeyPressedAsync(System.Windows.Forms.Keys.L))
+                //NativeGame.TimeScale = 1f;
 
             // Gets the current weapon of the player
             GET_CURRENT_CHAR_WEAPON(playerPedHandle, out uint currentWeapon);
