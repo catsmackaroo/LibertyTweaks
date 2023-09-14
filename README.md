@@ -5,7 +5,7 @@ This page hosts the source code. Requires: [IV SDK .NET](https://github.com/Clon
 
 Created by [catsmackaroo](https://gtaforums.com/topic/988919-cats-toy-box/) & [ItsClonkAndre](https://gtaforums.com/topic/988909-itsclonkandres-workshop/), with some external help from AssaultKifle47 as well as simply stalking old ScriptHook .NET code via [dotPeek](https://www.jetbrains.com/decompiler/).
 
-Check the specific mod's features by taking a gander at the GTAForums Topic.
+Check the specific mod's features by taking a gander at the [GTAForums Topic](https://gtaforums.com/topic/991160-liberty-tweaks/).
 
 ![](https://media.giphy.com/media/9WkHpgdodMMkVwSxQK/giphy.gif)
 
