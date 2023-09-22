@@ -27,6 +27,8 @@ namespace CorpseThief.SearchBody
 
         public static void Tick()
         {
+            if (!enableFix)
+                return;
 
             // Grab the player CPed, then the player handle (ID)
             CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
@@ -60,9 +62,6 @@ namespace CorpseThief.SearchBody
                                     //CGame.ShowSubtitleMessage("Corpse Item");
                                     didSpeak = true;
                                 }
-
-
-
                             }
                             else
                             {

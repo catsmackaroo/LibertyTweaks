@@ -23,6 +23,8 @@ namespace FallScreaming.VLikeScreaming
         }
         public static void Tick()
         {
+            if (!enableFix)
+                return;
             float heightAboveGround;
             int playerId;
 

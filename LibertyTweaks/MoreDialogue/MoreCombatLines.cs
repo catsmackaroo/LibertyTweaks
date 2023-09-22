@@ -33,9 +33,11 @@ namespace ImprovedDialogue.CombatVoices
         }
         public static void Tick()
         {
+            if (!enableFix)
+                return;
+
             int playerId;
             bool pCombat;
-            uint pHealth;
 
             CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
             playerId = CPedExtensions.GetHandle(playerPed);
@@ -88,11 +90,10 @@ namespace ImprovedDialogue.CombatVoices
                     default:
                         break;
                 }
-                //ShowSubtitleMessage("True");
             }
             else
             {
-                //ShowSubtitleMessage("False");
+
             }
         }
     }

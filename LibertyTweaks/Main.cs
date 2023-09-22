@@ -24,6 +24,8 @@ namespace LibertyTweaks
         private static Random rnd; 
 
         public float fovMulti;
+        public int pedAccuracy;
+        public int pedFirerate;
         private Keys quickSaveKey;
         private Keys holsterKey;
         #endregion
@@ -47,7 +49,9 @@ namespace LibertyTweaks
             KeyDown += Main_KeyDown;
             ProcessAutomobile += Main_ProcessAutomobile;
             ProcessCamera += Main_ProcessCamera;
-            GameLoad += Main_GameLoad;
+
+            // Below was removed as results were inconsistent. IV Tweaker is required for now
+            //  GameLoad += Main_GameLoad;
         }
         #endregion
 
@@ -71,18 +75,21 @@ namespace LibertyTweaks
             NoOvertaking.Init(Settings);
             IceCreamSpeechFix.Init(Settings);
             WheelFix.Init(Settings);
-            
 
-            // HOTKEYS & CONFIG
-            quickSaveKey = Settings.GetKey("Hotkeys", "Quick Save Key", Keys.F9);
-            holsterKey = Settings.GetKey("Hotkeys", "Holster Key", Keys.H);
-            fovMulti = Settings.GetFloat("Hotkeys", "Field of View Modifier", 1.07f);
+                // HOTKEYS & CONFIG
+            quickSaveKey = Settings.GetKey("HOTKEYS", "Quick Save Key", Keys.F9);
+            holsterKey = Settings.GetKey("HOTKEYS", "Holster Key", Keys.H);
+            fovMulti = Settings.GetFloat("SETTINGS", "Field of View Modifier", 1.07f);
+            pedAccuracy = Settings.GetInteger("SETTINGS", "Ped Accuracy", 85);
+            pedFirerate = Settings.GetInteger("SETTINGS", "Ped Firerate", 85);
+
         }
 
-        private void Main_GameLoad(object sender, EventArgs e)
-        {
-            WeaponMagazines.LoadFiles();
-        }
+        // Below was removed as results were inconsistent. IV Tweaker is required for now
+        //private void Main_GameLoad(object sender, EventArgs e)
+        //{
+        //    WeaponMagazines.LoadFiles();
+        //}
 
         private void Main_ProcessCamera(object sender, EventArgs e)
         {
@@ -100,7 +107,7 @@ namespace LibertyTweaks
             NoOvertaking.Tick();
             WheelFix.PreChecks();
             RemoveWeapons.Tick();
-            HigherPedAccuracy.Tick();
+            HigherPedAccuracy.Tick(pedAccuracy, pedFirerate);
             WeaponMagazines.Tick();
             IceCreamSpeechFix.Tick();
             MoveWithSniper.Tick();
