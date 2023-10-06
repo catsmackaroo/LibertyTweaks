@@ -5,7 +5,7 @@ using IVSDKDotNet;
 
 // Credits: ClonkAndre
 
-namespace LibertyTweaks.WheelFix
+namespace LibertyTweaks
 {
     internal class WheelFix
     {
@@ -17,7 +17,7 @@ namespace LibertyTweaks.WheelFix
         
         public static void Init(SettingsFile settings)
         {
-            enableFix = settings.GetBoolean("Main", "Wheel Fix", true);
+            enableFix = settings.GetBoolean("Fixes", "Wheel Fix", true);
         }
 
         public static void PreChecks()

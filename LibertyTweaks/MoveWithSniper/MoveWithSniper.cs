@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-using CCL.GTAIV;
+﻿using CCL.GTAIV;
 
 using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
 
-namespace LibertyTweaks.MoveWithSniper
+namespace LibertyTweaks
 {
     internal class MoveWithSniper
     {
@@ -40,7 +33,7 @@ namespace LibertyTweaks.MoveWithSniper
             {
                 if (NativeControls.IsGameKeyPressed(0, GameKey.Aim))
                 {
-                    CWeaponInfo.GetWeaponInfo(currentWeapon).Slot = 15;
+                    CWeaponInfo.GetWeaponInfo(currentWeapon).Slot = 16;
                 }
                 else if (!NativeControls.IsGameKeyPressed(0, GameKey.Aim))
                 {

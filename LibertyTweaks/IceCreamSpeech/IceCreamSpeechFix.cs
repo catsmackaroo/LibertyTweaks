@@ -6,7 +6,7 @@ using static IVSDKDotNet.Native.Natives;
 
 // Credits: ClonkAndre
 
-namespace LibertyTweaks.IceCreamSpeech
+namespace LibertyTweaks
 {
     internal class IceCreamSpeechFix
     {

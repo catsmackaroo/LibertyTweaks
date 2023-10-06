@@ -77,11 +77,11 @@ namespace LibertyTweaks
             WheelFix.Init(Settings);
 
                 // HOTKEYS & CONFIG
-            quickSaveKey = Settings.GetKey("HOTKEYS", "Quick Save Key", Keys.F9);
-            holsterKey = Settings.GetKey("HOTKEYS", "Holster Key", Keys.H);
-            fovMulti = Settings.GetFloat("SETTINGS", "Field of View Modifier", 1.07f);
-            pedAccuracy = Settings.GetInteger("SETTINGS", "Ped Accuracy", 85);
-            pedFirerate = Settings.GetInteger("SETTINGS", "Ped Firerate", 85);
+            quickSaveKey = Settings.GetKey("Hotkeys", "Quick Save Key", Keys.F9);
+            holsterKey = Settings.GetKey("Hotkeys", "Holster Key", Keys.H);
+            fovMulti = Settings.GetFloat("Settings", "Field of View Modifier", 1.07f);
+            pedAccuracy = Settings.GetInteger("Settings", "Ped Accuracy", 85);
+            pedFirerate = Settings.GetInteger("Settings", "Ped Firerate", 85);
 
         }
 

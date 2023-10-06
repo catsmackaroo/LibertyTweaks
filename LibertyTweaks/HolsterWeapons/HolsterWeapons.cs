@@ -41,16 +41,7 @@ namespace LibertyTweaks
                     GIVE_DELAYED_WEAPON_TO_CHAR(playerId, 0, 1, true);
                 }
                 else
-                {
-                    // This if statement is for MoveWithSniper compatibility
-                    // Need to use GET_CHAR_WEAPON_IN_SLOT or smth
-                    //if (lastWeaponSlot == 16)
-                    //{
-                    //    GET_CHAR_WEAPON_IN_SLOT(playerId, 6, out uint pSniper, out uint temp1, out uint temp2);
-                    //    SET_CURRENT_CHAR_WEAPON(playerId, pSniper, true);
-                    //    CGame.ShowSubtitleMessage(pSniper.ToString());
-                    //    //GIVE_DELAYED_WEAPON_TO_CHAR(playerId, 16, 1, true);
-                    //}
+                { 
                     GIVE_DELAYED_WEAPON_TO_CHAR(playerId, (int)lastWeapon, 1, true);
                 }
             }

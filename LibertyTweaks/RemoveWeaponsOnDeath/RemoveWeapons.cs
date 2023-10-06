@@ -5,7 +5,7 @@ using static IVSDKDotNet.Native.Natives;
 
 // Credits: ClonkAndre 
 
-namespace LibertyTweaks.RemoveWeapons
+namespace LibertyTweaks
 {
     internal class RemoveWeapons
     {

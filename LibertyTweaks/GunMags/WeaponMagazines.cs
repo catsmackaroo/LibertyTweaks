@@ -22,7 +22,7 @@ namespace LibertyTweaks.GunMags
         private static float currentReloadAnimTime;
         private static bool isAnyGunReloadingAnimPlaying;
         private static int magObj1, magObj2;
-        
+
         public static void Init(SettingsFile settings)
         {
             enableFix = settings.GetBoolean("Main", "Gun Magazines", true);
@@ -73,8 +73,8 @@ namespace LibertyTweaks.GunMags
                 return;
 
             // Handgun / Deagle
-            bool isHandgunReloading =   animController.IsPlaying("gun@handgun", isPlayerDucking ? "reload_crouch" : "reload");
-            bool isDeagleReloading =    animController.IsPlaying("gun@deagle",  isPlayerDucking ? "reload_crouch" : "reload");
+            bool isHandgunReloading = animController.IsPlaying("gun@handgun", isPlayerDucking ? "reload_crouch" : "reload");
+            bool isDeagleReloading = animController.IsPlaying("gun@deagle", isPlayerDucking ? "reload_crouch" : "reload");
 
             if (isHandgunReloading || isDeagleReloading)
             {
@@ -185,8 +185,8 @@ namespace LibertyTweaks.GunMags
             if (!enableFix)
                 return;
 
-            bool isUziReloading = animController.IsPlaying("gun@uzi",   isPlayerDucking ? "reload_crouch" : "reload");
-            bool isMp5Reloading = animController.IsPlaying("gun@mp5k",  isPlayerDucking ? "reload_crouch" : "p_load");
+            bool isUziReloading = animController.IsPlaying("gun@uzi", isPlayerDucking ? "reload_crouch" : "reload");
+            bool isMp5Reloading = animController.IsPlaying("gun@mp5k", isPlayerDucking ? "reload_crouch" : "p_load");
 
             if (isUziReloading || isMp5Reloading)
             {
@@ -292,8 +292,8 @@ namespace LibertyTweaks.GunMags
             if (!enableFix)
                 return;
 
-            bool isRifleReloading =   animController.IsPlaying("gun@rifle", isPlayerDucking ? "reload_crouch" : "p_load");
-            bool isRifle2Reloading =  animController.IsPlaying("gun@rifle", isPlayerDucking ? "reload_crouch" : "reload");
+            bool isRifleReloading = animController.IsPlaying("gun@rifle", isPlayerDucking ? "reload_crouch" : "p_load");
+            bool isRifle2Reloading = animController.IsPlaying("gun@rifle", isPlayerDucking ? "reload_crouch" : "reload");
 
             if (isRifleReloading || isRifle2Reloading)
             {
@@ -348,7 +348,7 @@ namespace LibertyTweaks.GunMags
                 return;
 
             bool isRPGReloading = animController.IsPlaying("gun@rocket", isPlayerDucking ? "reload_crouch" : "reload");
-            
+
             if (isRPGReloading)
             {
                 isAnyGunReloadingAnimPlaying = true;
@@ -378,22 +378,20 @@ namespace LibertyTweaks.GunMags
                 isAnyGunReloadingAnimPlaying = false;
             }
         }
-        
-        public static void LoadFiles()
-        {
-            if (!enableFix)
-                return;
 
-            CdStream.CdStreamAddImage("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.img", 1, -1);
-            CFileLoader.LoadLevel("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.dat", 0);
-        }
+        // Below was removed as results were inconsistent. IV Tweaker is required for now
+        //public static void LoadFiles()
+        //{
+        //    CdStream.CdStreamAddImage("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.img", 1, -1);
+        //    CFileLoader.LoadLevel("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.dat", 0);
+        //}
 
         public static void Tick()
         {
             if (!enableFix)
                 return;
 
-            // If amb_magazine is not in cdimage then return so game will not crash when we try to use this model (Does it even crash?)
+            // If amb_magazine is not in cdimage then return so game will not crash when we try to use this model
             if (!IS_MODEL_IN_CDIMAGE(GET_HASH_KEY("amb_magazine")))
                 return;
 
@@ -402,12 +400,6 @@ namespace LibertyTweaks.GunMags
 
             // Gets the handle of the player ped
             int playerPedHandle = playerPed.GetHandle();
-
-            // Debug
-            //if (Helper.IsKeyPressedAsync(System.Windows.Forms.Keys.K))
-                //NativeGame.TimeScale = 0.15f;
-            //if (Helper.IsKeyPressedAsync(System.Windows.Forms.Keys.L))
-                //NativeGame.TimeScale = 1f;
 
             // Gets the current weapon of the player
             GET_CURRENT_CHAR_WEAPON(playerPedHandle, out uint currentWeapon);
@@ -488,56 +480,56 @@ namespace LibertyTweaks.GunMags
                     break;
 
                     // TODO(Clonk): Do episode weapons later...
-                //case eWeaponType.WEAPON_EPISODIC_1:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_2:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_3:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_4:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_5:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_6:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_7:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_8:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_9:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_10:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_11:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_12:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_13:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_14:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_15:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_16:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_17:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_18:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_19:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_20:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_21:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_22:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_23:
-                //    break;
-                //case eWeaponType.WEAPON_EPISODIC_24:
-                //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_1:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_2:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_3:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_4:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_5:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_6:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_7:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_8:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_9:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_10:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_11:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_12:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_13:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_14:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_15:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_16:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_17:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_18:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_19:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_20:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_21:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_22:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_23:
+                    //    break;
+                    //case eWeaponType.WEAPON_EPISODIC_24:
+                    //    break;
             }
         }
-        
+
     }
 }

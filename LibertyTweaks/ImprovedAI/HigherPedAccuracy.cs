@@ -24,7 +24,6 @@ namespace LibertyTweaks
             if (!enableFix)
                 return;
 
-            //GET_CURRENT_BASIC_COP_MODEL(out uint copModel);
 
             // Grab all peds
             CPool pedPool = CPools.GetPedPool();
@@ -35,16 +34,8 @@ namespace LibertyTweaks
                 {
                     int pedHandle = (int)pedPool.GetIndex(ptr);
 
-                    //GET_CHAR_MODEL(pedHandle, out uint pedModel);
-
                     SET_CHAR_ACCURACY(pedHandle, (uint)pedAccuracy);
                     SET_CHAR_SHOOT_RATE(pedHandle, pedFirerate);
-
-                    //if (pedModel == copModel)
-                    //{
-                    //    SET_CHAR_ACCURACY(pedHandle, (uint)Main.GenerateRandomNumber(80, 100));
-                    //    SET_CHAR_SHOOT_RATE(pedHandle, Main.GenerateRandomNumber(95, 100));
-                    //}
                 }
             }
         }

@@ -12,7 +12,7 @@ using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo, ClonkAndre
 
-namespace LibertyTweaks.TweakableFOV
+namespace LibertyTweaks
 {
     internal class TweakableFOV
     {

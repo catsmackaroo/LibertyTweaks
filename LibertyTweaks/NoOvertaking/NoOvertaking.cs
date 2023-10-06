@@ -5,7 +5,7 @@ using static IVSDKDotNet.Native.Natives;
 
 // Credits: AssaultKifle47, catsmackaroo & ClonkAndre
 
-namespace LibertyTweaks.NoOvertaking
+namespace LibertyTweaks
 {
     internal class NoOvertaking
     {
