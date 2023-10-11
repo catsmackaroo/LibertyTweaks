@@ -28,6 +28,7 @@ namespace LibertyTweaks
         public int pedFirerate;
         private Keys quickSaveKey;
         private Keys holsterKey;
+        private DateTime timeUntilWantedLevel;
         #endregion
 
         #region Functions
@@ -75,6 +76,7 @@ namespace LibertyTweaks
             NoOvertaking.Init(Settings);
             IceCreamSpeechFix.Init(Settings);
             WheelFix.Init(Settings);
+            UnholsteredGunFix.Init(Settings);
 
                 // HOTKEYS & CONFIG
             quickSaveKey = Settings.GetKey("Hotkeys", "Quick Save Key", Keys.F9);
@@ -85,15 +87,9 @@ namespace LibertyTweaks
 
         }
 
-        // Below was removed as results were inconsistent. IV Tweaker is required for now
-        //private void Main_GameLoad(object sender, EventArgs e)
-        //{
-        //    WeaponMagazines.LoadFiles();
-        //}
-
         private void Main_ProcessCamera(object sender, EventArgs e)
         {
-            // Here we can override camera things like fov
+            // Here we can override camera things like FOV
             TweakableFOV.Tick(fovMulti);
         }
         private void Main_ProcessAutomobile(UIntPtr vehPtr)
@@ -115,6 +111,7 @@ namespace LibertyTweaks
             MoreCombatLines.Tick();
             SearchBody.Tick();
             VLikeScreaming.Tick();
+            UnholsteredGunFix.Tick();
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)
