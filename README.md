@@ -15,9 +15,9 @@ Created by [catsmackaroo](https://gtaforums.com/topic/988919-cats-toy-box/) & [I
 - All player weapons are removed upon death.
 - All AI has increased accuracy & firerates. 75% for both by default.
 - The player will speak more. Like in combat, when stealing items, or when falling.
-- You'll gain police stars when weapons are equipped.
-- You'll lose stars if you're unseen for a long duration.
-- Armored cops appear at 4 or more stars.
+- You'll gain police stars when weapons are equipped. (1.3 early access)
+- You'll lose stars if you're unseen for a long duration. (1.3 early access)
+- Armored cops appear at 4 or more stars. (1.3 early access)
 - Various fixes, such as: wheel fix & ice cream speech fix.
 
 # Media
