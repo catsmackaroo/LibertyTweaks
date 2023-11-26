@@ -18,6 +18,7 @@ Created by [catsmackaroo](https://gtaforums.com/topic/988919-cats-toy-box/) & [I
 - You'll gain police stars when weapons are equipped. (1.3 early access)
 - You'll lose stars if you're unseen for a long duration. (1.3 early access)
 - Armored cops appear at 4 or more stars. (1.3 early access)
+- When your health is red & blinking, you'll slowly regenerate health. (1.3 early access)
 - Various fixes, such as: wheel fix & ice cream speech fix.
 
 # Media
