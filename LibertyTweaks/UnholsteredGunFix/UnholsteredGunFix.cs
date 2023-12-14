@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 using CCL.GTAIV;
 
 using IVSDKDotNet;
-using IVSDKDotNet.Enums;
 using static IVSDKDotNet.Native.Natives;
 
 // Credit: catsmackaroo
@@ -32,7 +26,7 @@ namespace LibertyTweaks
             }
 
             // Grab player 
-            CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
+            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
 
             // Get current weapon
             GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out uint currentWeap);
@@ -44,7 +38,7 @@ namespace LibertyTweaks
                 if (!IS_CHAR_IN_ANY_CAR(playerPed.GetHandle())) 
                 {
                     // Grab all peds
-                    CPool pedPool = CPools.GetPedPool();
+                    IVPool pedPool = IVPools.GetPedPool();
                     for (int i = 0; i < pedPool.Count; i++)
                     {
                         UIntPtr ptr = pedPool.Get(i);
@@ -66,7 +60,7 @@ namespace LibertyTweaks
                                 GET_CHAR_COORDINATES(pedHandle, out Vector3 pedCoords);
 
                                 // Check distance between police & player
-                                if (Vector3.Distance(playerPed.Matrix.pos, pedCoords) < 15f)
+                                if (Vector3.Distance(playerPed.Matrix.Pos, pedCoords) < 10f)
                                 {
                                     // Grab player ID
                                     uint playerId = GET_PLAYER_ID();

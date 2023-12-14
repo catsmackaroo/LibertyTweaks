@@ -24,7 +24,7 @@ namespace LibertyTweaks
                 return;
 
             // Gets the player ped
-            CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
+            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
 
             // Checks if the player is trying to enter a locked car
             if (IS_CHAR_TRYING_TO_ENTER_A_LOCKED_CAR(playerPed.GetHandle()))

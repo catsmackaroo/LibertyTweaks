@@ -1,27 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-using IVSDKDotNet;
+﻿using IVSDKDotNet;
 
 using CCL.GTAIV;
 using IVSDKDotNet.Native;
-using static IVSDKDotNet.Native.Natives;
 using LibertyTweaks;
 
-// Speech IDs to utilize:
-// SHOOT, KILLED_ALL, STAY_DOWN, ATTACK_ANY_GANGSTER, CHASED, CRASH_GENERIC, GENERIC_CURSE, GENERIC_INSULT, HURRY_UP, IN_COVER_DODGE_BULLETS, JACKED_CAR
-// 
-// During specific scenarios:
-// IN CAR: TAXI_STEP_ON_IT, CAR_HIT_PED, CRASH_CAR, CRASH_GENERIC, HURRY_UP
-// NEAR CORPSES: SEARCH_BODY_TAKE_ITEM  
-// HIGH WANTED: ARRESTED, JACKED_CAR
-// HIT: FUCK_FALL
-
-namespace ImprovedDialogue.CombatVoices
+namespace LibertyTweaks
 {
     internal class MoreCombatLines
     {
@@ -39,8 +22,8 @@ namespace ImprovedDialogue.CombatVoices
             int playerId;
             bool pCombat;
 
-            CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
-            playerId = CPedExtensions.GetHandle(playerPed);
+            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
+            playerId = IVPedExtensions.GetHandle(playerPed);
 
             pCombat = Natives.IS_CHAR_SHOOTING(playerPed.GetHandle());
             if (pCombat == true)

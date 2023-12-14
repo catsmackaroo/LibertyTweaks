@@ -27,7 +27,7 @@ namespace LibertyTweaks
                 return;
 
             // Get the player ped
-            CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
+            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
 
             // If the player was atleast once in a vehicle we allow the actual wheel fix code to be executed to prevent the error
             if (playerPed.GetVehicle() != null)
@@ -49,14 +49,14 @@ namespace LibertyTweaks
                 return;
 
             // Find the player ped pointer
-            UIntPtr plyPtr = CPlayerInfo.FindPlayerPed();
+            UIntPtr plyPtr = IVPlayerInfo.FindThePlayerPed();
 
             // Check if the pointer is not empty
             if (plyPtr == UIntPtr.Zero)
                 return;
 
             // Get the player ped from the pointer above
-            CPed playerPed = CPed.FromPointer(plyPtr);
+            IVPed playerPed = IVPed.FromUIntPtr(plyPtr);
 
             // If player is dead then reset values
             if (playerPed.Dead)
@@ -67,7 +67,7 @@ namespace LibertyTweaks
             }
 
             // Get the last/current vehicle of the player ped
-            CVehicle veh = playerPed.Vehicle;
+            IVVehicle veh = IVVehicle.FromUIntPtr(playerPed.Vehicle);
  
             // Check if the veh is null
             if (veh is null)
@@ -77,7 +77,7 @@ namespace LibertyTweaks
             if (vehPtr == veh.GetUIntPtr())
             {
                 // If the driver of the veh is the player ped
-                if (veh.Driver == playerPed.GetUIntPtr())
+                if (veh.Driver.GetUIntPtr() == playerPed.GetUIntPtr())
                 {
                     // If player pressed the EnterCar key we will store the last "SteerActual" value so when player is no longer in vehicle it will be applied
                     if (NativeControls.IsGameKeyPressed(0, GameKey.EnterCar))
@@ -98,7 +98,7 @@ namespace LibertyTweaks
                 else
                 {
                     // If there is no driver in the veh then we set the new steering value we stored before
-                    if (veh.Driver == UIntPtr.Zero)
+                    if (veh.Driver == null)
                     {
                         veh.SteerActual = newWheelValue;
                         canChangeWheelValue = true;

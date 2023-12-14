@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Numerics;
 
 using IVSDKDotNet;
 
 using CCL.GTAIV;
-using IVSDKDotNet.Native;
 using static IVSDKDotNet.Native.Natives;
 
-namespace CorpseThief.SearchBody
+namespace LibertyTweaks
 {
     internal class SearchBody
     {
@@ -30,12 +24,12 @@ namespace CorpseThief.SearchBody
             if (!enableFix)
                 return;
 
-            // Grab the player CPed, then the player handle (ID)
-            CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
-            Vector3 playerGroundPos = NativeWorld.GetGroundPosition(playerPed.Matrix.pos);
+            // Grab the player IVPed, then the player handle (ID)
+            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
+            Vector3 playerGroundPos = NativeWorld.GetGroundPosition(playerPed.Matrix.Pos);
 
             // Grab all peds in world (looped) then grab ped ID
-            CPool pedPool = CPools.GetPedPool();
+            IVPool pedPool = IVPools.GetPedPool();
             for (int i = 0; i < pedPool.Count; i++)
             {
                 UIntPtr ptr = pedPool.Get(i);
@@ -51,7 +45,7 @@ namespace CorpseThief.SearchBody
                         GET_CHAR_COORDINATES(pedHandle, out Vector3 pedCoords);
 
                         // Check distance between the player and the ped
-                        if (Vector3.Distance(playerPed.Matrix.pos, pedCoords) < 2f)
+                        if (Vector3.Distance(playerPed.Matrix.Pos, pedCoords) < 2f)
                         {
                             if (NativePickup.IsAnyPickupAtPos(playerGroundPos))
                             {

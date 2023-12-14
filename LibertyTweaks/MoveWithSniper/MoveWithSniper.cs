@@ -23,8 +23,8 @@ namespace LibertyTweaks
             if (!enableFix)
                 return;
 
-            CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
-            playerId = CPedExtensions.GetHandle(playerPed);
+            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
+            playerId = IVPedExtensions.GetHandle(playerPed);
             GET_CURRENT_CHAR_WEAPON(playerId, out currentWeapon);
 
             if (currentWeapon == (int)IVSDKDotNet.Enums.eWeaponType.WEAPON_M40A1 
@@ -33,11 +33,11 @@ namespace LibertyTweaks
             {
                 if (NativeControls.IsGameKeyPressed(0, GameKey.Aim))
                 {
-                    CWeaponInfo.GetWeaponInfo(currentWeapon).Slot = 16;
+                    IVWeaponInfo.GetWeaponInfo(currentWeapon).WeaponSlot = 16;
                 }
-                else if (!NativeControls.IsGameKeyPressed(0, GameKey.Aim))
+                else
                 {
-                    CWeaponInfo.GetWeaponInfo(currentWeapon).Slot = 6;
+                    IVWeaponInfo.GetWeaponInfo(currentWeapon).WeaponSlot = 6;
                 }
             }
         }

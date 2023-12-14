@@ -11,7 +11,7 @@ using static IVSDKDotNet.Native.Natives;
 
 // Credits: ClonkAndre
 
-namespace LibertyTweaks.GunMags
+namespace LibertyTweaks
 {
     internal class WeaponMagazines
     {
@@ -67,7 +67,7 @@ namespace LibertyTweaks.GunMags
         }
 
         // Clonk: Quite alot of duplicated code in those methods, maybe make the animation time check code universal
-        private static void ProcessHandgunReloading(CPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
+        private static void ProcessHandgunReloading(IVPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
             if (!enableFix)
                 return;
@@ -89,7 +89,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj1 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.Pos, out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -103,7 +103,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj2 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.Pos, out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -112,7 +112,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj2 != 0)
                     {
-                        CPools.DeleteObject(magObj2);
+                        DELETE_OBJECT(ref magObj2);
                         magObj2 = 0;
                     }
                     magObj1 = 0;
@@ -123,7 +123,7 @@ namespace LibertyTweaks.GunMags
                 isAnyGunReloadingAnimPlaying = false;
             }
         }
-        private static void ProcessShotgunReloading(CPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
+        private static void ProcessShotgunReloading(IVPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
             if (!enableFix)
                 return;
@@ -144,7 +144,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj1 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("cj_ld_poolball_3"), playerPed.Matrix.pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("cj_ld_poolball_3"), playerPed.Matrix.Pos, out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.09f, 0.04f, 0f, 0f, 0f, 0f, 0);
                     }
@@ -153,7 +153,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj1 != 0)
                     {
-                        CPools.DeleteObject(magObj1);
+                        DELETE_OBJECT(ref magObj1);
                         magObj1 = 0;
                     }
                 }
@@ -161,7 +161,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj2 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("cj_ld_poolball_3"), playerPed.Matrix.pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("cj_ld_poolball_3"), playerPed.Matrix.Pos, out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.09f, 0.04f, 0f, 0f, 0f, 0f, 0);
                     }
@@ -170,7 +170,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj2 != 0)
                     {
-                        CPools.DeleteObject(magObj2);
+                        DELETE_OBJECT(ref magObj2);
                         magObj2 = 0;
                     }
                 }
@@ -180,7 +180,7 @@ namespace LibertyTweaks.GunMags
                 isAnyGunReloadingAnimPlaying = false;
             }
         }
-        private static void ProcessUziReloading(CPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
+        private static void ProcessUziReloading(IVPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
             if (!enableFix)
                 return;
@@ -201,7 +201,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj1 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.Pos, out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -215,7 +215,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj2 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.Pos, out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -224,7 +224,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj2 != 0)
                     {
-                        CPools.DeleteObject(magObj2);
+                        DELETE_OBJECT(ref magObj2);
                         magObj2 = 0;
                     }
                     magObj1 = 0;
@@ -235,7 +235,7 @@ namespace LibertyTweaks.GunMags
                 isAnyGunReloadingAnimPlaying = false;
             }
         }
-        private static void ProcessAssaultRifleReloading(CPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
+        private static void ProcessAssaultRifleReloading(IVPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
             if (!enableFix)
                 return;
@@ -253,7 +253,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj1 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.Pos, out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -267,7 +267,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj2 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.Pos, out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -276,7 +276,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj2 != 0)
                     {
-                        CPools.DeleteObject(magObj2);
+                        DELETE_OBJECT(ref magObj2);
                         magObj2 = 0;
                     }
                     magObj1 = 0;
@@ -287,7 +287,7 @@ namespace LibertyTweaks.GunMags
                 isAnyGunReloadingAnimPlaying = false;
             }
         }
-        private static void ProcessRifleReloading(CPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
+        private static void ProcessRifleReloading(IVPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
             if (!enableFix)
                 return;
@@ -308,7 +308,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj1 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.Pos, out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -322,7 +322,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj2 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), playerPed.Matrix.Pos, out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -331,7 +331,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj2 != 0)
                     {
-                        CPools.DeleteObject(magObj2);
+                        DELETE_OBJECT(ref magObj2);
                         magObj2 = 0;
                     }
                     magObj1 = 0;
@@ -342,7 +342,7 @@ namespace LibertyTweaks.GunMags
                 isAnyGunReloadingAnimPlaying = false;
             }
         }
-        private static void ProcessRPGReloading(CPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
+        private static void ProcessRPGReloading(IVPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
             if (!enableFix)
                 return;
@@ -359,7 +359,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj1 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("cj_rpg_rocket"), playerPed.Matrix.pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("cj_rpg_rocket"), playerPed.Matrix.Pos, out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.13f, 0.02f, 0.1f, 1.5f, 0f, 0f, 0);
                     }
@@ -368,8 +368,7 @@ namespace LibertyTweaks.GunMags
                 {
                     if (magObj1 != 0)
                     {
-                        CPools.DeleteObject(magObj1);
-                        magObj1 = 0;
+                        DELETE_OBJECT(ref magObj1);
                     }
                 }
             }
@@ -378,13 +377,11 @@ namespace LibertyTweaks.GunMags
                 isAnyGunReloadingAnimPlaying = false;
             }
         }
-
-        // Below was removed as results were inconsistent. IV Tweaker is required for now
-        //public static void LoadFiles()
-        //{
-        //    CdStream.CdStreamAddImage("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.img", 1, -1);
-        //    CFileLoader.LoadLevel("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.dat", 0);
-        //}
+        public static void LoadFiles()
+        {
+            IVCDStream.AddImage("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.img", 1, -1);
+            IVFileLoader.LoadLevel("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.dat", 0);
+        }
 
         public static void Tick()
         {
@@ -396,7 +393,7 @@ namespace LibertyTweaks.GunMags
                 return;
 
             // Gets the player ped
-            CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
+            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
 
             // Gets the handle of the player ped
             int playerPedHandle = playerPed.GetHandle();

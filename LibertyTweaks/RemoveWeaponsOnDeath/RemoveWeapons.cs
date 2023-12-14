@@ -20,7 +20,7 @@ namespace LibertyTweaks
             if (!enableFix)
                 return;
 
-            CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
+            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
 
             if (IS_CHAR_DEAD(playerPed.GetHandle()))
                 REMOVE_ALL_CHAR_WEAPONS(playerPed.GetHandle()); 

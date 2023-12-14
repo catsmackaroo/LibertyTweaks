@@ -1,12 +1,8 @@
-﻿using System;
-
-using CCL.GTAIV;
-
+﻿using CCL.GTAIV;
 using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
-// todo: Disable when in car
 
 namespace LibertyTweaks
 {
@@ -16,11 +12,10 @@ namespace LibertyTweaks
         private static uint currentWeapon;
         private static uint lastWeapon;
         private static bool enableFix;
-        private static uint lastWeaponSlot;
 
-        public static void Init(SettingsFile settings)
+        public static void Init(SettingsFile Settings)
         {
-            enableFix = settings.GetBoolean("Main", "Weapon Holstering", true);
+            enableFix = Settings.GetBoolean("Main", "Weapon Holstering", true);
         }
 
         public static void Process() 
@@ -28,10 +23,9 @@ namespace LibertyTweaks
             if (!enableFix)
                 return;
 
-            CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
-            playerId = CPedExtensions.GetHandle(playerPed);
+            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
+            playerId = IVPedExtensions.GetHandle(playerPed);
             GET_CURRENT_CHAR_WEAPON(playerId, out currentWeapon);
-            lastWeaponSlot = CWeaponInfo.GetWeaponInfo(lastWeapon).Slot;
 
             if (!IS_CHAR_IN_ANY_CAR(playerId))
             {

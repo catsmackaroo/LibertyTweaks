@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Numerics;
-
-using CCL.GTAIV;
 
 using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
@@ -26,7 +23,7 @@ namespace LibertyTweaks
 
 
             // Grab all peds
-            CPool pedPool = CPools.GetPedPool();
+            IVPool pedPool = IVPools.GetPedPool();
             for (int i = 0; i < pedPool.Count; i++)
             {
                 UIntPtr ptr = pedPool.Get(i);

@@ -1,4 +1,6 @@
-﻿using CCL.GTAIV;
+﻿using System;
+
+using CCL.GTAIV;
 
 using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
@@ -23,10 +25,11 @@ namespace LibertyTweaks
                 return;
 
             // Gets the player ped
-            CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
+            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
+            int playerId = playerPed.GetHandle();
 
             // Gets the current vehicle of the player
-            CVehicle playerVehicle = playerPed.GetVehicle();
+            IVVehicle playerVehicle = IVVehicle.FromUIntPtr(playerPed.GetVehicle());
 
             if (playerVehicle != null)
             {

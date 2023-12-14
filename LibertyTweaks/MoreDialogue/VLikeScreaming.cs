@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-using IVSDKDotNet;
+﻿using IVSDKDotNet;
 
 using CCL.GTAIV;
-using IVSDKDotNet.Native;
 using static IVSDKDotNet.Native.Natives;
 
 
-namespace FallScreaming.VLikeScreaming
+namespace LibertyTweaks
 {
     internal class VLikeScreaming
     {
@@ -28,10 +20,10 @@ namespace FallScreaming.VLikeScreaming
             float heightAboveGround;
             int playerId;
 
-            CPed playerPed = CPed.FromPointer(CPlayerInfo.FindPlayerPed());
+            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
 
-            playerId = CPedExtensions.GetHandle(playerPed);
-            heightAboveGround = CPedExtensions.GetHeightAboveGround(playerPed);
+            playerId = IVPedExtensions.GetHandle(playerPed);
+            heightAboveGround = IVPedExtensions.GetHeightAboveGround(playerPed);
 
             if (heightAboveGround > 6)
             {

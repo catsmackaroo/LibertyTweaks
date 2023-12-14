@@ -1,19 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-using CorpseThief.SearchBody;
-using FallScreaming.VLikeScreaming;
-using ImprovedDialogue.CombatVoices;
 using IVSDKDotNet;
-using LibertyTweaks.GunMags;
-using LibertyTweaks.QuickSaveFunc;
-
-// DONE:
-// HolsterWeapons
-// NoOvertaking
-// WheelFix
-// QuickSave
-
-// todo: C Smack - Death Blips, RealisticReloading, Weapon Variety, Auto Run, TrainFix, PersonalVehicle/Mechanic, & Fix Holster for MoveWithSniper
 
 namespace LibertyTweaks
 {
@@ -26,9 +13,17 @@ namespace LibertyTweaks
         public float fovMulti;
         public int pedAccuracy;
         public int pedFirerate;
+        public int armoredCopsStars;
+        public int unseenSlipAwayMinTimer;
+        public int unseenSlipAwayMaxTimer;
+        public int regenHealthMinTimer;
+        public int regenHealthMaxTimer;
+        public int regenHealthMinHeal;
+        public int regenHealthMaxHeal;
+        public DateTime timer;
         private Keys quickSaveKey;
         private Keys holsterKey;
-        private DateTime timeUntilWantedLevel;
+        private Keys toggleHudKey;
         #endregion
 
         #region Functions
@@ -41,18 +36,20 @@ namespace LibertyTweaks
         #region Constructor
         public Main() 
         {
-            // Mod stuff
             rnd = new Random();
 
-            // IV-SDK .NET Stuff
             Initialized += Main_Initialized;
             Tick += Main_Tick;
             KeyDown += Main_KeyDown;
             ProcessAutomobile += Main_ProcessAutomobile;
             ProcessCamera += Main_ProcessCamera;
 
-            // Below was removed as results were inconsistent. IV Tweaker is required for now
-            //  GameLoad += Main_GameLoad;
+            GameLoad += Main_GameLoad;
+        }
+
+        private void Main_GameLoad(object sender, EventArgs e)
+        {
+            WeaponMagazines.LoadFiles();
         }
         #endregion
 
@@ -71,6 +68,13 @@ namespace LibertyTweaks
             MoreCombatLines.Init(Settings);
             SearchBody.Init(Settings);
             VLikeScreaming.Init(Settings);
+            ArmoredCops.Init(Settings);
+            UnseenSlipAway.Init(Settings);
+            RegenerateHP.Init(Settings);
+            ToggleHUD.Init(Settings);
+            //StunPunch.Init(Settings);
+            CarFireBreakdown.Init(Settings);
+            //DeathBlips.Init(Settings);
 
                 // FIXES
             NoOvertaking.Init(Settings);
@@ -81,20 +85,25 @@ namespace LibertyTweaks
                 // HOTKEYS & CONFIG
             quickSaveKey = Settings.GetKey("Hotkeys", "Quick Save Key", Keys.F9);
             holsterKey = Settings.GetKey("Hotkeys", "Holster Key", Keys.H);
-            fovMulti = Settings.GetFloat("Settings", "Field of View Modifier", 1.07f);
-            pedAccuracy = Settings.GetInteger("Settings", "Ped Accuracy", 85);
-            pedFirerate = Settings.GetInteger("Settings", "Ped Firerate", 85);
-
+            fovMulti = Settings.GetFloat("Main", "Field of View Modifier", 1.07f);
+            pedAccuracy = Settings.GetInteger("Main", "Ped Accuracy", 85);
+            pedFirerate = Settings.GetInteger("Main", "Ped Firerate", 85);
+            armoredCopsStars = Settings.GetInteger("Main", "Armored Cops Start At", 4);
+            unseenSlipAwayMinTimer = Settings.GetInteger("Main", "Lose Stars While Unseen Minimum Count", 60);
+            unseenSlipAwayMaxTimer = Settings.GetInteger("Main", "Lose Stars While Unseen Maximum Count", 120);
+            regenHealthMinTimer = Settings.GetInteger("Main", "Regen Timer Minimum", 30);
+            regenHealthMaxTimer = Settings.GetInteger("Main", "Regen Timer Maximum", 60);
+            regenHealthMinHeal = Settings.GetInteger("Main", "Minimum Heal Amount", 5);
+            regenHealthMaxHeal = Settings.GetInteger("Main", "Maximum Heal Amount", 10);
+            toggleHudKey = Settings.GetKey("Hotkeys", "Toggle HUD Key", Keys.K);
         }
 
         private void Main_ProcessCamera(object sender, EventArgs e)
         {
-            // Here we can override camera things like FOV
             TweakableFOV.Tick(fovMulti);
         }
         private void Main_ProcessAutomobile(UIntPtr vehPtr)
         {
-            // Here we can override vehicle things like steering
             WheelFix.Process(vehPtr);
         }
 
@@ -112,10 +121,22 @@ namespace LibertyTweaks
             SearchBody.Tick();
             VLikeScreaming.Tick();
             UnholsteredGunFix.Tick();
+            ArmoredCops.Tick(armoredCopsStars);
+            UnseenSlipAway.Tick(timer, unseenSlipAwayMinTimer, unseenSlipAwayMaxTimer);
+            RegenerateHP.Tick(timer, regenHealthMinTimer, regenHealthMaxTimer, regenHealthMinHeal, regenHealthMaxHeal);
+            //StunPunch.Tick();
+            CarFireBreakdown.Tick();
+            //DeathBlips.Tick();
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)
         {
+
+            if (e.KeyCode == toggleHudKey)
+            {
+                ToggleHUD.Process();
+            }
+
             if (e.KeyCode == quickSaveKey)
             {
                 QuickSave.Process();
@@ -125,7 +146,11 @@ namespace LibertyTweaks
             {
                 HolsterWeapons.Process();
             }
-        }
 
+            //if (e.KeyCode == Keys.LButton)
+            //{
+            //    StunPunch.Process();
+            //}
+        }
     }
 }
