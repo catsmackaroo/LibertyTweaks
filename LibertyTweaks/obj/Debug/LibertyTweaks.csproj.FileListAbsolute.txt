@@ -7,3 +7,10 @@ C:\catsmackaroo\Modding\LibertyTweaks\LibertyTweaks\obj\Debug\LibertyTweaks.ivsd
 C:\catsmackaroo\Modding\LibertyTweaks\LibertyTweaks\obj\Debug\LibertyTweaks.ivsdk.pdb
 C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll
 C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.pdb
+C:\catsmackaroo\Modding\LibertyTweaks\Git\LibertyTweaks\LibertyTweaks\obj\Debug\LibertyTweaks.csproj.AssemblyReference.cache
+C:\catsmackaroo\Modding\LibertyTweaks\Git\LibertyTweaks\LibertyTweaks\obj\Debug\LibertyTweaks.csproj.CoreCompileInputs.cache
+C:\catsmackaroo\Modding\LibertyTweaks\Git\LibertyTweaks\LibertyTweaks\obj\Debug\LibertyTweaks.ivsdk.dll
+C:\catsmackaroo\Modding\LibertyTweaks\Git\LibertyTweaks\LibertyTweaks\obj\Debug\LibertyTweaks.ivsdk.pdb
+C:\catsmackaroo\Modding\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll
+C:\catsmackaroo\Modding\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.pdb
+C:\catsmackaroo\Modding\LibertyTweaks\Git\LibertyTweaks\LibertyTweaks\obj\Debug\LibertyTweaks.csproj.CopyComplete

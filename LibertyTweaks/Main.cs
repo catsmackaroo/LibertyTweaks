@@ -9,7 +9,6 @@ namespace LibertyTweaks
 
         #region Variables
         private static Random rnd; 
-
         public float fovMulti;
         public int pedAccuracy;
         public int pedFirerate;
@@ -31,6 +30,7 @@ namespace LibertyTweaks
         {
             return rnd.Next(x, y);
         }
+
         #endregion
 
         #region Constructor
@@ -50,6 +50,7 @@ namespace LibertyTweaks
         private void Main_GameLoad(object sender, EventArgs e)
         {
             WeaponMagazines.LoadFiles();
+            //QuickSave.Spawn();
         }
         #endregion
 
@@ -63,7 +64,7 @@ namespace LibertyTweaks
             MoveWithSniper.Init(Settings);
             RemoveWeapons.Init(Settings);
             TweakableFOV.Init(Settings);
-            QuickSave.Init(Settings);
+            //QuickSave.Init(Settings);
             BrakeLights.Init(Settings);
             MoreCombatLines.Init(Settings);
             SearchBody.Init(Settings);
@@ -72,11 +73,13 @@ namespace LibertyTweaks
             UnseenSlipAway.Init(Settings);
             RegenerateHP.Init(Settings);
             ToggleHUD.Init(Settings);
+            Recoil.Init(Settings);
             //StunPunch.Init(Settings);
             CarFireBreakdown.Init(Settings);
+            RealisticReloading.Init(Settings);
             //DeathBlips.Init(Settings);
 
-                // FIXES
+            // FIXES
             NoOvertaking.Init(Settings);
             IceCreamSpeechFix.Init(Settings);
             WheelFix.Init(Settings);
@@ -124,8 +127,10 @@ namespace LibertyTweaks
             ArmoredCops.Tick(armoredCopsStars);
             UnseenSlipAway.Tick(timer, unseenSlipAwayMinTimer, unseenSlipAwayMaxTimer);
             RegenerateHP.Tick(timer, regenHealthMinTimer, regenHealthMaxTimer, regenHealthMinHeal, regenHealthMaxHeal);
-            //StunPunch.Tick();
             CarFireBreakdown.Tick();
+            Recoil.Tick();
+            RealisticReloading.Tick();
+            //StunPunch.Tick();
             //DeathBlips.Tick();
         }
 

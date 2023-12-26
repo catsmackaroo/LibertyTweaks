@@ -2,21 +2,20 @@
 
 using CCL.GTAIV;
 using IVSDKDotNet.Native;
-using LibertyTweaks;
 
 namespace LibertyTweaks
 {
     internal class MoreCombatLines
     {
 
-        private static bool enableFix;
+        private static bool enable;
         public static void Init(SettingsFile settings)
         {
-            enableFix = settings.GetBoolean("More Dialogue", "Combat", true);
+            enable = settings.GetBoolean("More Dialogue", "Combat", true);
         }
         public static void Tick()
         {
-            if (!enableFix)
+            if (!enable)
                 return;
 
             int playerId;
