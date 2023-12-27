@@ -3,7 +3,7 @@
 using IVSDKDotNet;
 using IVSDKDotNet.Native;
 using LibertyTweaks;
-using System;
+using System.Numerics;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
@@ -12,18 +12,59 @@ namespace LibertyTweaks
 {
     internal class QuickSave
     {
-        private static bool enableFix;
+        private static bool enable;
+        private static bool saveLocation;
         private static bool quickOrSelected;
+        private static bool firstFrame = true;
 
-        public void Init(SettingsFile settings, CustomIVSave saveGame)
+        public static void Init(SettingsFile settings)
         {
-            enableFix = settings.GetBoolean("Quick-Saving", "Enable", true);
+            enable = settings.GetBoolean("Quick-Saving", "Enable", true);
+            saveLocation = settings.GetBoolean("Quick-Saving", "Save Location", true);
             quickOrSelected = settings.GetBoolean("Quick-Saving", "Select Saves", true);
+        }
+
+        public static void Tick()
+        {
+            if (!enable)
+                return;
+
+            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
+
+            // Only teleport player on very first frame
+            if (firstFrame)
+            {
+                // Teleport player to last saved position if there is a last saved position
+                Vector3 lastSavedPosition = Main.GetTheSaveGame().GetVector3("LastPosition");
+
+                if (lastSavedPosition != Vector3.Zero)
+                    playerPed.Teleport(lastSavedPosition, false, true);
+
+                firstFrame = false;
+            }
+
+            // Save last player position if game is saving
+            if (Main.GetTheSaveGame().IsGameSaving())
+            {
+                Main.GetTheSaveGame().SetVector3("LastPosition", playerPed.Matrix.Pos);
+                Main.GetTheSaveGame().Save();
+            }
+        }
+
+        public static void IngameStartup()
+        {
+            if (!enable)
+                return;
+
+            if (!saveLocation)
+                return;
+
+            firstFrame = true;
         }
 
         public static void Process()
         {
-            if (!enableFix)
+            if (!enable)
                 return;
 
             int playerId;
@@ -49,7 +90,10 @@ namespace LibertyTweaks
                     }
                     else
                     {
-                        NativeGame.DoAutoSave();
+                        if (!IS_CHAR_IN_ANY_CAR((int)playerId))
+                        {
+                            NativeGame.DoAutoSave();
+                        }
                     }
                 }
                 else
@@ -59,12 +103,4 @@ namespace LibertyTweaks
             }
         }
     }
-        //public static void Spawn()
-        //{
-        //    if (saveName == IVGenericGameStorage.ValidSaveName)
-        //    {
-
-        //    }
-        //}
-        //}
-    }
+}

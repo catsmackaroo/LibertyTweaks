@@ -23,6 +23,9 @@ namespace LibertyTweaks
         private Keys quickSaveKey;
         private Keys holsterKey;
         private Keys toggleHudKey;
+        public Keys positiveTalkKey;
+        public Keys negativeTalkKey;
+        private static CustomIVSave saveGame;
         #endregion
 
         #region Functions
@@ -30,7 +33,10 @@ namespace LibertyTweaks
         {
             return rnd.Next(x, y);
         }
-
+        internal static CustomIVSave GetTheSaveGame()
+        {
+            return saveGame;
+        }
         #endregion
 
         #region Constructor
@@ -43,6 +49,7 @@ namespace LibertyTweaks
             KeyDown += Main_KeyDown;
             ProcessAutomobile += Main_ProcessAutomobile;
             ProcessCamera += Main_ProcessCamera;
+            IngameStartup += Main_IngameStartup;
 
             GameLoad += Main_GameLoad;
         }
@@ -54,6 +61,11 @@ namespace LibertyTweaks
         }
         #endregion
 
+        private void Main_IngameStartup(object sender, EventArgs e)
+        {
+            QuickSave.IngameStartup();
+        }
+
         private void Main_Initialized(object sender, EventArgs e)
         {
             // Check .INI
@@ -64,7 +76,7 @@ namespace LibertyTweaks
             MoveWithSniper.Init(Settings);
             RemoveWeapons.Init(Settings);
             TweakableFOV.Init(Settings);
-            //QuickSave.Init(Settings);
+            QuickSave.Init(Settings);
             BrakeLights.Init(Settings);
             MoreCombatLines.Init(Settings);
             SearchBody.Init(Settings);
@@ -74,9 +86,10 @@ namespace LibertyTweaks
             RegenerateHP.Init(Settings);
             ToggleHUD.Init(Settings);
             Recoil.Init(Settings);
-            //StunPunch.Init(Settings);
             CarFireBreakdown.Init(Settings);
             RealisticReloading.Init(Settings);
+            //InteractiveNPCs.Init(Settings);
+            //StunPunch.Init(Settings);
             //DeathBlips.Init(Settings);
 
             // FIXES
@@ -85,7 +98,10 @@ namespace LibertyTweaks
             WheelFix.Init(Settings);
             UnholsteredGunFix.Init(Settings);
 
-                // HOTKEYS & CONFIG
+            // SAVE
+            saveGame = CustomIVSave.CreateOrLoadSaveGameData(this);
+
+            // HOTKEYS & CONFIG
             quickSaveKey = Settings.GetKey("Quick-Saving", "Key", Keys.F9);
             holsterKey = Settings.GetKey("Weapon Holstering", "Key", Keys.H);
             fovMulti = Settings.GetFloat("Tweakable FOV", "Multiplier", 1.07f);
@@ -99,12 +115,15 @@ namespace LibertyTweaks
             regenHealthMinHeal = Settings.GetInteger("Health Regeneration", "Minimum Heal Amount", 5);
             regenHealthMaxHeal = Settings.GetInteger("Health Regeneration", "Maximum Heal Amount", 10);
             toggleHudKey = Settings.GetKey("Toggle HUD", "Key", Keys.K);
+            //positiveTalkKey = Settings.GetKey("Interactive NPCs", "Positive Speech", Keys.Y);
+            //negativeTalkKey = Settings.GetKey("Interactive NPCs", "Positive Speech", Keys.N);
         }
 
         private void Main_ProcessCamera(object sender, EventArgs e)
         {
             TweakableFOV.Tick(fovMulti);
         }
+
         private void Main_ProcessAutomobile(UIntPtr vehPtr)
         {
             WheelFix.Process(vehPtr);
@@ -130,6 +149,7 @@ namespace LibertyTweaks
             CarFireBreakdown.Tick();
             Recoil.Tick();
             RealisticReloading.Tick();
+            QuickSave.Tick();
             //StunPunch.Tick();
             //DeathBlips.Tick();
         }
@@ -152,9 +172,14 @@ namespace LibertyTweaks
                 HolsterWeapons.Process();
             }
 
-            //if (e.KeyCode == Keys.LButton)
+            //if (e.KeyCode == positiveTalkKey)
             //{
-            //    StunPunch.Process();
+            //    InteractiveNPCs.ProcessPositive();
+            //}
+
+            //if (e.KeyCode == negativeTalkKey)
+            //{
+            //    InteractiveNPCs.ProcessNegative();
             //}
         }
     }
