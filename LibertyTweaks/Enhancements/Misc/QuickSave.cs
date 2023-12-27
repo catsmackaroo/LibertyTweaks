@@ -6,7 +6,7 @@ using LibertyTweaks;
 using System.Numerics;
 using static IVSDKDotNet.Native.Natives;
 
-// Credits: catsmackaroo
+// Credits: catsmackaroo & ItsClonkAndre
 
 namespace LibertyTweaks
 {
@@ -34,6 +34,8 @@ namespace LibertyTweaks
             // Only teleport player on very first frame
             if (firstFrame)
             {
+                DO_SCREEN_FADE_IN(10000);
+
                 // Teleport player to last saved position if there is a last saved position
                 Vector3 lastSavedPosition = Main.GetTheSaveGame().GetVector3("LastPosition");
 
@@ -90,10 +92,8 @@ namespace LibertyTweaks
                     }
                     else
                     {
-                        if (!IS_CHAR_IN_ANY_CAR((int)playerId))
-                        {
-                            NativeGame.DoAutoSave();
-                        }
+
+                        NativeGame.DoAutoSave();
                     }
                 }
                 else

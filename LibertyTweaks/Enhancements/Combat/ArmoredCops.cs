@@ -81,6 +81,10 @@ namespace LibertyTweaks
                     if (currentWantedLevel < armoredCopsStars)
                         continue;
 
+                    // Check for FatCop, FIB, & SWAT
+                    if (pedModel == 3924571768 || pedModel == 3295460374 || pedModel == 3290204350)
+                        continue;
+
                     // Finally adds armor to the policia
                     ADD_ARMOUR_TO_CHAR(pedHandle, 100);
                     copsHadArmor.Add(pedHandle);

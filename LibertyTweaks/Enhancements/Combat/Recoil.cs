@@ -43,11 +43,11 @@ namespace LibertyTweaks
                     cam.Shake(CameraShakeType.TRACK_LEFT_RIGHT, CameraShakeBehaviour.MEDIUM_FAST_EXPONENTIAL_PLUS_FADE_IN_OUT, 160, 0.2f, 0.11f, 0f);
                 }
 
-                if (currentWeapon == (int)eWeaponType.WEAPON_RLAUNCHER)
-                {
-                    cam.Shake(CameraShakeType.PITCH_UP_DOWN, CameraShakeBehaviour.CONSTANT_PLUS_FADE_IN_OUT, 300, GENERATE_RANDOM_FLOAT_IN_RANGE(0.6f, 0.8f), 0.2f, 0f);
-                    cam.Shake(CameraShakeType.TRACK_LEFT_RIGHT, CameraShakeBehaviour.MEDIUM_FAST_EXPONENTIAL_PLUS_FADE_IN_OUT, 260, 0.5f, 0.6f, 0f);
-                }
+                //if (currentWeapon == (int)eWeaponType.WEAPON_RLAUNCHER)
+                //{
+                //    cam.Shake(CameraShakeType.PITCH_UP_DOWN, CameraShakeBehaviour.CONSTANT_PLUS_FADE_IN_OUT, 300, GENERATE_RANDOM_FLOAT_IN_RANGE(0.6f, 0.8f), 0.2f, 0f);
+                //    cam.Shake(CameraShakeType.TRACK_LEFT_RIGHT, CameraShakeBehaviour.MEDIUM_FAST_EXPONENTIAL_PLUS_FADE_IN_OUT, 260, 0.5f, 0.6f, 0f);
+                //}
 
                 if (currentWeapon == (int)eWeaponType.WEAPON_SHOTGUN || currentWeapon == (int)eWeaponType.WEAPON_BARETTA
                     || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_11 || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_10
