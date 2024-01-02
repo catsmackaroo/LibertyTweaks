@@ -19,7 +19,7 @@ This page hosts the source code. Requires: [IV SDK .NET](https://github.com/Clon
 - Armored cops appear at 4 or more stars.
 - When your health is red & blinking, you'll slowly regenerate health. 
 - Various fixes, such as: wheel fix & ice cream speech fix.
-- Immersive weapon recoil (1.4 early access)
+- Immersive weapon recoil. (1.4 early access)
 
 # Media
 
