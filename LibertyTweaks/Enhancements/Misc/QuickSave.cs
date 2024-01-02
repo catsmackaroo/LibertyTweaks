@@ -16,6 +16,7 @@ namespace LibertyTweaks
         private static bool saveLocation;
         private static bool quickOrSelected;
         private static bool firstFrame = true;
+        private static Vector3 lastSavedPosition;
 
         public static void Init(SettingsFile settings)
         {
@@ -27,6 +28,12 @@ namespace LibertyTweaks
         public static void Tick()
         {
             if (!enable)
+                return;
+
+            if (!saveLocation)
+                return;
+
+            if (lastSavedPosition == null)
                 return;
 
             IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());

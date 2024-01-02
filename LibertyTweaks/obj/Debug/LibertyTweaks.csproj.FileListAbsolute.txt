@@ -14,3 +14,5 @@ C:\catsmackaroo\Modding\LibertyTweaks\Git\LibertyTweaks\LibertyTweaks\obj\Debug\
 C:\catsmackaroo\Modding\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll
 C:\catsmackaroo\Modding\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.pdb
 C:\catsmackaroo\Modding\LibertyTweaks\Git\LibertyTweaks\LibertyTweaks\obj\Debug\LibertyTweaks.csproj.CopyComplete
+C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV - LT\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll
+C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV - LT\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.pdb
