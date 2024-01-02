@@ -1,9 +1,8 @@
 ![](https://cdn.discordapp.com/attachments/734888920046764105/1119994948968796210/main.png)
 A highly configurable quality-of-life mod for Grand Theft Auto IV.
 
-This page hosts the source code. Requires: [IV SDK .NET](https://github.com/ClonkAndre/IV-SDK-DotNet), [IV Tweaker](https://gtaforums.com/topic/979531-iv-tweaker-modloader-limit-adjuster-for-gta-iv/), & [Clonk's Coding Library](https://github.com/ClonkAndre/ClonksCodingLib.GTAIV)
+This page hosts the source code. Requires: [IV SDK .NET](https://github.com/ClonkAndre/IV-SDK-DotNet) & [Clonk's Coding Library](https://github.com/ClonkAndre/ClonksCodingLib.GTAIV)
 
-Created by [catsmackaroo](https://gtaforums.com/topic/988919-cats-toy-box/) & [ItsClonkAndre](https://gtaforums.com/topic/988909-itsclonkandres-workshop/), with some external help from AssaultKifle47 as well as simply stalking old ScriptHook .NET code via [dotPeek](https://www.jetbrains.com/decompiler/).
 # Features
 - No more peds overtaking the player.
 - While on foot, you gain the ability to quick-save. F9 by default.
@@ -20,6 +19,7 @@ Created by [catsmackaroo](https://gtaforums.com/topic/988919-cats-toy-box/) & [I
 - Armored cops appear at 4 or more stars.
 - When your health is red & blinking, you'll slowly regenerate health. 
 - Various fixes, such as: wheel fix & ice cream speech fix.
+- Immersive weapon recoil (1.4 early access)
 
 # Media
 
