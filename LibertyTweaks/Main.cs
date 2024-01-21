@@ -4,11 +4,11 @@ using IVSDKDotNet;
 
 namespace LibertyTweaks
 {
-    public class Main : Script 
+    public class Main : Script
     {
 
         #region Variables
-        private static Random rnd; 
+        private static Random rnd;
 
         public float fovMulti;
         public int pedAccuracy;
@@ -34,7 +34,7 @@ namespace LibertyTweaks
         #endregion
 
         #region Constructor
-        public Main() 
+        public Main()
         {
             rnd = new Random();
 
@@ -64,6 +64,7 @@ namespace LibertyTweaks
             RemoveWeapons.Init(Settings);
             TweakableFOV.Init(Settings);
             QuickSave.Init(Settings);
+            AutosaveOnCollectibles.Init(Settings);
             BrakeLights.Init(Settings);
             MoreCombatLines.Init(Settings);
             SearchBody.Init(Settings);
@@ -124,6 +125,7 @@ namespace LibertyTweaks
             ArmoredCops.Tick(armoredCopsStars);
             UnseenSlipAway.Tick(timer, unseenSlipAwayMinTimer, unseenSlipAwayMaxTimer);
             RegenerateHP.Tick(timer, regenHealthMinTimer, regenHealthMaxTimer, regenHealthMinHeal, regenHealthMaxHeal);
+            AutosaveOnCollectibles.Tick();
             //StunPunch.Tick();
             CarFireBreakdown.Tick();
             //DeathBlips.Tick();
