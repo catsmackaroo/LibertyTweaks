@@ -1,9 +1,0 @@
-C:\SteamLibrary\steamapps\common\Grand Theft Auto IV\GTAIV - Main\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll
-C:\SteamLibrary\steamapps\common\Grand Theft Auto IV\GTAIV - Main\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.pdb
-C:\catsmackaroo\Modding\LibertyTweaks\LibertyTweaks\obj\Debug\LibertyTweaks.csproj.AssemblyReference.cache
-C:\catsmackaroo\Modding\LibertyTweaks\LibertyTweaks\obj\Debug\LibertyTweaks.csproj.CoreCompileInputs.cache
-C:\catsmackaroo\Modding\LibertyTweaks\LibertyTweaks\obj\Debug\LibertyTweaks.csproj.CopyComplete
-C:\catsmackaroo\Modding\LibertyTweaks\LibertyTweaks\obj\Debug\LibertyTweaks.ivsdk.dll
-C:\catsmackaroo\Modding\LibertyTweaks\LibertyTweaks\obj\Debug\LibertyTweaks.ivsdk.pdb
-C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll
-C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.pdb
