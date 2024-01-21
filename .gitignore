@@ -1,2 +1,4 @@
-**/bin
-**/obj
+**/[Bb]in/
+**/[Oo]bj/
+[Pp]ackages/
+.vs/
