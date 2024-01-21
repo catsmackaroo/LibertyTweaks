@@ -72,11 +72,7 @@ namespace LibertyTweaks
                     AutosaveOnChange(tickSeagullsTLAD, ref seagullsTLAD);
                     break;
                 case 2:
-                    /* need to find the value for tbogt
-                    if (tickSeagullsTBoGT == 50)
-                        return;
                     AutosaveOnChange(tickSeagullsTBoGT, ref seagullsTBoGT);
-                    */
                     break;
             }
         }
