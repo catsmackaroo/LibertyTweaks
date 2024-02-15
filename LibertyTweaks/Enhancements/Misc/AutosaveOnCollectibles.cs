@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace LibertyTweaks
 {
-    internal class CollectibleSave
+    internal class AutosaveOnCollectibles
     {
         private static bool enableFix;
         private static uint lastEpisode = 3; // this is done so it'll init the stats
