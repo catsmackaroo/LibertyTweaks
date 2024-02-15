@@ -67,6 +67,7 @@
     <Compile Include="Enhancements\Dialogue\SearchBody.cs" />
     <Compile Include="Enhancements\Dialogue\VLikeScreaming.cs" />
     <Compile Include="Enhancements\Misc\QuickSave.cs" />
+    <Compile Include="Enhancements\Misc\AutosaveOnCollectibles.cs" />
     <Compile Include="Enhancements\Misc\ToggleHUD.cs" />
     <Compile Include="Enhancements\Misc\TweakableFOV.cs" />
     <Compile Include="Fixes\BrakeLights.cs" />
