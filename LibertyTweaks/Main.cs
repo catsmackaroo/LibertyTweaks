@@ -8,8 +8,7 @@ namespace LibertyTweaks
     {
 
         #region Variables
-        private static Random rnd;
-
+        private static Random rnd; 
         public float fovMulti;
         public int pedAccuracy;
         public int pedFirerate;
@@ -24,12 +23,19 @@ namespace LibertyTweaks
         private Keys quickSaveKey;
         private Keys holsterKey;
         private Keys toggleHudKey;
+        public Keys positiveTalkKey;
+        public Keys negativeTalkKey;
+        private static CustomIVSave saveGame;
         #endregion
 
         #region Functions
         public static int GenerateRandomNumber(int x, int y)
         {
             return rnd.Next(x, y);
+        }
+        internal static CustomIVSave GetTheSaveGame()
+        {
+            return saveGame;
         }
         #endregion
 
@@ -43,15 +49,28 @@ namespace LibertyTweaks
             KeyDown += Main_KeyDown;
             ProcessAutomobile += Main_ProcessAutomobile;
             ProcessCamera += Main_ProcessCamera;
-
+            IngameStartup += Main_IngameStartup;
+            WaitTick +=Main_WaitTick;
             GameLoad += Main_GameLoad;
+        }
+
+        private void Main_WaitTick(object sender, EventArgs e)
+        {
+            WaitTickInterval=1000;
+            UnholsteredGunFix.WaitTick();
         }
 
         private void Main_GameLoad(object sender, EventArgs e)
         {
             WeaponMagazines.LoadFiles();
+            //QuickSave.Spawn();
         }
         #endregion
+
+        private void Main_IngameStartup(object sender, EventArgs e)
+        {
+            QuickSave.IngameStartup();
+        }
 
         private void Main_Initialized(object sender, EventArgs e)
         {
@@ -73,17 +92,23 @@ namespace LibertyTweaks
             UnseenSlipAway.Init(Settings);
             RegenerateHP.Init(Settings);
             ToggleHUD.Init(Settings);
-            //StunPunch.Init(Settings);
+            Recoil.Init(Settings);
             CarFireBreakdown.Init(Settings);
+            RealisticReloading.Init(Settings);
+            //InteractiveNPCs.Init(Settings);
+            //StunPunch.Init(Settings);
             //DeathBlips.Init(Settings);
 
-                // FIXES
+            // FIXES
             NoOvertaking.Init(Settings);
             IceCreamSpeechFix.Init(Settings);
             WheelFix.Init(Settings);
             UnholsteredGunFix.Init(Settings);
 
-                // HOTKEYS & CONFIG
+            // SAVE
+            saveGame = CustomIVSave.CreateOrLoadSaveGameData(this);
+
+            // HOTKEYS & CONFIG
             quickSaveKey = Settings.GetKey("Quick-Saving", "Key", Keys.F9);
             holsterKey = Settings.GetKey("Weapon Holstering", "Key", Keys.H);
             fovMulti = Settings.GetFloat("Tweakable FOV", "Multiplier", 1.07f);
@@ -97,12 +122,15 @@ namespace LibertyTweaks
             regenHealthMinHeal = Settings.GetInteger("Health Regeneration", "Minimum Heal Amount", 5);
             regenHealthMaxHeal = Settings.GetInteger("Health Regeneration", "Maximum Heal Amount", 10);
             toggleHudKey = Settings.GetKey("Toggle HUD", "Key", Keys.K);
+            //positiveTalkKey = Settings.GetKey("Interactive NPCs", "Positive Speech", Keys.Y);
+            //negativeTalkKey = Settings.GetKey("Interactive NPCs", "Positive Speech", Keys.N);
         }
 
         private void Main_ProcessCamera(object sender, EventArgs e)
         {
             TweakableFOV.Tick(fovMulti);
         }
+
         private void Main_ProcessAutomobile(UIntPtr vehPtr)
         {
             WheelFix.Process(vehPtr);
@@ -121,13 +149,14 @@ namespace LibertyTweaks
             MoreCombatLines.Tick();
             SearchBody.Tick();
             VLikeScreaming.Tick();
-            UnholsteredGunFix.Tick();
             ArmoredCops.Tick(armoredCopsStars);
             UnseenSlipAway.Tick(timer, unseenSlipAwayMinTimer, unseenSlipAwayMaxTimer);
             RegenerateHP.Tick(timer, regenHealthMinTimer, regenHealthMaxTimer, regenHealthMinHeal, regenHealthMaxHeal);
-            AutosaveOnCollectibles.Tick();
-            //StunPunch.Tick();
             CarFireBreakdown.Tick();
+            Recoil.Tick();
+            RealisticReloading.Tick();
+            QuickSave.Tick();
+            //StunPunch.Tick();
             //DeathBlips.Tick();
         }
 
@@ -148,11 +177,6 @@ namespace LibertyTweaks
             {
                 HolsterWeapons.Process();
             }
-
-            //if (e.KeyCode == Keys.LButton)
-            //{
-            //    StunPunch.Process();
-            //}
         }
     }
 }

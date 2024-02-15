@@ -2,8 +2,13 @@
 using System;
 using static IVSDKDotNet.Native.Natives;
 using System.Collections.Generic;
+using System.Numerics;
 
 // Credits: catsmackaroo & ItsClonkAndre
+
+// Create a distance check for all copmodels (if higher than 75f or so.) This'll stop nearby cops from getting armor, and thus kinda messing up immersion.
+// Disable for fatmobs, FIB, & NOOSE.
+// Add armor model
 
 namespace LibertyTweaks
 {
@@ -33,8 +38,9 @@ namespace LibertyTweaks
                     if (ptr == IVPlayerInfo.FindThePlayerPed())
                         continue;
 
-                    // Grab player ID
+                    // Grab player ID & ped
                     uint playerId = GET_PLAYER_ID();
+                    IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
 
                     // Get ped handles
                     int pedHandle = (int)pedPool.GetIndex(ptr);
@@ -47,6 +53,13 @@ namespace LibertyTweaks
 
                     // Check player's wanted level
                     STORE_WANTED_LEVEL((int)playerId, out uint currentWantedLevel);
+
+                    // Get ped coords
+                    GET_CHAR_COORDINATES(pedHandle, out Vector3 pedCoords);
+
+                    // Check distance between police & player
+                    if (Vector3.Distance(playerPed.Matrix.Pos, pedCoords) < 75f)
+                        continue;
 
                     // Check if the grabbed ped has already been given armor
                     if (copsHadArmor.Contains(pedHandle))
@@ -66,6 +79,10 @@ namespace LibertyTweaks
 
                     // If player has more than 4 or more stars
                     if (currentWantedLevel < armoredCopsStars)
+                        continue;
+
+                    // Check for FatCop, FIB, & SWAT
+                    if (pedModel == 3924571768 || pedModel == 3295460374 || pedModel == 3290204350)
                         continue;
 
                     // Finally adds armor to the policia
