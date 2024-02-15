@@ -83,7 +83,6 @@ namespace LibertyTweaks
             RemoveWeapons.Init(Settings);
             TweakableFOV.Init(Settings);
             QuickSave.Init(Settings);
-            CollectibleSave.Init(Settings);
             BrakeLights.Init(Settings);
             MoreCombatLines.Init(Settings);
             SearchBody.Init(Settings);
@@ -156,7 +155,6 @@ namespace LibertyTweaks
             Recoil.Tick();
             RealisticReloading.Tick();
             QuickSave.Tick();
-            CollectibleSave.Tick();
             //StunPunch.Tick();
             //DeathBlips.Tick();
         }
