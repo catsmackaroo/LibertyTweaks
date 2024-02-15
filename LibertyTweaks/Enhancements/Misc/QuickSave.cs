@@ -43,11 +43,22 @@ namespace LibertyTweaks
             {
                 DO_SCREEN_FADE_IN(10000);
 
-                // Teleport player to last saved position if there is a last saved position
-                Vector3 lastSavedPosition = Main.GetTheSaveGame().GetVector3("LastPosition");
+                try
+                {
+                    // Teleport player to last saved position if there is a last saved position
+                    Vector3 lastSavedPosition = Main.GetTheSaveGame().GetVector3("LastPosition");
 
-                if (lastSavedPosition != Vector3.Zero)
-                    playerPed.Teleport(lastSavedPosition, false, true);
+                    if (lastSavedPosition != Vector3.Zero)
+                    {
+
+                        playerPed.Teleport(lastSavedPosition, false, true);
+                        CLEAR_ROOM_FOR_CHAR(playerPed.GetHandle());
+                    }
+                }
+                catch (System.Exception) 
+                {
+                    
+                }
 
                 firstFrame = false;
             }

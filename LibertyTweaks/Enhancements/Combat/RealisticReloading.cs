@@ -13,12 +13,10 @@ namespace LibertyTweaks
     internal class RealisticReloading
     {
         private static bool enable;
-        private static bool enable2;
-        private static uint currentWeapon;
 
         public static void Init(SettingsFile settings)
         {
-            enable = settings.GetBoolean("Weapon Recoil", "Enable", true);
+            enable = settings.GetBoolean("Realistic Reloading", "Enable", true);
         }
 
         public static void Tick()
@@ -32,9 +30,10 @@ namespace LibertyTweaks
 
             if (NativeControls.IsGameKeyPressed(0, GameKey.Reload))
             {
-
+                // Get current weapon
+                GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out uint currentWeap);
+                SET_AMMO_IN_CLIP(playerPed.GetHandle(), (int)currentWeap, 0);
             }
-
         }
     }
 }

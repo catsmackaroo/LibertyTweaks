@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\..\..\Program Files %28x86%29\Steam\steamapps\common\Grand Theft Auto IV\GTAIV - LT\IVSDKDotNet\scripts\</OutputPath>
+    <OutputPath>..\..\..\..\..\..\Program Files %28x86%29\Steam\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -72,6 +72,7 @@
     <Compile Include="Enhancements\Dialogue\MoreCombatLines.cs" />
     <Compile Include="Enhancements\Dialogue\SearchBody.cs" />
     <Compile Include="Enhancements\Dialogue\VLikeScreaming.cs" />
+    <Compile Include="Enhancements\Misc\CollectibleSave.cs" />
     <Compile Include="Enhancements\Misc\QuickSave.cs" />
     <Compile Include="Enhancements\Misc\ToggleHUD.cs" />
     <Compile Include="Enhancements\Misc\TweakableFOV.cs" />

@@ -18,7 +18,7 @@ namespace LibertyTweaks
         {
             enableFix = settings.GetBoolean("Improved Police", "Unholstered Wanted Fix", true);
         }
-        public static void Tick()
+        public static void WaitTick()
         {
             if (!enableFix)
             {
@@ -32,10 +32,11 @@ namespace LibertyTweaks
             GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out uint currentWeap);
 
             // If player is holding any weapon
-            if (currentWeap != 0)
+            if (currentWeap != 0 && currentWeap != 46)
             {
+
                 // If player is out of car
-                if (!IS_CHAR_IN_ANY_CAR(playerPed.GetHandle())) 
+                if (!IS_CHAR_IN_ANY_CAR(playerPed.GetHandle()))
                 {
                     // Grab all peds
                     IVPool pedPool = IVPools.GetPedPool();
@@ -67,7 +68,7 @@ namespace LibertyTweaks
 
                                     // Check player's wanted level
                                     STORE_WANTED_LEVEL((int)playerId, out uint currentWantedLevel);
-                                    
+
                                     // Check if the player is not wanted
                                     if (currentWantedLevel == 0)
                                     {

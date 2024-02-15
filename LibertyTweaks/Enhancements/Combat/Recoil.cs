@@ -14,7 +14,7 @@ namespace LibertyTweaks
 
         public static void Init(SettingsFile settings)
         {
-            enable = settings.GetBoolean("Weapon Recoil", "Enable", true);
+            enable = settings.GetBoolean("Immersive Recoil", "Enable", true);
         }
 
         public static void Tick()

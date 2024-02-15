@@ -64,15 +64,15 @@ internal class CustomIVSave
         SettingsFile settings = null;
 
         if (System.IO.File.Exists(fileName))
-            // Load
+        // Load
         {
             settings = new SettingsFile(fileName);
-            
+
             if (settings.Load())
                 return new CustomIVSave(settings);
         }
         else
-            // Create and save
+        // Create and save
         {
             System.IO.File.WriteAllText(fileName, "");
 

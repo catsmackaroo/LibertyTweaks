@@ -50,8 +50,14 @@ namespace LibertyTweaks
             ProcessAutomobile += Main_ProcessAutomobile;
             ProcessCamera += Main_ProcessCamera;
             IngameStartup += Main_IngameStartup;
-
+            WaitTick +=Main_WaitTick;
             GameLoad += Main_GameLoad;
+        }
+
+        private void Main_WaitTick(object sender, EventArgs e)
+        {
+            WaitTickInterval=1000;
+            UnholsteredGunFix.WaitTick();
         }
 
         private void Main_GameLoad(object sender, EventArgs e)
@@ -77,6 +83,7 @@ namespace LibertyTweaks
             RemoveWeapons.Init(Settings);
             TweakableFOV.Init(Settings);
             QuickSave.Init(Settings);
+            CollectibleSave.Init(Settings);
             BrakeLights.Init(Settings);
             MoreCombatLines.Init(Settings);
             SearchBody.Init(Settings);
@@ -142,7 +149,6 @@ namespace LibertyTweaks
             MoreCombatLines.Tick();
             SearchBody.Tick();
             VLikeScreaming.Tick();
-            UnholsteredGunFix.Tick();
             ArmoredCops.Tick(armoredCopsStars);
             UnseenSlipAway.Tick(timer, unseenSlipAwayMinTimer, unseenSlipAwayMaxTimer);
             RegenerateHP.Tick(timer, regenHealthMinTimer, regenHealthMaxTimer, regenHealthMinHeal, regenHealthMaxHeal);
@@ -150,6 +156,7 @@ namespace LibertyTweaks
             Recoil.Tick();
             RealisticReloading.Tick();
             QuickSave.Tick();
+            CollectibleSave.Tick();
             //StunPunch.Tick();
             //DeathBlips.Tick();
         }
@@ -171,16 +178,6 @@ namespace LibertyTweaks
             {
                 HolsterWeapons.Process();
             }
-
-            //if (e.KeyCode == positiveTalkKey)
-            //{
-            //    InteractiveNPCs.ProcessPositive();
-            //}
-
-            //if (e.KeyCode == negativeTalkKey)
-            //{
-            //    InteractiveNPCs.ProcessNegative();
-            //}
         }
     }
 }
