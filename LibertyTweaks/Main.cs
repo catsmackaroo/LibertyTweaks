@@ -4,7 +4,7 @@ using IVSDKDotNet;
 
 namespace LibertyTweaks
 {
-    public class Main : Script 
+    public class Main : Script
     {
 
         #region Variables
@@ -40,7 +40,7 @@ namespace LibertyTweaks
         #endregion
 
         #region Constructor
-        public Main() 
+        public Main()
         {
             rnd = new Random();
 
@@ -83,6 +83,7 @@ namespace LibertyTweaks
             RemoveWeapons.Init(Settings);
             TweakableFOV.Init(Settings);
             QuickSave.Init(Settings);
+            AutosaveOnCollectibles.Init(Settings);
             BrakeLights.Init(Settings);
             MoreCombatLines.Init(Settings);
             SearchBody.Init(Settings);
