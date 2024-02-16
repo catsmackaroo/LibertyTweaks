@@ -31,8 +31,17 @@ namespace LibertyTweaks
             if (NativeControls.IsGameKeyPressed(0, GameKey.Reload))
             {
                 // Get current weapon
-                GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out uint currentWeap);
-                SET_AMMO_IN_CLIP(playerPed.GetHandle(), (int)currentWeap, 0);
+                GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out uint currentWeapon);
+
+                if (currentWeapon == (int)eWeaponType.WEAPON_SHOTGUN || currentWeapon == (int)eWeaponType.WEAPON_BARETTA
+                    || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_11 || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_10
+                    || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_2 || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_6)
+                {
+                }
+                else
+                {
+                    SET_AMMO_IN_CLIP(playerPed.GetHandle(), (int)currentWeapon, 0);
+                }
             }
         }
     }
