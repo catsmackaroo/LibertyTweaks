@@ -41,7 +41,6 @@ namespace LibertyTweaks
                 {
                     if (DateTime.UtcNow > RegenerateHP.timer.AddSeconds(Main.GenerateRandomNumber(regenHealthMinTimer, regenHealthMaxTimer)))
                     {
-
                         SET_CHAR_HEALTH(playerPed.GetHandle(), (uint)(playerHealth+Main.GenerateRandomNumber(regenHealthMinHeal, regenHealthMaxHeal)));
                         RegenerateHP.timer = DateTime.MinValue;
                     }

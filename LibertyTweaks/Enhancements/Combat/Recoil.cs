@@ -18,6 +18,7 @@ namespace LibertyTweaks
             enable = settings.GetBoolean("Immersive Recoil", "Enable", true);
         }
 
+
         public static void Tick(float recoilSmallPistolAmp1, float recoilSmallPistolAmp2, float recoilSmallPistolFreq1, float recoilSmallPistolFreq2,
              float recoilHeavyPistolAmp1, float recoilHeavyPistolAmp2, float recoilHeavyPistolFreq1, float recoilHeavyPistolFreq2,
              float recoilShotgunsAmp1, float recoilShotgunsAmp2, float recoilShotgunsFreq1, float recoilShotgunsFreq2,
@@ -75,7 +76,7 @@ namespace LibertyTweaks
                     || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_14)
                 {
                     cam.Shake(CameraShakeType.PITCH_UP_DOWN, CameraShakeBehaviour.CONSTANT_PLUS_FADE_IN_OUT, 140, GENERATE_RANDOM_FLOAT_IN_RANGE(recoilAssaultRiflesAmp1, recoilAssaultRiflesAmp2), GENERATE_RANDOM_FLOAT_IN_RANGE(recoilAssaultRiflesFreq1, recoilAssaultRiflesFreq2), 0f);
-                    cam.Shake(CameraShakeType.ROLL_LEFT_RIGHT, CameraShakeBehaviour.CONSTANT_PLUS_FADE_IN_OUT, 140, GENERATE_RANDOM_FLOAT_IN_RANGE(recoilAssaultRiflesAmp1, recoilAssaultRiflesAmp2), GENERATE_RANDOM_FLOAT_IN_RANGE(recoilAssaultRiflesFreq1, recoilAssaultRiflesFreq2), 0f);
+                    cam.Shake(CameraShakeType.ROLL_LEFT_RIGHT, CameraShakeBehaviour.CONSTANT_PLUS_FADE_IN_OUT, 140, GENERATE_RANDOM_FLOAT_IN_RANGE(recoilAssaultRiflesAmp1, recoilAssaultRiflesAmp2 + -0.15f), GENERATE_RANDOM_FLOAT_IN_RANGE(recoilAssaultRiflesFreq1, recoilAssaultRiflesFreq2 + -0.15f), 0f);
                 }
             }
         }

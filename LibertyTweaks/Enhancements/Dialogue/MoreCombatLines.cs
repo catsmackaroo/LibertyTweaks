@@ -27,7 +27,7 @@ namespace LibertyTweaks
             pCombat = Natives.IS_CHAR_SHOOTING(playerPed.GetHandle());
             if (pCombat == true)
             {
-                switch (Main.GenerateRandomNumber(0, 150))
+                switch (Main.GenerateRandomNumber(0, 350))
                 {
                     case 0:
                         playerPed.SayAmbientSpeech("IN_COVER_DODGE_BULLETS");
