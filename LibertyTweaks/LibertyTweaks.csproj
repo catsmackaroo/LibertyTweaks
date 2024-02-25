@@ -34,11 +34,12 @@
     <Reference Include="ClonksCodingLib.GTAIV">
       <HintPath>..\Dependencies\ClonksCodingLib.GTAIV.dll</HintPath>
     </Reference>
-    <Reference Include="IVSDKDotNetWrapper">
-      <HintPath>..\Dependencies\IVSDKDotNetWrapper.dll</HintPath>
-    </Reference>
     <Reference Include="DocumentFormat.OpenXml, Version=2.20.0.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
       <HintPath>..\packages\DocumentFormat.OpenXml.2.20.0\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="IVSDKDotNetWrapper, Version=1.1.1.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\IVSDKDotNetWrapper.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

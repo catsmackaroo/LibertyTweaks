@@ -3,11 +3,10 @@ using System;
 using static IVSDKDotNet.Native.Natives;
 using System.Collections.Generic;
 using System.Numerics;
+using CCL.GTAIV;
 
 // Credits: catsmackaroo & ItsClonkAndre
 
-// Create a distance check for all copmodels (if higher than 75f or so.) This'll stop nearby cops from getting armor, and thus kinda messing up immersion.
-// Disable for fatmobs, FIB, & NOOSE.
 // Add armor model
 
 namespace LibertyTweaks
@@ -15,10 +14,14 @@ namespace LibertyTweaks
     internal class ArmoredCops
     {
         private static bool enable;
+        private static bool enableNoHeadshots;
         private static List<int> copsHadArmor = new List<int>();
+
+
         public static void Init(SettingsFile settings)
         {
-            enable = settings.GetBoolean("Improved Police", "Enabled", true);
+            enable = settings.GetBoolean("Improved Police", "Armored Cops", true);
+            enableNoHeadshots = settings.GetBoolean("Improved Police", "No Headshots for SWAT", true);
         }
 
         public static void Tick(int armoredCopsStars)
@@ -57,32 +60,52 @@ namespace LibertyTweaks
                     // Get ped coords
                     GET_CHAR_COORDINATES(pedHandle, out Vector3 pedCoords);
 
-                    // Check distance between police & player
-                    if (Vector3.Distance(playerPed.Matrix.Pos, pedCoords) < 75f)
-                        continue;
-
-                    // Check if the grabbed ped has already been given armor
-                    if (copsHadArmor.Contains(pedHandle))
-                        continue;
-
-                    // Check if it's a cop
-                    if (pedModel != copModel)
+                    // If player has more than 4 or more stars
+                    if (currentWantedLevel < armoredCopsStars)
                         continue;
 
                     // Check if ped is dead
                     if (IS_CHAR_DEAD(pedHandle))
                         continue;
 
+                    if (pedModel == 3290204350)
+                    {
+                        if (!enableNoHeadshots)
+                            return;
+
+                        GET_CHAR_ARMOUR(pedHandle, out uint nooseArmor);
+                        IVPed noosePed = NativeWorld.GetPedInstaceFromHandle(pedHandle);
+
+                        if (nooseArmor == 0)
+                        {
+                            noosePed.PedFlags.NoHeadshots = false;
+                            noosePed.PreventRagdoll(false);
+                        }
+                        else
+                        {
+                            noosePed.PedFlags.NoHeadshots = true;
+                            noosePed.PreventRagdoll(true);
+                        }
+                    }
+
+                    // Check if it's a cop
+                    if (pedModel != copModel)
+                        continue;
+
                     // Check if ped is not for a mission
                     if (IS_PED_A_MISSION_PED(pedHandle))
                         continue;
 
-                    // If player has more than 4 or more stars
-                    if (currentWantedLevel < armoredCopsStars)
+                    // Check for FatCop
+                    if (pedModel == 3924571768)
                         continue;
 
-                    // Check for FatCop, FIB, & SWAT
-                    if (pedModel == 3924571768 || pedModel == 3295460374 || pedModel == 3290204350)
+                    // Check if the grabbed ped has already been given armor
+                    if (copsHadArmor.Contains(pedHandle))
+                        continue;
+
+                    // Check distance between police & player
+                    if (Vector3.Distance(playerPed.Matrix.Pos, pedCoords) < 75f)
                         continue;
 
                     // Finally adds armor to the policia

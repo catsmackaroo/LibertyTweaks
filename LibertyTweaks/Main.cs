@@ -128,9 +128,7 @@ namespace LibertyTweaks
             Recoil.Init(Settings);
             CarFireBreakdown.Init(Settings);
             RealisticReloading.Init(Settings);
-            //InteractiveNPCs.Init(Settings);
             //StunPunch.Init(Settings);
-            //DeathBlips.Init(Settings);
 
             // FIXES
             NoOvertaking.Init(Settings);
@@ -141,40 +139,53 @@ namespace LibertyTweaks
             // SAVE
             saveGame = CustomIVSave.CreateOrLoadSaveGameData(this);
 
-            // HOTKEYS & CONFIG
+            // KEYS
             quickSaveKey = Settings.GetKey("Quick-Saving", "Key", Keys.F9);
             holsterKey = Settings.GetKey("Weapon Holstering", "Key", Keys.H);
-            fovMulti = Settings.GetFloat("Tweakable FOV", "Multiplier", 1.07f);
+
+            toggleHudKey = Settings.GetKey("Toggle HUD", "Key", Keys.K);
+
+            // INTS
             pedAccuracy = Settings.GetInteger("Improved AI", "Accuracy", 85);
             pedFirerate = Settings.GetInteger("Improved AI", "Firerate", 85);
+
             armoredCopsStars = Settings.GetInteger("Improved Police", "Armored Cops Start At", 4);
+
             unseenSlipAwayMinTimer = Settings.GetInteger("Improved Police", "Lose Stars While Unseen Minimum Count", 60);
             unseenSlipAwayMaxTimer = Settings.GetInteger("Improved Police", "Lose Stars While Unseen Maximum Count", 120);
+
             regenHealthMinTimer = Settings.GetInteger("Health Regeneration", "Regen Timer Minimum", 30);
             regenHealthMaxTimer = Settings.GetInteger("Health Regeneration", "Regen Timer Maximum", 60);
             regenHealthMinHeal = Settings.GetInteger("Health Regeneration", "Minimum Heal Amount", 5);
             regenHealthMaxHeal = Settings.GetInteger("Health Regeneration", "Maximum Heal Amount", 10);
-            toggleHudKey = Settings.GetKey("Toggle HUD", "Key", Keys.K);
+
+            // FLOATS
+            fovMulti = Settings.GetFloat("Tweakable FOV", "Multiplier", 1.07f);
             recoilSmallPistolAmp1 = Settings.GetFloat("Extensive Settings", "Pistol Amplitude 1", 0.4f);
             recoilSmallPistolAmp2 = Settings.GetFloat("Extensive Settings", "Pistol Amplitude 2", 0.6f);
             recoilSmallPistolFreq1 = Settings.GetFloat("Extensive Settings", "Pistol Frequency 1", 0.1f);
             recoilSmallPistolFreq2 = Settings.GetFloat("Extensive Settings", "Pistol Frequency 2", 0.3f);
+
             recoilHeavyPistolAmp1 = Settings.GetFloat("Extensive Settings", "Heavy Pistol Amplitude 2", 0.2f);
             recoilHeavyPistolAmp2 = Settings.GetFloat("Extensive Settings", "Heavy Pistol Ampltitude 2", 0.4f);
             recoilHeavyPistolFreq1 = Settings.GetFloat("Extensive Settings", "Heavy Pistol Frequency 1", 0.3f);
             recoilHeavyPistolFreq2 = Settings.GetFloat("Extensive Settings", "Heavy Pistol Frequency 2", 0.5f);
+
             recoilShotgunsAmp1 = Settings.GetFloat("Extensive Settings", "Shotgun Amplitude 1", 0.3f);
             recoilShotgunsAmp2 = Settings.GetFloat("Extensive Settings", "Shotgun Amplitude 2", 0.7f);
             recoilShotgunsFreq1 = Settings.GetFloat("Extensive Settings", "Shotgun Frequency 1", 0.4f);
             recoilShotgunsFreq2 = Settings.GetFloat("Extensive Settings", "Shotgun Frequency 2", 0.7f);
+
             recoilSMGAmp1 = Settings.GetFloat("Extensive Settings", "SMG Amplitude 1", 0.4f);
             recoilSMGAmp2 = Settings.GetFloat("Extensive Settings", "SMG Amplitude 2", 0.6f);
             recoilSMGFreq1 = Settings.GetFloat("Extensive Settings", "SMG Frequency 1", 0.1f);
             recoilSMGFreq2 = Settings.GetFloat("Extensive Settings", "SMG Frequency 2", 0.3f);
+
             recoilAssaultRiflesAmp1 = Settings.GetFloat("Extensive Settings", "Assault Rifle Amplitude 1", 0.4f);
             recoilAssaultRiflesAmp2 = Settings.GetFloat("Extensive Settings", "Assault Rifle Amplitude 2", 0.6f);
             recoilAssaultRiflesFreq1 = Settings.GetFloat("Extensive Settings", "Assault Rifle Frequency 1", 0.1f);
             recoilAssaultRiflesFreq2 = Settings.GetFloat("Extensive Settings", "Assault Rifle Frequency 2", 0.6f);
+
             //positiveTalkKey = Settings.GetKey("Interactive NPCs", "Positive Speech", Keys.Y);
             //negativeTalkKey = Settings.GetKey("Interactive NPCs", "Positive Speech", Keys.N);
         }
