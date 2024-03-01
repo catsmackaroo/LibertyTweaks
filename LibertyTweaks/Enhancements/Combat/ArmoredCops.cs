@@ -14,14 +14,14 @@ namespace LibertyTweaks
     internal class ArmoredCops
     {
         private static bool enable;
-        private static bool enableNoHeadshots;
+        private static bool enableBuffSWAT;
         private static List<int> copsHadArmor = new List<int>();
 
 
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Improved Police", "Armored Cops", true);
-            enableNoHeadshots = settings.GetBoolean("Improved Police", "No Headshots for SWAT", true);
+            enableBuffSWAT = settings.GetBoolean("Improved Police", "Buff SWAT", true);
         }
 
         public static void Tick(int armoredCopsStars)
@@ -60,21 +60,23 @@ namespace LibertyTweaks
                     // Get ped coords
                     GET_CHAR_COORDINATES(pedHandle, out Vector3 pedCoords);
 
-                    // If player has more than 4 or more stars
-                    if (currentWantedLevel < armoredCopsStars)
-                        continue;
-
                     // Check if ped is dead
                     if (IS_CHAR_DEAD(pedHandle))
                         continue;
 
+                    // Check if NOoSE
                     if (pedModel == 3290204350)
                     {
-                        if (!enableNoHeadshots)
+                        if (!enableBuffSWAT)
                             return;
 
                         GET_CHAR_ARMOUR(pedHandle, out uint nooseArmor);
                         IVPed noosePed = NativeWorld.GetPedInstaceFromHandle(pedHandle);
+
+                        if (IS_CHAR_DEAD(pedHandle))
+                        {
+                            noosePed.PreventRagdoll(false);
+                        }
 
                         if (nooseArmor == 0)
                         {
@@ -83,10 +85,25 @@ namespace LibertyTweaks
                         }
                         else
                         {
+                            GET_CHAR_PROP_INDEX(pedHandle, 0, out int pedPropIndex);
+
                             noosePed.PedFlags.NoHeadshots = true;
-                            noosePed.PreventRagdoll(true);
+
+                            if (pedPropIndex == -1)
+                            {
+                                noosePed.PedFlags.NoHeadshots = false;
+                            }
+
+                            if (!IS_CHAR_ON_FIRE(pedHandle))
+                            {
+                                noosePed.PreventRagdoll(true);
+                            }
                         }
                     }
+
+                    // If player has more than 4 or more stars
+                    if (currentWantedLevel < armoredCopsStars)
+                        continue;
 
                     // Check if it's a cop
                     if (pedModel != copModel)

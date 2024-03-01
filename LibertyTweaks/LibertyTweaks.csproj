@@ -61,13 +61,14 @@
     <Compile Include="Enhancements\Combat\HigherPedAccuracy.cs" />
     <Compile Include="Enhancements\Combat\HolsterWeapons.cs" />
     <Compile Include="Enhancements\Combat\MoveWithSniper.cs" />
+    <Compile Include="Enhancements\Combat\RandomNoEuphoria.cs" />
     <Compile Include="Enhancements\Combat\RealisticReloading.cs" />
     <Compile Include="Enhancements\Combat\Recoil.cs" />
     <Compile Include="Enhancements\Combat\RegenerateHP.cs" />
     <Compile Include="Enhancements\Combat\RemoveWeapons.cs" />
     <Compile Include="Enhancements\Combat\UnseenSlipAway.cs" />
     <Compile Include="Enhancements\Combat\WeaponMagazines.cs" />
-    <Compile Include="Enhancements\Dialogue\InteractiveNPCs.cs" />
+    <Compile Include="Enhancements\Dialogue\StunPunch.cs" />
     <Compile Include="Enhancements\Dialogue\MoreCombatLines.cs" />
     <Compile Include="Enhancements\Dialogue\SearchBody.cs" />
     <Compile Include="Enhancements\Dialogue\VLikeScreaming.cs" />
@@ -76,6 +77,8 @@
     <Compile Include="Enhancements\Misc\ToggleHUD.cs" />
     <Compile Include="Enhancements\Misc\TweakableFOV.cs" />
     <Compile Include="Fixes\BrakeLights.cs" />
+    <Compile Include="Fixes\CopShotgunFix.cs" />
+    <Compile Include="Fixes\ExtraHospitalSpawn.cs" />
     <Compile Include="Fixes\IceCreamSpeechFix.cs" />
     <Compile Include="Fixes\NoOvertaking.cs" />
     <Compile Include="Fixes\UnholsteredGunFix.cs" />

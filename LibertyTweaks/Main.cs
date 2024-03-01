@@ -128,13 +128,16 @@ namespace LibertyTweaks
             Recoil.Init(Settings);
             CarFireBreakdown.Init(Settings);
             RealisticReloading.Init(Settings);
-            //StunPunch.Init(Settings);
+            StunPunch.Init(Settings);
+            RandomNoEuphoria.Init(Settings);
+            CopShotgunFix.Init(Settings);
 
             // FIXES
             NoOvertaking.Init(Settings);
             IceCreamSpeechFix.Init(Settings);
             WheelFix.Init(Settings);
             UnholsteredGunFix.Init(Settings);
+            ExtraHospitalSpawn.Init(Settings);
 
             // SAVE
             saveGame = CustomIVSave.CreateOrLoadSaveGameData(this);
@@ -224,7 +227,10 @@ namespace LibertyTweaks
              recoilAssaultRiflesAmp1, recoilAssaultRiflesAmp2, recoilAssaultRiflesFreq1, recoilAssaultRiflesFreq2);
             RealisticReloading.Tick();
             QuickSave.Tick();
-            //StunPunch.Tick();
+            StunPunch.Tick(timer);
+            RandomNoEuphoria.Tick();
+            ExtraHospitalSpawn.Tick();
+            CopShotgunFix.Tick();
             //DeathBlips.Tick();
         }
 

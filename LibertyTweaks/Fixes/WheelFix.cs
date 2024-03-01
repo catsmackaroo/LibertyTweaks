@@ -10,20 +10,20 @@ namespace LibertyTweaks
     internal class WheelFix
     {
 
-        private static bool enableFix;
+        private static bool enable;
         private static bool canWheelFixCodeBeExecuted;
         private static bool canChangeWheelValue;
         private static float newWheelValue;
         
         public static void Init(SettingsFile settings)
         {
-            enableFix = settings.GetBoolean("Fixes", "Wheel Fix", true);
+            enable = settings.GetBoolean("Fixes", "Wheel Fix", true);
         }
 
         public static void PreChecks()
         {
             // If the fix is disabled, return from this method
-            if (!enableFix)
+            if (!enable)
                 return;
 
             // Get the player ped
@@ -37,7 +37,7 @@ namespace LibertyTweaks
         public static void Process(UIntPtr vehPtr)
         {
             // If the fix is disabled, return from this method
-            if (!enableFix)
+            if (!enable)
                 return;
 
             // Is this code allowed to run yet? Will be true once the player was atleast once in a vehicle

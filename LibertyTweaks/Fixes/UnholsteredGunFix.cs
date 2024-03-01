@@ -12,15 +12,15 @@ namespace LibertyTweaks
 {
     internal class UnholsteredGunFix
     {
-        private static bool enableFix;
+        private static bool enable;
 
         public static void Init(SettingsFile settings)
         {
-            enableFix = settings.GetBoolean("Improved Police", "Unholstered Wanted Fix", true);
+            enable = settings.GetBoolean("Improved Police", "Unholstered Wanted Fix", true);
         }
         public static void WaitTick()
         {
-            if (!enableFix)
+            if (!enable)
             {
                 return;
             }
