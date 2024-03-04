@@ -33,13 +33,16 @@ namespace LibertyTweaks
                 // Get current weapon
                 GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out uint currentWeapon);
 
+                // Get total ammo for weapon
+                GET_AMMO_IN_CHAR_WEAPON(playerPed.GetHandle(), currentWeapon, out uint weaponAmmo);
+
                 // Get ammo in current clip
                 GET_AMMO_IN_CLIP(playerPed.GetHandle(), currentWeapon, out uint clipAmmo);
 
                 // Get max ammo that can be in weapon clip
                 GET_MAX_AMMO_IN_CLIP(playerPed.GetHandle(), currentWeapon, out uint clipAmmoMax);
 
-                if (clipAmmo < clipAmmoMax)
+                if (clipAmmo < clipAmmoMax && weaponAmmo - clipAmmo > 0)
                 {
                     if (currentWeapon == (int)eWeaponType.WEAPON_SHOTGUN || currentWeapon == (int)eWeaponType.WEAPON_BARETTA
                         || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_11 || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_10
