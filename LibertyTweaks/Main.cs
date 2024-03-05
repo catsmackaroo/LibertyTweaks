@@ -89,8 +89,11 @@ namespace LibertyTweaks
 
         private void Main_WaitTick(object sender, EventArgs e)
         {
-            WaitTickInterval=1000;
+            WaitTickInterval=2000;
             UnholsteredGunFix.WaitTick();
+
+            WaitTickInterval=GenerateRandomNumber(5000, 10000);
+            NoOvertaking.WaitTick();
         }
 
         private void Main_GameLoad(object sender, EventArgs e)
@@ -108,7 +111,7 @@ namespace LibertyTweaks
         private void Main_Initialized(object sender, EventArgs e)
         {
             // Check .INI
-                // MAIN
+            // MAIN
             HolsterWeapons.Init(Settings);
             HigherPedAccuracy.Init(Settings);
             WeaponMagazines.Init(Settings);
@@ -205,14 +208,11 @@ namespace LibertyTweaks
 
         private void Main_Tick(object sender, EventArgs e)
         {
-            NoOvertaking.Tick();
-            WheelFix.PreChecks();
+            // MAIN
             RemoveWeapons.Tick();
             HigherPedAccuracy.Tick(pedAccuracy, pedFirerate);
             WeaponMagazines.Tick();
-            IceCreamSpeechFix.Tick();
             MoveWithSniper.Tick();
-            BrakeLights.Tick();
             MoreCombatLines.Tick();
             SearchBody.Tick();
             VLikeScreaming.Tick();
@@ -229,9 +229,14 @@ namespace LibertyTweaks
             QuickSave.Tick();
             StunPunch.Tick(timer);
             RandomNoEuphoria.Tick();
-            ExtraHospitalSpawn.Tick();
+
+
+            // FIXES
+            BrakeLights.Tick();
             CopShotgunFix.Tick();
-            //DeathBlips.Tick();
+            ExtraHospitalSpawn.Tick();
+            IceCreamSpeechFix.Tick();
+            WheelFix.PreChecks();
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)

@@ -10,12 +10,13 @@ namespace LibertyTweaks
     internal class NoOvertaking
     {
         private static bool enable;
+
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Fixes", "Overtaking Fix", true);
         }
 
-        public static void Tick()
+        public static void WaitTick()
         {
             if (!enable)
                 return;
@@ -51,12 +52,17 @@ namespace LibertyTweaks
                 // Gets the driver of the closest car
                 GET_DRIVER_OF_CAR(closestCar, out int closeCarPed);
 
+                // If driver is mission ped then return
+                if (IS_PED_A_MISSION_PED(closeCarPed))
+                    return;
+
                 // If there is no driver in the closest car then return
                 if (closeCarPed == 0)
                     return;
 
                 // Tell driver of closest car to stand still
                 _TASK_STAND_STILL(closeCarPed, 3000);
+
             }
         }
     }
