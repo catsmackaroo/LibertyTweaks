@@ -79,6 +79,7 @@ namespace LibertyTweaks
 
             Initialized += Main_Initialized;
             Tick += Main_Tick;
+            Drawing += Main_Drawing;
             KeyDown += Main_KeyDown;
             ProcessAutomobile += Main_ProcessAutomobile;
             ProcessCamera += Main_ProcessCamera;
@@ -132,6 +133,7 @@ namespace LibertyTweaks
 
             // FIXES
             NoOvertaking.Init(Settings);
+            NoCursorEscape.Init(Settings);
             IceCreamSpeechFix.Init(Settings);
             WheelFix.Init(Settings);
             UnholsteredGunFix.Init(Settings);
@@ -226,6 +228,11 @@ namespace LibertyTweaks
             QuickSave.Tick();
             //StunPunch.Tick();
             //DeathBlips.Tick();
+        }
+
+        private void Main_Drawing(object sender, EventArgs e)
+        {
+            NoCursorEscape.Process();
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)
