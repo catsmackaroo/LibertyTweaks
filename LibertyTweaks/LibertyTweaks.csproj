@@ -77,6 +77,7 @@
     <Compile Include="Enhancements\Misc\TweakableFOV.cs" />
     <Compile Include="Fixes\BrakeLights.cs" />
     <Compile Include="Fixes\IceCreamSpeechFix.cs" />
+    <Compile Include="Fixes\NoCursorEscape.cs" />
     <Compile Include="Fixes\NoOvertaking.cs" />
     <Compile Include="Fixes\UnholsteredGunFix.cs" />
     <Compile Include="Fixes\WheelFix.cs" />
