@@ -33,7 +33,7 @@ namespace LibertyTweaks
                     GET_CHAR_MODEL(pedHandle, out uint pedModel);
                     Natives.GET_CURRENT_CHAR_WEAPON(pedHandle, out uint currentPedWeapon);
 
-                    if (pedModel == 4111764146 || pedModel == 2776029317)
+                    if (pedModel == 4111764146 || pedModel == 2776029317 || pedModel == 3290204350)
                     {
                         if (currentPedWeapon == 10)
                         {

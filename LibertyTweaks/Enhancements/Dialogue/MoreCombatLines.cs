@@ -18,9 +18,7 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            int playerId;
             bool pCombat;
-
             IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
 
             pCombat = Natives.IS_CHAR_SHOOTING(playerPed.GetHandle());

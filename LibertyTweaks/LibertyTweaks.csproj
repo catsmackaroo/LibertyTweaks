@@ -80,6 +80,7 @@
     <Compile Include="Fixes\CopShotgunFix.cs" />
     <Compile Include="Fixes\ExtraHospitalSpawn.cs" />
     <Compile Include="Fixes\IceCreamSpeechFix.cs" />
+    <Compile Include="Fixes\NoCursorEscape.cs" />
     <Compile Include="Fixes\NoOvertaking.cs" />
     <Compile Include="Fixes\UnholsteredGunFix.cs" />
     <Compile Include="Fixes\WheelFix.cs" />

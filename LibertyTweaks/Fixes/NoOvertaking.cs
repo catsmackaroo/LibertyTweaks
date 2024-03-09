@@ -16,7 +16,7 @@ namespace LibertyTweaks
             enable = settings.GetBoolean("Fixes", "Overtaking Fix", true);
         }
 
-        public static void WaitTick()
+        public static void Tick()
         {
             if (!enable)
                 return;

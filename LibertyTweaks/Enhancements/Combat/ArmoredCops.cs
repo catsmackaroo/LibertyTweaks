@@ -4,11 +4,9 @@ using static IVSDKDotNet.Native.Natives;
 using System.Collections.Generic;
 using System.Numerics;
 using CCL.GTAIV;
+using DocumentFormat.OpenXml.Math;
 
-// Credits: catsmackaroo & ItsClonkAndre
-
-// Add armor model
-
+// Credits: catsmackaroo, ItsClonkAndre, GQComms (for model)
 namespace LibertyTweaks
 {
     internal class ArmoredCops
@@ -22,6 +20,11 @@ namespace LibertyTweaks
         {
             enable = settings.GetBoolean("Improved Police", "Armored Cops", true);
             enableBuffSWAT = settings.GetBoolean("Improved Police", "Buff SWAT", true);
+        }
+
+        public static void LoadFiles()
+        {
+            IVCDStream.AddImage("IVSDKDotNet/scripts/LibertyTweaks/ArmoredCopFiles/armoredCops.img", 1, -1);
         }
 
         public static void Tick(int armoredCopsStars)
@@ -127,6 +130,7 @@ namespace LibertyTweaks
 
                     // Finally adds armor to the policia
                     ADD_ARMOUR_TO_CHAR(pedHandle, 100);
+                    SET_CHAR_COMPONENT_VARIATION(pedHandle, 1, 4, 0);
                     copsHadArmor.Add(pedHandle);
                 }
             }

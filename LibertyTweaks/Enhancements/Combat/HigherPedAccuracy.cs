@@ -29,6 +29,10 @@ namespace LibertyTweaks
                 UIntPtr ptr = pedPool.Get(i);
                 if (ptr != UIntPtr.Zero)
                 {
+
+                    if (ptr == IVPlayerInfo.FindThePlayerPed())
+                        continue;
+
                     int pedHandle = (int)pedPool.GetIndex(ptr);
 
                     SET_CHAR_ACCURACY(pedHandle, (uint)pedAccuracy);

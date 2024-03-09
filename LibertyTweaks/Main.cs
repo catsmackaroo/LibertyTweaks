@@ -79,26 +79,35 @@ namespace LibertyTweaks
 
             Initialized += Main_Initialized;
             Tick += Main_Tick;
+            Drawing +=Main_Drawing;
             KeyDown += Main_KeyDown;
             ProcessAutomobile += Main_ProcessAutomobile;
             ProcessCamera += Main_ProcessCamera;
             IngameStartup += Main_IngameStartup;
             WaitTick +=Main_WaitTick;
             GameLoad += Main_GameLoad;
+            GameLoadPriority += Main_GameLoadPriority;
+        }
+
+        private void Main_Drawing(object sender, EventArgs e)
+        {
+            NoCursorEscape.Process();
+        }
+
+        private void Main_GameLoadPriority(object sender, EventArgs e)
+        {
+            WeaponMagazines.LoadFiles();
+            ArmoredCops.LoadFiles();
         }
 
         private void Main_WaitTick(object sender, EventArgs e)
         {
             WaitTickInterval=2000;
             UnholsteredGunFix.WaitTick();
-
-            WaitTickInterval=GenerateRandomNumber(5000, 10000);
-            NoOvertaking.WaitTick();
         }
 
         private void Main_GameLoad(object sender, EventArgs e)
         {
-            WeaponMagazines.LoadFiles();
             //QuickSave.Spawn();
         }
         #endregion
@@ -120,7 +129,6 @@ namespace LibertyTweaks
             TweakableFOV.Init(Settings);
             QuickSave.Init(Settings);
             AutosaveOnCollectibles.Init(Settings);
-            BrakeLights.Init(Settings);
             MoreCombatLines.Init(Settings);
             SearchBody.Init(Settings);
             VLikeScreaming.Init(Settings);
@@ -131,8 +139,8 @@ namespace LibertyTweaks
             Recoil.Init(Settings);
             CarFireBreakdown.Init(Settings);
             RealisticReloading.Init(Settings);
-            StunPunch.Init(Settings);
-            RandomNoEuphoria.Init(Settings);
+            //StunPunch.Init(Settings);
+            //RandomNoEuphoria.Init(Settings);
             CopShotgunFix.Init(Settings);
 
             // FIXES
@@ -140,6 +148,7 @@ namespace LibertyTweaks
             IceCreamSpeechFix.Init(Settings);
             WheelFix.Init(Settings);
             UnholsteredGunFix.Init(Settings);
+            BrakeLights.Init(Settings);
             ExtraHospitalSpawn.Init(Settings);
 
             // SAVE
@@ -227,8 +236,9 @@ namespace LibertyTweaks
              recoilAssaultRiflesAmp1, recoilAssaultRiflesAmp2, recoilAssaultRiflesFreq1, recoilAssaultRiflesFreq2);
             RealisticReloading.Tick();
             QuickSave.Tick();
-            StunPunch.Tick(timer);
-            RandomNoEuphoria.Tick();
+            NoOvertaking.Tick();
+            //StunPunch.Tick(timer);
+            //RandomNoEuphoria.Tick();
 
 
             // FIXES
