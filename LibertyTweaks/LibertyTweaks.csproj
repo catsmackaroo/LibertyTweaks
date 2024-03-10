@@ -41,6 +41,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dependencies\IVSDKDotNetWrapper.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="SharpUI">
+      <HintPath>..\Dependencies\SharpUI.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -71,6 +75,7 @@
     <Compile Include="Enhancements\Dialogue\MoreCombatLines.cs" />
     <Compile Include="Enhancements\Dialogue\SearchBody.cs" />
     <Compile Include="Enhancements\Dialogue\VLikeScreaming.cs" />
+    <Compile Include="Enhancements\Misc\QuickGPS.cs" />
     <Compile Include="Enhancements\Misc\QuickSave.cs" />
     <Compile Include="Enhancements\Misc\AutosaveOnCollectibles.cs" />
     <Compile Include="Enhancements\Misc\ToggleHUD.cs" />
