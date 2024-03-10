@@ -7,11 +7,6 @@ using LibertyTweaks;
 using System.Collections.Generic;
 using System.Numerics;
 using static IVSDKDotNet.Native.Natives;
-
-using SharpUI;
-using SharpUI.UI;
-using SharpUI.UIForms;
-using SharpUI.UIMenu;
 using System.Windows.Forms;
 using System.Windows.Input;
 
@@ -26,8 +21,6 @@ namespace LibertyTweaks
         private static int switchblipid;
         private static Vector3 playercoord;
         private static int currentBlip;
-
-        private UIPool pool;
 
         // Burger Shot, Cluckin' Bell and Restaurants
         private static List<int> eatyumyum = new List<int>()
