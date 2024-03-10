@@ -68,7 +68,6 @@
     <Compile Include="Enhancements\Combat\RemoveWeapons.cs" />
     <Compile Include="Enhancements\Combat\UnseenSlipAway.cs" />
     <Compile Include="Enhancements\Combat\WeaponMagazines.cs" />
-    <Compile Include="Enhancements\Dialogue\StunPunch.cs" />
     <Compile Include="Enhancements\Dialogue\MoreCombatLines.cs" />
     <Compile Include="Enhancements\Dialogue\SearchBody.cs" />
     <Compile Include="Enhancements\Dialogue\VLikeScreaming.cs" />

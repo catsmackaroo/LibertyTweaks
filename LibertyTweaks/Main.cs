@@ -79,11 +79,7 @@ namespace LibertyTweaks
 
             Initialized += Main_Initialized;
             Tick += Main_Tick;
-<<<<<<< HEAD
-            Drawing +=Main_Drawing;
-=======
             Drawing += Main_Drawing;
->>>>>>> f8e8a85da25b5ab51bfe0634cb47e6cb28c4712a
             KeyDown += Main_KeyDown;
             ProcessAutomobile += Main_ProcessAutomobile;
             ProcessCamera += Main_ProcessCamera;
@@ -252,11 +248,6 @@ namespace LibertyTweaks
             ExtraHospitalSpawn.Tick();
             IceCreamSpeechFix.Tick();
             WheelFix.PreChecks();
-        }
-
-        private void Main_Drawing(object sender, EventArgs e)
-        {
-            NoCursorEscape.Process();
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)
