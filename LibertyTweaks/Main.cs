@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using DocumentFormat.OpenXml.Wordprocessing;
 using IVSDKDotNet;
 
 namespace LibertyTweaks
@@ -54,6 +55,7 @@ namespace LibertyTweaks
         private Keys quickSaveKey;
         private Keys holsterKey;
         private Keys toggleHudKey;
+        private Keys quickGpsKey;
 
         public Keys positiveTalkKey;
         public Keys negativeTalkKey;
@@ -142,6 +144,7 @@ namespace LibertyTweaks
             //StunPunch.Init(Settings);
             //RandomNoEuphoria.Init(Settings);
             CopShotgunFix.Init(Settings);
+            QuickGPS.Init(Settings);
 
             // FIXES
             NoOvertaking.Init(Settings);
@@ -158,7 +161,7 @@ namespace LibertyTweaks
             // KEYS
             quickSaveKey = Settings.GetKey("Quick-Saving", "Key", Keys.F9);
             holsterKey = Settings.GetKey("Weapon Holstering", "Key", Keys.H);
-
+            quickGpsKey = Settings.GetKey("Quick GPS", "Key", Keys.N);
             toggleHudKey = Settings.GetKey("Toggle HUD", "Key", Keys.K);
 
             // INTS
@@ -252,7 +255,6 @@ namespace LibertyTweaks
 
         private void Main_KeyDown(object sender, KeyEventArgs e)
         {
-
             if (e.KeyCode == toggleHudKey)
             {
                 ToggleHUD.Process();
@@ -266,6 +268,56 @@ namespace LibertyTweaks
             if (e.KeyCode == holsterKey)
             {
                 HolsterWeapons.Process();
+            }
+
+            // gillian: this is retarded and used for quickgps im sorry
+            if (e.KeyCode == quickGpsKey)
+            {
+                IVGame.ShowSubtitleMessage("Hold GPS Key+number button to pick a destination: 1: Restaurant; 2: Safehouse; 3: Weapons; 4: Pay'N'Spray; 5: Internet; 6: Clothing; 7: Missions; 8: Helitour; 9: Entertainment; 0: Clear");
+            }
+
+            switch (e.KeyCode)
+            {
+                case Keys.D1:
+                case Keys.NumPad1:
+                    QuickGPS.Process(1, quickGpsKey);
+                    break;
+                case Keys.D2:
+                case Keys.NumPad2:
+                    QuickGPS.Process(2, quickGpsKey);
+                    break;
+                case Keys.D3:
+                case Keys.NumPad3:
+                    QuickGPS.Process(3, quickGpsKey);
+                    break;
+                case Keys.D4:
+                case Keys.NumPad4:
+                    QuickGPS.Process(4, quickGpsKey);
+                    break;
+                case Keys.D5:
+                case Keys.NumPad5:
+                    QuickGPS.Process(5, quickGpsKey);
+                    break;
+                case Keys.D6:
+                case Keys.NumPad6:
+                    QuickGPS.Process(6, quickGpsKey);
+                    break;
+                case Keys.D7:
+                case Keys.NumPad7:
+                    QuickGPS.Process(7, quickGpsKey);
+                    break;
+                case Keys.D8:
+                case Keys.NumPad8:
+                    QuickGPS.Process(8, quickGpsKey);
+                    break;
+                case Keys.D9:
+                case Keys.NumPad9:
+                    QuickGPS.Process(9, quickGpsKey);
+                    break;
+                case Keys.D0:
+                case Keys.NumPad0:
+                    QuickGPS.Process(0, quickGpsKey);
+                    break;
             }
         }
     }
