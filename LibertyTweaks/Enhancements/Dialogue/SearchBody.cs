@@ -49,7 +49,6 @@ namespace LibertyTweaks
                         {
                             if (NativePickup.IsAnyPickupAtPos(playerGroundPos))
                             {
-
                                 if (!didSpeak)
                                 {
                                     playerPed.SayAmbientSpeech("SEARCH_BODY_TAKE_ITEM");

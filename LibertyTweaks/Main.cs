@@ -55,9 +55,6 @@ namespace LibertyTweaks
         private Keys holsterKey;
         private Keys toggleHudKey;
 
-        public Keys positiveTalkKey;
-        public Keys negativeTalkKey;
-
         private static CustomIVSave saveGame;
         #endregion
 
@@ -79,17 +76,12 @@ namespace LibertyTweaks
 
             Initialized += Main_Initialized;
             Tick += Main_Tick;
-<<<<<<< HEAD
-            Drawing +=Main_Drawing;
-=======
             Drawing += Main_Drawing;
->>>>>>> f8e8a85da25b5ab51bfe0634cb47e6cb28c4712a
             KeyDown += Main_KeyDown;
             ProcessAutomobile += Main_ProcessAutomobile;
             ProcessCamera += Main_ProcessCamera;
             IngameStartup += Main_IngameStartup;
             WaitTick +=Main_WaitTick;
-            GameLoad += Main_GameLoad;
             GameLoadPriority += Main_GameLoadPriority;
         }
 
@@ -108,11 +100,6 @@ namespace LibertyTweaks
         {
             WaitTickInterval=2000;
             UnholsteredGunFix.WaitTick();
-        }
-
-        private void Main_GameLoad(object sender, EventArgs e)
-        {
-            //QuickSave.Spawn();
         }
         #endregion
 
@@ -143,9 +130,6 @@ namespace LibertyTweaks
             Recoil.Init(Settings);
             CarFireBreakdown.Init(Settings);
             RealisticReloading.Init(Settings);
-            //StunPunch.Init(Settings);
-            //RandomNoEuphoria.Init(Settings);
-            CopShotgunFix.Init(Settings);
 
             // FIXES
             NoOvertaking.Init(Settings);
@@ -155,6 +139,7 @@ namespace LibertyTweaks
             UnholsteredGunFix.Init(Settings);
             BrakeLights.Init(Settings);
             ExtraHospitalSpawn.Init(Settings);
+            CopShotgunFix.Init(Settings);
 
             // SAVE
             saveGame = CustomIVSave.CreateOrLoadSaveGameData(this);
@@ -205,9 +190,6 @@ namespace LibertyTweaks
             recoilAssaultRiflesAmp2 = Settings.GetFloat("Extensive Settings", "Assault Rifle Amplitude 2", 0.6f);
             recoilAssaultRiflesFreq1 = Settings.GetFloat("Extensive Settings", "Assault Rifle Frequency 1", 0.1f);
             recoilAssaultRiflesFreq2 = Settings.GetFloat("Extensive Settings", "Assault Rifle Frequency 2", 0.6f);
-
-            //positiveTalkKey = Settings.GetKey("Interactive NPCs", "Positive Speech", Keys.Y);
-            //negativeTalkKey = Settings.GetKey("Interactive NPCs", "Positive Speech", Keys.N);
         }
 
         private void Main_ProcessCamera(object sender, EventArgs e)
@@ -223,6 +205,7 @@ namespace LibertyTweaks
         private void Main_Tick(object sender, EventArgs e)
         {
             // MAIN
+            NoOvertaking.Tick();
             RemoveWeapons.Tick();
             HigherPedAccuracy.Tick(pedAccuracy, pedFirerate);
             WeaponMagazines.Tick();
@@ -241,9 +224,6 @@ namespace LibertyTweaks
              recoilAssaultRiflesAmp1, recoilAssaultRiflesAmp2, recoilAssaultRiflesFreq1, recoilAssaultRiflesFreq2);
             RealisticReloading.Tick();
             QuickSave.Tick();
-            NoOvertaking.Tick();
-            //StunPunch.Tick(timer);
-            //RandomNoEuphoria.Tick();
 
 
             // FIXES
@@ -252,11 +232,6 @@ namespace LibertyTweaks
             ExtraHospitalSpawn.Tick();
             IceCreamSpeechFix.Tick();
             WheelFix.PreChecks();
-        }
-
-        private void Main_Drawing(object sender, EventArgs e)
-        {
-            NoCursorEscape.Process();
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)

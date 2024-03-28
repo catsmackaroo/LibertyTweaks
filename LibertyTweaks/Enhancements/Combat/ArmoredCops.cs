@@ -4,7 +4,6 @@ using static IVSDKDotNet.Native.Natives;
 using System.Collections.Generic;
 using System.Numerics;
 using CCL.GTAIV;
-using DocumentFormat.OpenXml.Math;
 
 // Credits: catsmackaroo, ItsClonkAndre, GQComms (for model)
 namespace LibertyTweaks

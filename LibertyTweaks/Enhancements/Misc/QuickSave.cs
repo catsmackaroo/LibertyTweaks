@@ -1,8 +1,6 @@
 ﻿using CCL.GTAIV;
-
 using IVSDKDotNet;
 using IVSDKDotNet.Native;
-using LibertyTweaks;
 using System.Numerics;
 using static IVSDKDotNet.Native.Natives;
 
@@ -50,7 +48,6 @@ namespace LibertyTweaks
 
                     if (lastSavedPosition != Vector3.Zero)
                     {
-
                         playerPed.Teleport(lastSavedPosition, false, true);
                         CLEAR_ROOM_FOR_CHAR(playerPed.GetHandle());
                     }
@@ -110,7 +107,6 @@ namespace LibertyTweaks
                     }
                     else
                     {
-
                         NativeGame.DoAutoSave();
                     }
                 }

@@ -2,7 +2,6 @@
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
 using static IVSDKDotNet.Native.Natives;
-using LibertyTweaks;
 
 // Credit: catsmackaroo
 

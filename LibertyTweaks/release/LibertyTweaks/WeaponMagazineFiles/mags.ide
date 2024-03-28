@@ -1,0 +1,19 @@
+#
+# ModelIDs 
+# peds:				0-129 (special characters 99-109)
+# vehicles:			400-799
+# car components 		800-805
+# ped components 		806-807
+# wheels: 			810-820
+# gifts and misc weapons:	821-829
+# weapons:			830-869
+# cutscene heads/objs: 		870-874
+#
+
+###############################################################################
+weap
+###############################################################################
+AMB_MAGAZINE, 		AMB_MAGAZINE, 		null,			 	1, 	50, 	0
+AMB_SHSHELL, 		AMB_MAGAZINE, 		null,			 	1, 	50, 	0
+
+end
