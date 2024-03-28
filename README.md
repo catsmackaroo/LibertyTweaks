@@ -36,10 +36,10 @@ Requires: [IV SDK .NET](https://github.com/ClonkAndre/IV-SDK-DotNet) & [Clonk's 
 # Credits
 
 **Primary Team**
-catsmackaroo
-ItsClonkAndre
+- catsmackaroo
+- ItsClonkAndre
 
 **Secondary Help**
-Gillian
-Mike406
-GQComms
+- Gillian
+- Mike406
+- GQComms
