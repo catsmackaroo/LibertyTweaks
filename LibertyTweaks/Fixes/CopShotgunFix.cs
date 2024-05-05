@@ -1,9 +1,6 @@
 ﻿using IVSDKDotNet;
 using System;
 using static IVSDKDotNet.Native.Natives;
-using System.Collections.Generic;
-using System.Numerics;
-using CCL.GTAIV;
 using IVSDKDotNet.Native;
 
 namespace LibertyTweaks

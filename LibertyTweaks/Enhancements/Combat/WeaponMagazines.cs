@@ -144,9 +144,9 @@ namespace LibertyTweaks
                 {
                     if (magObj1 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("cj_ld_poolball_3"), playerPed.Matrix.Pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_shshell"), playerPed.Matrix.Pos, out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
-                        ATTACH_OBJECT_TO_PED(magObj1, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.09f, 0.04f, 0f, 0f, 0f, 0f, 0);
+                        ATTACH_OBJECT_TO_PED(magObj1, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.09f, 0.01f, 0f, 0f, 0f, 0f, 0);
                     }
                 }
                 else if (currentReloadAnimTime.InRange(0.35f, 0.4f)) // Delete Shell Obj 1
@@ -161,9 +161,9 @@ namespace LibertyTweaks
                 {
                     if (magObj2 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("cj_ld_poolball_3"), playerPed.Matrix.Pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_shshell"), playerPed.Matrix.Pos, out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
-                        ATTACH_OBJECT_TO_PED(magObj2, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.09f, 0.04f, 0f, 0f, 0f, 0f, 0);
+                        ATTACH_OBJECT_TO_PED(magObj2, playerPedHandle, (uint)eBone.BONE_LEFT_HAND, 0.09f, 0.01f, 0f, 0f, 0f, 0f, 0);
                     }
                 }
                 else if (currentReloadAnimTime.InRange(0.65f, 1.0f)) // Delete Shell Obj 2

@@ -62,7 +62,6 @@
     <Compile Include="Enhancements\Combat\HigherPedAccuracy.cs" />
     <Compile Include="Enhancements\Combat\HolsterWeapons.cs" />
     <Compile Include="Enhancements\Combat\MoveWithSniper.cs" />
-    <Compile Include="Enhancements\Combat\RandomNoEuphoria.cs" />
     <Compile Include="Enhancements\Combat\RealisticReloading.cs" />
     <Compile Include="Enhancements\Combat\Recoil.cs" />
     <Compile Include="Enhancements\Combat\RegenerateHP.cs" />

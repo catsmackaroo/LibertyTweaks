@@ -1,6 +1,5 @@
 ﻿using CCL.GTAIV;
 using IVSDKDotNet;
-using System;
 using static IVSDKDotNet.Native.Natives;
 
 // Credit: catsmackaroo
