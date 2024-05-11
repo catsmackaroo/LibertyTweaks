@@ -24,7 +24,6 @@ namespace LibertyTweaks
 
             if (IS_CHAR_IN_ANY_CAR(playerPed.GetHandle()))
             {
-
                 GET_CAR_CHAR_IS_USING(playerPed.GetHandle(), out int pVeh); 
 
                 if (IS_CAR_ON_FIRE(pVeh))

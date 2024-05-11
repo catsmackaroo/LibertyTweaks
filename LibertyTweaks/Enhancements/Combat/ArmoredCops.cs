@@ -12,12 +12,14 @@ namespace LibertyTweaks
     {
         private static bool enable;
         private static bool enableBuffSWAT;
+        public static bool enableVests;
         private static List<int> copsHadArmor = new List<int>();
 
 
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Improved Police", "Armored Cops", true);
+            enableVests = settings.GetBoolean("Improved Police", "Armored Cops Have Vests", true);
             enableBuffSWAT = settings.GetBoolean("Improved Police", "Buff SWAT", true);
         }
 
@@ -103,6 +105,22 @@ namespace LibertyTweaks
                         }
                     }
 
+                    // With or without stars, if a cop spawns with the armor vests they will be given armor (consistency!)
+                    if (enableVests == true)
+                    {
+                        if (pedModel == 4111764146)
+                        {
+                            if (GET_CHAR_DRAWABLE_VARIATION(pedHandle, 1) == 4)
+                            {
+                                if (copsHadArmor.Contains(pedHandle))
+                                    continue;
+
+                                ADD_ARMOUR_TO_CHAR(pedHandle, 100);
+                                copsHadArmor.Add(pedHandle);
+                            }
+                        }
+                    }
+
                     // If player has more than 4 or more stars
                     if (currentWantedLevel < armoredCopsStars)
                         continue;
@@ -115,8 +133,12 @@ namespace LibertyTweaks
                     if (IS_PED_A_MISSION_PED(pedHandle))
                         continue;
 
-                    // Check for FatCop
+                    // Check for Fat cops
                     if (pedModel == 3924571768)
+                        continue;
+
+                    // Check for Alderney cops
+                    if (pedModel == 4205665177 )
                         continue;
 
                     // Check if the grabbed ped has already been given armor
@@ -129,7 +151,11 @@ namespace LibertyTweaks
 
                     // Finally adds armor to the policia
                     ADD_ARMOUR_TO_CHAR(pedHandle, 100);
-                    SET_CHAR_COMPONENT_VARIATION(pedHandle, 1, 4, 0);
+
+                    // Gives cops visible armor vests if the feature is enabled
+                    if (enableVests == true)
+                        SET_CHAR_COMPONENT_VARIATION(pedHandle, 1, 4, 0);
+
                     copsHadArmor.Add(pedHandle);
                 }
             }

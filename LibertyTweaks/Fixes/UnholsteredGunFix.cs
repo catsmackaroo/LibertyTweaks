@@ -29,7 +29,7 @@ namespace LibertyTweaks
             IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
 
             // Get current weapon
-            GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out uint currentWeap);
+            GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out int currentWeap);
 
             // If player is holding any weapon
             if (currentWeap != 0 && currentWeap != 46)

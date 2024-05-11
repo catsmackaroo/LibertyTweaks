@@ -28,22 +28,24 @@ namespace LibertyTweaks
             // Gets the current vehicle of the player
             IVVehicle playerVehicle = IVVehicle.FromUIntPtr(playerPed.GetVehicle());
 
-            if (playerVehicle != null)
+            if (!IS_CHAR_DEAD(playerId))
             {
-                // Gets the speed of the current vehicle of the player
-                GET_CAR_SPEED(playerVehicle.GetHandle(), out float carSpeed);
-
-                // If speed of the vehicle is below 2f
-                if (carSpeed < 1f)
+                if (playerVehicle != null)
                 {
-                    // Disable the brake lights if the player presses the gas pedal
-                    if (NativeControls.IsGameKeyPressed(0, GameKey.MoveForward) || (NativeControls.IsUsingController() && NativeControls.IsGameKeyPressed(0, GameKey.Attack)))
-                        playerVehicle.BrakePedal = 0f;
-                    else // Activate brake lights
-                        playerVehicle.BrakePedal = 0.15f;
+                    // Gets the speed of the current vehicle of the player
+                    GET_CAR_SPEED(playerVehicle.GetHandle(), out float carSpeed);
+
+                    // If speed of the vehicle is below 2f
+                    if (carSpeed < 1f)
+                    {
+                        // Disable the brake lights if the player presses the gas pedal
+                        if (NativeControls.IsGameKeyPressed(0, GameKey.MoveForward) || (NativeControls.IsUsingController() && NativeControls.IsGameKeyPressed(0, GameKey.Attack)))
+                            playerVehicle.BrakePedal = 0f;
+                        else // Activate brake lights
+                            playerVehicle.BrakePedal = 0.15f;
+                    }
                 }
             }
         }
-
     }
 }

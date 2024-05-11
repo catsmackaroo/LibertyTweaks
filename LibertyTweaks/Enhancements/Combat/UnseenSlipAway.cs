@@ -52,6 +52,11 @@ namespace LibertyTweaks
             if (!PLAYER_HAS_GREYED_OUT_STARS((int)playerId))
                 // Reset so this can all happen again
                 UnseenSlipAway.timer = DateTime.MinValue;
+
+            if (IS_PAUSE_MENU_ACTIVE())
+            {
+                UnseenSlipAway.timer = DateTime.MinValue;
+            }
         }
     }
 }

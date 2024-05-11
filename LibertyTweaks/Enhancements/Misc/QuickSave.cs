@@ -1,6 +1,7 @@
 ﻿using CCL.GTAIV;
 using IVSDKDotNet;
 using IVSDKDotNet.Native;
+using System;
 using System.Numerics;
 using static IVSDKDotNet.Native.Natives;
 
@@ -93,26 +94,29 @@ namespace LibertyTweaks
             playerId = IVPedExtensions.GetHandle(playerPed);
             heightAboveGround = IVPedExtensions.GetHeightAboveGround(playerPed);
 
-            if (heightAboveGround < 2)
+            if (!IS_CHAR_IN_ANY_CAR(playerId))
             {
-                if (IS_PED_RAGDOLL(playerId))
-                    return;
-
-                if (quickOrSelected == false)
+                if (heightAboveGround < 2)
                 {
-                    if (autoSaveStatus == true)
-                    {
-                        IVGame.ShowSubtitleMessage("Auto-save is currently disabled.");
+                    if (IS_PED_RAGDOLL(playerId))
                         return;
+
+                    if (quickOrSelected == false)
+                    {
+                        if (autoSaveStatus == true)
+                        {
+                            IVGame.ShowSubtitleMessage("Auto-save is currently disabled.");
+                            return;
+                        }
+                        else
+                        {
+                            NativeGame.DoAutoSave();
+                        }
                     }
                     else
                     {
-                        NativeGame.DoAutoSave();
+                        NativeGame.ShowSaveMenu();
                     }
-                }
-                else
-                {
-                    NativeGame.ShowSaveMenu();
                 }
             }
         }

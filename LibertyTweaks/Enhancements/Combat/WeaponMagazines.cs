@@ -16,7 +16,7 @@ namespace LibertyTweaks
     internal class WeaponMagazines
     {
 
-        private static bool enableFix;
+        public static bool enable;
         private static List<string> disableForWeapons;
 
         private static float currentReloadAnimTime;
@@ -25,13 +25,13 @@ namespace LibertyTweaks
 
         public static void Init(SettingsFile settings)
         {
-            enableFix = settings.GetBoolean("Gun Magazines", "Enable", true);
+            enable = settings.GetBoolean("Gun Magazines", "Enable", true);
             disableForWeapons = settings.GetValue("Gun Magazines", "DisabledWeaponTypes", "").Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
         private static void CheckMagazineObjects()
         {
-            if (!enableFix)
+            if (!enable)
                 return;
 
             if (magObj1 != 0)
@@ -69,7 +69,7 @@ namespace LibertyTweaks
         // Clonk: Quite alot of duplicated code in those methods, maybe make the animation time check code universal
         private static void ProcessHandgunReloading(IVPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
-            if (!enableFix)
+            if (!enable)
                 return;
 
             // Handgun / Deagle
@@ -125,7 +125,7 @@ namespace LibertyTweaks
         }
         private static void ProcessShotgunReloading(IVPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
-            if (!enableFix)
+            if (!enable)
                 return;
 
             bool isBarettaReloading = animController.IsPlaying("gun@baretta", isPlayerDucking ? "reload_crouch" : "reload");
@@ -182,7 +182,7 @@ namespace LibertyTweaks
         }
         private static void ProcessUziReloading(IVPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
-            if (!enableFix)
+            if (!enable)
                 return;
 
             bool isUziReloading = animController.IsPlaying("gun@uzi", isPlayerDucking ? "reload_crouch" : "reload");
@@ -237,7 +237,7 @@ namespace LibertyTweaks
         }
         private static void ProcessAssaultRifleReloading(IVPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
-            if (!enableFix)
+            if (!enable)
                 return;
 
             // The AK47 and M4 share the same animation set
@@ -289,7 +289,7 @@ namespace LibertyTweaks
         }
         private static void ProcessRifleReloading(IVPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
-            if (!enableFix)
+            if (!enable)
                 return;
 
             bool isRifleReloading = animController.IsPlaying("gun@rifle", isPlayerDucking ? "reload_crouch" : "p_load");
@@ -344,7 +344,7 @@ namespace LibertyTweaks
         }
         private static void ProcessRPGReloading(IVPed playerPed, int playerPedHandle, PedAnimationController animController, bool isPlayerDucking)
         {
-            if (!enableFix)
+            if (!enable)
                 return;
 
             bool isRPGReloading = animController.IsPlaying("gun@rocket", isPlayerDucking ? "reload_crouch" : "reload");
@@ -385,7 +385,7 @@ namespace LibertyTweaks
 
         public static void Tick()
         {
-            if (!enableFix)
+            if (!enable)
                 return;
 
             // If amb_magazine is not in cdimage then return so game will not crash when we try to use this model
@@ -399,10 +399,10 @@ namespace LibertyTweaks
             int playerPedHandle = playerPed.GetHandle();
 
             // Gets the current weapon of the player
-            GET_CURRENT_CHAR_WEAPON(playerPedHandle, out uint currentWeapon);
+            GET_CURRENT_CHAR_WEAPON(playerPedHandle, out int currentWeapon);
 
             // Check if the reloading can't be done
-            if (currentWeapon == (uint)eWeaponType.WEAPON_UNARMED || playerPed.Dead)
+            if (currentWeapon == (int)eWeaponType.WEAPON_UNARMED || playerPed.Dead)
             {
                 // Check if magazine objects exists and are attached somewhere but shouldn't
                 CheckMagazineObjects();

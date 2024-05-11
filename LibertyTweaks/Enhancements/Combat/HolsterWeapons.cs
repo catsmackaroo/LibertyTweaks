@@ -9,8 +9,7 @@ namespace LibertyTweaks
     internal class HolsterWeapons
     {
         private static int playerId;
-        private static uint currentWeapon;
-        private static uint lastWeapon;
+        private static int lastWeapon;
         private static bool enableFix;
 
         public static void Init(SettingsFile Settings)
@@ -25,7 +24,7 @@ namespace LibertyTweaks
 
             IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
             playerId = IVPedExtensions.GetHandle(playerPed);
-            GET_CURRENT_CHAR_WEAPON(playerId, out currentWeapon);
+            GET_CURRENT_CHAR_WEAPON(playerId, out int currentWeapon);
 
             if (!IS_CHAR_IN_ANY_CAR(playerId))
             {
@@ -36,7 +35,7 @@ namespace LibertyTweaks
                 }
                 else
                 { 
-                    GIVE_DELAYED_WEAPON_TO_CHAR(playerId, (int)lastWeapon, 1, true);
+                    GIVE_DELAYED_WEAPON_TO_CHAR(playerId, lastWeapon, 1, true);
                 }
             }
         }

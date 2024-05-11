@@ -36,7 +36,7 @@ namespace LibertyTweaks
             {
                 cam = NativeCamera.GetGameCam();
 
-                GET_CURRENT_CHAR_WEAPON(playerId, out currentWeapon);
+                GET_CURRENT_CHAR_WEAPON(playerId, out int currentWeapon);
 
                 // Small Pistols (Pistol & Automatic Pistol)
                 if (currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_7

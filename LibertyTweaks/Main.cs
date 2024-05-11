@@ -54,8 +54,10 @@ namespace LibertyTweaks
         private Keys quickSaveKey;
         private Keys holsterKey;
         private Keys toggleHudKey;
+        //private Keys personalVehicleKey;
 
         private static CustomIVSave saveGame;
+
         #endregion
 
         #region Functions
@@ -92,8 +94,12 @@ namespace LibertyTweaks
 
         private void Main_GameLoadPriority(object sender, EventArgs e)
         {
-            WeaponMagazines.LoadFiles();
-            ArmoredCops.LoadFiles();
+            if (ArmoredCops.enableVests == true)
+                ArmoredCops.LoadFiles();
+
+            if (WeaponMagazines.enable == true)
+                WeaponMagazines.LoadFiles();
+
         }
 
         private void Main_WaitTick(object sender, EventArgs e)
@@ -106,6 +112,7 @@ namespace LibertyTweaks
         private void Main_IngameStartup(object sender, EventArgs e)
         {
             QuickSave.IngameStartup();
+            //PersonalVehicle.IngameStartup();
         }
 
         private void Main_Initialized(object sender, EventArgs e)
@@ -147,8 +154,8 @@ namespace LibertyTweaks
             // KEYS
             quickSaveKey = Settings.GetKey("Quick-Saving", "Key", Keys.F9);
             holsterKey = Settings.GetKey("Weapon Holstering", "Key", Keys.H);
-
             toggleHudKey = Settings.GetKey("Toggle HUD", "Key", Keys.K);
+            //personalVehicleKey = Settings.GetKey("Personal Vehicle", "Save Key", Keys.F9);
 
             // INTS
             pedAccuracy = Settings.GetInteger("Improved AI", "Accuracy", 85);
@@ -224,7 +231,8 @@ namespace LibertyTweaks
              recoilAssaultRiflesAmp1, recoilAssaultRiflesAmp2, recoilAssaultRiflesFreq1, recoilAssaultRiflesFreq2);
             RealisticReloading.Tick();
             QuickSave.Tick();
-
+            AutosaveOnCollectibles.Tick();
+            //PersonalVehicle.Tick();
 
             // FIXES
             BrakeLights.Tick();
@@ -251,6 +259,11 @@ namespace LibertyTweaks
             {
                 HolsterWeapons.Process();
             }
+
+            //if (e.KeyCode == personalVehicleKey)
+            //{
+            //    PersonalVehicle.Process();
+            //}
         }
     }
 }

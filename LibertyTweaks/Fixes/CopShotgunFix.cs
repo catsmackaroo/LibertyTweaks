@@ -28,9 +28,9 @@ namespace LibertyTweaks
 
                     int pedHandle = (int)pedPool.GetIndex(ptr);
                     GET_CHAR_MODEL(pedHandle, out uint pedModel);
-                    Natives.GET_CURRENT_CHAR_WEAPON(pedHandle, out uint currentPedWeapon);
+                    Natives.GET_CURRENT_CHAR_WEAPON(pedHandle, out int currentPedWeapon);
 
-                    if (pedModel == 4111764146 || pedModel == 2776029317 || pedModel == 3290204350)
+                    if (pedModel == 4111764146 || pedModel == 2776029317 || pedModel == 4205665177 || pedModel == 3295460374)
                     {
                         if (currentPedWeapon == 10)
                         {
