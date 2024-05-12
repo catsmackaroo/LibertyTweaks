@@ -16,6 +16,9 @@ namespace LibertyTweaks
 
         public static void Tick()
         {
+            if (!enable)
+                return;
+
             IVPool pedPool = IVPools.GetPedPool();
             for (int i = 0; i < pedPool.Count; i++)
             {
@@ -37,7 +40,6 @@ namespace LibertyTweaks
                             GIVE_WEAPON_TO_CHAR(pedHandle, 11, 30, false);
                         }
                     }
-                    
                 }
             }
         }

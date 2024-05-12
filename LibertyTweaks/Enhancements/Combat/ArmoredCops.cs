@@ -112,6 +112,9 @@ namespace LibertyTweaks
                         {
                             if (GET_CHAR_DRAWABLE_VARIATION(pedHandle, 1) == 4)
                             {
+                                if (currentWantedLevel > armoredCopsStars)
+                                    continue;
+
                                 if (copsHadArmor.Contains(pedHandle))
                                     continue;
 

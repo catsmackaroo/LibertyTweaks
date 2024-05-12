@@ -54,7 +54,7 @@ namespace LibertyTweaks
         private Keys quickSaveKey;
         private Keys holsterKey;
         private Keys toggleHudKey;
-        //private Keys personalVehicleKey;
+        private Keys personalVehicleKey;
 
         private static CustomIVSave saveGame;
 
@@ -112,7 +112,7 @@ namespace LibertyTweaks
         private void Main_IngameStartup(object sender, EventArgs e)
         {
             QuickSave.IngameStartup();
-            //PersonalVehicle.IngameStartup();
+            PersonalVehicle.IngameStartup();
         }
 
         private void Main_Initialized(object sender, EventArgs e)
@@ -137,6 +137,7 @@ namespace LibertyTweaks
             Recoil.Init(Settings);
             CarFireBreakdown.Init(Settings);
             RealisticReloading.Init(Settings);
+            PersonalVehicle.Init(Settings);
 
             // FIXES
             NoOvertaking.Init(Settings);
@@ -155,7 +156,7 @@ namespace LibertyTweaks
             quickSaveKey = Settings.GetKey("Quick-Saving", "Key", Keys.F9);
             holsterKey = Settings.GetKey("Weapon Holstering", "Key", Keys.H);
             toggleHudKey = Settings.GetKey("Toggle HUD", "Key", Keys.K);
-            //personalVehicleKey = Settings.GetKey("Personal Vehicle", "Save Key", Keys.F9);
+            personalVehicleKey = Settings.GetKey("Personal Vehicle", "Save Key", Keys.F9);
 
             // INTS
             pedAccuracy = Settings.GetInteger("Improved AI", "Accuracy", 85);
@@ -232,7 +233,7 @@ namespace LibertyTweaks
             RealisticReloading.Tick();
             QuickSave.Tick();
             AutosaveOnCollectibles.Tick();
-            //PersonalVehicle.Tick();
+            PersonalVehicle.Tick();
 
             // FIXES
             BrakeLights.Tick();
@@ -260,10 +261,10 @@ namespace LibertyTweaks
                 HolsterWeapons.Process();
             }
 
-            //if (e.KeyCode == personalVehicleKey)
-            //{
-            //    PersonalVehicle.Process();
-            //}
+            if (e.KeyCode == personalVehicleKey)
+            {
+                PersonalVehicle.Process();
+            }
         }
     }
 }
