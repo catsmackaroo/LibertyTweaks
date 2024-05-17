@@ -2,6 +2,9 @@
 A highly configurable quality-of-life mod for Grand Theft Auto IV.
 Requires: [IV SDK .NET](https://github.com/ClonkAndre/IV-SDK-DotNet) & [Clonk's Coding Library](https://github.com/ClonkAndre/ClonksCodingLib.GTAIV)
 
+# Installation
+Drag & drop all files into `IVSDKDotNet`>`scripts`
+
 # Features
 - No more peds overtaking the player.
 - While on foot, you gain the ability to quick-save. F9 by default. Your location will also be saved.
