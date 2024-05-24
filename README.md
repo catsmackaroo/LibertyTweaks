@@ -2,7 +2,16 @@
 A highly configurable quality-of-life mod for Grand Theft Auto IV.
 Requires: [IV SDK .NET](https://github.com/ClonkAndre/IV-SDK-DotNet) & [Clonk's Coding Library](https://github.com/ClonkAndre/ClonksCodingLib.GTAIV)
 
+Check out the [GTAForums](https://gtaforums.com/topic/991160-liberty-tweaks/) page for a better layout.
+
+# Installation
+[Video Guide](https://www.youtube.com/watch?v=6dMkwexv2EY)
+
+Ensure you have all requirements, then download Liberty Tweaks. Drag & drop into main directory.
+
 # Features
+[Video Showcase](https://www.youtube.com/watch?v=NnbC1-kv8q0)
+
 - No more peds overtaking the player.
 - While on foot, you gain the ability to quick-save. F9 by default. Your location will also be saved.
 - The game will automatically save when grabbing collectibles.
