@@ -7,7 +7,8 @@ Check out the [GTAForums](https://gtaforums.com/topic/991160-liberty-tweaks/) pa
 # Installation
 [Video Guide](https://www.youtube.com/watch?v=6dMkwexv2EY)
 
-Ensure you have all requirements, then download Liberty Tweaks. Drag & drop into main directory.
+Ensure you have all requirements, then download Liberty Tweaks. Drag & drop into main directory. 
+⚠️- Currently causes save corruption. Just make sure you don't save with it. You should start new game after installing the mod.
 
 # Features
 [Video Showcase](https://www.youtube.com/watch?v=NnbC1-kv8q0)
