@@ -12,6 +12,9 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Fixes", "Cop Shotgun Fix", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
         public static void Tick()

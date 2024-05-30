@@ -16,12 +16,16 @@ namespace LibertyTweaks
         private static bool quickOrSelected;
         private static bool firstFrame = true;
         private static Vector3 lastSavedPosition;
+        private static float lastSavedPlayerHeading;
 
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Quick-Saving", "Enable", true);
             saveLocation = settings.GetBoolean("Quick-Saving", "Save Location", true);
             quickOrSelected = settings.GetBoolean("Quick-Saving", "Select Saves", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
         public static void Tick()
@@ -40,22 +44,25 @@ namespace LibertyTweaks
             // Only teleport player on very first frame
             if (firstFrame)
             {
-                DO_SCREEN_FADE_IN(10000);
-
                 try
                 {
                     // Teleport player to last saved position if there is a last saved position
-                    Vector3 lastSavedPosition = Main.GetTheSaveGame().GetVector3("LastPosition");
+                    Vector3 lastSavedPosition = Main.GetTheSaveGame().GetVector3("PlayerPosition");
+                    float lastSavedPlayerHeading = Main.GetTheSaveGame().GetFloat("PlayerHeading");
 
                     if (lastSavedPosition != Vector3.Zero)
                     {
-                        playerPed.Teleport(lastSavedPosition, false, true);
-                        CLEAR_ROOM_FOR_CHAR(playerPed.GetHandle());
+                        if (lastSavedPlayerHeading != 0)
+                        {
+                            playerPed.Teleport(lastSavedPosition, false, true);
+                            SET_CHAR_HEADING(playerPed.GetHandle(), lastSavedPlayerHeading);
+                            CLEAR_ROOM_FOR_CHAR(playerPed.GetHandle());
+                        }
                     }
                 }
                 catch (System.Exception) 
                 {
-                    
+
                 }
 
                 firstFrame = false;
@@ -64,7 +71,8 @@ namespace LibertyTweaks
             // Save last player position if game is saving
             if (Main.GetTheSaveGame().IsGameSaving())
             {
-                Main.GetTheSaveGame().SetVector3("LastPosition", playerPed.Matrix.Pos);
+                Main.GetTheSaveGame().SetVector3("PlayerPosition", playerPed.Matrix.Pos);
+                Main.GetTheSaveGame().SetFloat("PlayerHeading", playerPed.GetHeading());
                 Main.GetTheSaveGame().Save();
             }
         }

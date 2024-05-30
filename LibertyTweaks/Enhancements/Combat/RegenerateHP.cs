@@ -15,6 +15,9 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Health Regeneration", "Enable", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
         public static void Tick(DateTime timer, int regenHealthMinTimer, int regenHealthMaxTimer, int regenHealthMinHeal, int regenHealthMaxHeal)
@@ -31,6 +34,9 @@ namespace LibertyTweaks
 
             if (playerHealth < 126)
             {
+                if (IS_PAUSE_MENU_ACTIVE())
+                    return;
+
                 if (IS_CHAR_DEAD(playerPed.GetHandle()))
                 {
                     RegenerateHP.timer = DateTime.MinValue;

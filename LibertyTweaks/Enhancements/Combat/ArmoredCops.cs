@@ -4,6 +4,7 @@ using static IVSDKDotNet.Native.Natives;
 using System.Collections.Generic;
 using System.Numerics;
 using CCL.GTAIV;
+using IVSDKDotNet.Enums;
 
 // Credits: catsmackaroo, ItsClonkAndre, GQComms (for model)
 namespace LibertyTweaks
@@ -21,13 +22,14 @@ namespace LibertyTweaks
             enable = settings.GetBoolean("Improved Police", "Armored Cops", true);
             enableVests = settings.GetBoolean("Improved Police", "Armored Cops Have Vests", true);
             enableBuffSWAT = settings.GetBoolean("Improved Police", "Buff SWAT", true);
-        }
 
+            if (enable)
+                Main.Log("script initialized...");
+        }
         public static void LoadFiles()
         {
             IVCDStream.AddImage("IVSDKDotNet/scripts/LibertyTweaks/ArmoredCopFiles/armoredCops.img", 1, -1);
         }
-
         public static void Tick(int armoredCopsStars)
         {
             if (!enable)
@@ -90,18 +92,31 @@ namespace LibertyTweaks
                         else
                         {
                             GET_CHAR_PROP_INDEX(pedHandle, 0, out int pedPropIndex);
+                            GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out int currentWeapon);
 
-                            noosePed.PedFlags.NoHeadshots = true;
-
-                            if (pedPropIndex == -1)
+                            if (currentWeapon == (int)eWeaponType.WEAPON_SNIPERRIFLE || currentWeapon == (int)eWeaponType.WEAPON_M40A1 || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_15)
                             {
+                                // Chat GPT test
                                 noosePed.PedFlags.NoHeadshots = false;
+                                noosePed.PreventRagdoll(false);
+                            }
+                            else
+                            {
+                                noosePed.PedFlags.NoHeadshots = true;
+
+                                if (pedPropIndex == -1)
+                                {
+                                    noosePed.PedFlags.NoHeadshots = false;
+                                }
+
+                                if (!IS_CHAR_ON_FIRE(pedHandle))
+                                {
+                                    noosePed.PreventRagdoll(true);
+                                }
+
                             }
 
-                            if (!IS_CHAR_ON_FIRE(pedHandle))
-                            {
-                                noosePed.PreventRagdoll(true);
-                            }
+                            
                         }
                     }
 
@@ -141,7 +156,7 @@ namespace LibertyTweaks
                         continue;
 
                     // Check for Alderney cops
-                    if (pedModel == 4205665177 )
+                    if (pedModel == 4205665177)
                         continue;
 
                     // Check if the grabbed ped has already been given armor
@@ -149,7 +164,7 @@ namespace LibertyTweaks
                         continue;
 
                     // Check distance between police & player
-                    if (Vector3.Distance(playerPed.Matrix.Pos, pedCoords) < 75f)
+                    if (Vector3.Distance(playerPed.Matrix.Pos, pedCoords) < 125f)
                         continue;
 
                     // Finally adds armor to the policia

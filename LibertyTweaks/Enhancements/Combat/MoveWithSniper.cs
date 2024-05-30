@@ -16,6 +16,9 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enableFix = settings.GetBoolean("Move With Sniper", "Enable", true);
+
+            if (enableFix)
+                Main.Log("script initialized...");
         }
 
         public static void Tick()

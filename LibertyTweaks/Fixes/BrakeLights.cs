@@ -14,6 +14,9 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Fixes", "Brake Lights Fix", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
         public static void Tick()
@@ -36,10 +39,10 @@ namespace LibertyTweaks
                     GET_CAR_SPEED(playerVehicle.GetHandle(), out float carSpeed);
 
                     // If speed of the vehicle is below 2f
-                    if (carSpeed < 1f)
+                    if (carSpeed < 0.09500f)
                     {
                         // Disable the brake lights if the player presses the gas pedal
-                        if (NativeControls.IsGameKeyPressed(0, GameKey.MoveForward) || (NativeControls.IsUsingController() && NativeControls.IsGameKeyPressed(0, GameKey.Attack)))
+                        if (NativeControls.IsGameKeyPressed(0, GameKey.MoveForward) || (NativeControls.IsGameKeyPressed(0, GameKey.MoveBackward)) || (NativeControls.IsUsingController() && NativeControls.IsGameKeyPressed(0, GameKey.Attack)))
                             playerVehicle.BrakePedal = 0f;
                         else // Activate brake lights
                             playerVehicle.BrakePedal = 0.15f;

@@ -13,7 +13,7 @@ namespace LibertyTweaks
 {
     internal class AutosaveOnCollectibles
     {
-        private static bool enableFix;
+        private static bool enable;
         private static uint lastEpisode = 3; // this is done so it'll init the stats
         private static uint pigeons;
         private static uint stuntJumps;
@@ -22,7 +22,10 @@ namespace LibertyTweaks
 
         public static void Init(SettingsFile settings)
         {
-            enableFix = settings.GetBoolean("Autosave on Collectibles", "Enable", true);
+            enable = settings.GetBoolean("Autosave on Collectibles", "Enable", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
         private static void InitStats()
         {
@@ -34,7 +37,7 @@ namespace LibertyTweaks
 
         public static void Tick()
         {
-            if (!enableFix)
+            if (!enable)
                 return;
             bool autoSaveStatus = Natives.GET_IS_AUTOSAVE_OFF();
             if (autoSaveStatus)

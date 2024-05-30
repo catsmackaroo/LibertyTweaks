@@ -17,6 +17,9 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Realistic Reloading", "Enable", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
         public static void Tick()
@@ -24,12 +27,12 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            int playerId;
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-            playerId = IVPedExtensions.GetHandle(playerPed);
-
             if (NativeControls.IsGameKeyPressed(0, GameKey.Reload))
             {
+                int playerId;
+                IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
+                playerId = IVPedExtensions.GetHandle(playerPed);
+
                 // Get current weapon
                 GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out int currentWeapon);
 
@@ -42,14 +45,18 @@ namespace LibertyTweaks
                 // Get max ammo that can be in weapon clip
                 GET_MAX_AMMO_IN_CLIP(playerPed.GetHandle(), currentWeapon, out int clipAmmoMax);
 
+                if (clipAmmo == 0)
+                    return;
+
                 if (clipAmmo < clipAmmoMax && weaponAmmo - clipAmmo > 0)
                 {
                     if (currentWeapon == (int)eWeaponType.WEAPON_SHOTGUN || currentWeapon == (int)eWeaponType.WEAPON_BARETTA
                         || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_11 || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_10
                         || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_2 || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_6)
                     {
+                        return;
                     }
-                    else
+                    else if (!IS_MOUSE_BUTTON_PRESSED(1))
                     {
                         SET_AMMO_IN_CLIP(playerPed.GetHandle(), (int)currentWeapon, 0);
                     }

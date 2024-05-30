@@ -8,14 +8,17 @@ namespace LibertyTweaks
 {
     internal class VLikeScreaming
     {
-        private static bool enableFix;
+        private static bool enable;
         public static void Init(SettingsFile settings)
         {
-            enableFix = settings.GetBoolean("More Dialogue", "Fall Screaming", true);
+            enable = settings.GetBoolean("More Dialogue", "Fall Screaming", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
         public static void Tick()
         {
-            if (!enableFix)
+            if (!enable)
                 return;
             float heightAboveGround;
             int playerId;

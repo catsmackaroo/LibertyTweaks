@@ -27,8 +27,15 @@ namespace LibertyTweaks
         {
             enable = settings.GetBoolean("Gun Magazines", "Enable", true);
             disableForWeapons = settings.GetValue("Gun Magazines", "DisabledWeaponTypes", "").Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-        }
 
+            if (enable)
+                Main.Log("script initialized...");
+        }
+        public static void LoadFiles()
+        {
+            IVCDStream.AddImage("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.img", 1, -1);
+            IVFileLoader.LoadLevel("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.dat", 0);
+        }
         private static void CheckMagazineObjects()
         {
             if (!enable)
@@ -377,12 +384,6 @@ namespace LibertyTweaks
                 isAnyGunReloadingAnimPlaying = false;
             }
         }
-        public static void LoadFiles()
-        {
-            IVCDStream.AddImage("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.img", 1, -1);
-            IVFileLoader.LoadLevel("IVSDKDotNet/scripts/LibertyTweaks/WeaponMagazineFiles/mags.dat", 0);
-        }
-
         public static void Tick()
         {
             if (!enable)

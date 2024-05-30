@@ -18,6 +18,9 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Fixes", "Wheel Fix", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
         public static void PreChecks()

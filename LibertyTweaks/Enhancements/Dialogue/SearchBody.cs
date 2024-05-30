@@ -12,16 +12,20 @@ namespace LibertyTweaks
     {
 
         private static bool didSpeak;
-        private static bool enableFix;
+        private static bool enable;
 
         public static void Init(SettingsFile settings)
         {
-            enableFix = settings.GetBoolean("More Dialogue", "Looting", true);
+            enable = settings.GetBoolean("More Dialogue", "Looting", true);
+
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
         public static void Tick()
         {
-            if (!enableFix)
+            if (!enable)
                 return;
 
             // Grab the player IVPed, then the player handle (ID)

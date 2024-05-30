@@ -15,6 +15,9 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Immersive Recoil", "Enable", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
 

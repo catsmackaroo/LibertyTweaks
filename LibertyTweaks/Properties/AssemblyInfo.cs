@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("catsmackaroo")]
 [assembly: AssemblyProduct("LibertyTweaks")]
-[assembly: AssemblyCopyright("Copyright ©  catsmackaroo 2023")]
+[assembly: AssemblyCopyright("Copyright ©  catsmackaroo 2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -35,3 +35,4 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+

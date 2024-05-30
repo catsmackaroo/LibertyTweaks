@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows.Forms;
+using System.Runtime.CompilerServices;
 using IVSDKDotNet;
 
 namespace LibertyTweaks
@@ -49,15 +51,17 @@ namespace LibertyTweaks
         public float recoilAssaultRiflesFreq1;
         public float recoilAssaultRiflesFreq2;
 
+        public static bool verboseLogging;
+
         public DateTime timer;
 
         private Keys quickSaveKey;
         private Keys holsterKey;
         private Keys toggleHudKey;
         private Keys personalVehicleKey;
-
+        public static string personalVehicleKeyString;
         private static CustomIVSave saveGame;
-
+        public static DelayedCalling TheDelayedCaller;
         #endregion
 
         #region Functions
@@ -83,8 +87,26 @@ namespace LibertyTweaks
             ProcessAutomobile += Main_ProcessAutomobile;
             ProcessCamera += Main_ProcessCamera;
             IngameStartup += Main_IngameStartup;
-            WaitTick +=Main_WaitTick;
             GameLoadPriority += Main_GameLoadPriority;
+            GameLoad += Main_GameLoad;
+            Uninitialize += Main_Uninitialize;
+            TheDelayedCaller = new DelayedCalling();
+
+        }
+
+        private void Main_Uninitialize(object sender, EventArgs e)
+        {
+            if (TheDelayedCaller != null)
+            {
+                TheDelayedCaller.ClearAll();
+                TheDelayedCaller = null;
+            }
+        }
+
+        private void Main_GameLoad(object sender, EventArgs e)
+        {
+            if (WeaponMagazines.enable == true)
+                WeaponMagazines.LoadFiles();
         }
 
         private void Main_Drawing(object sender, EventArgs e)
@@ -97,15 +119,6 @@ namespace LibertyTweaks
             if (ArmoredCops.enableVests == true)
                 ArmoredCops.LoadFiles();
 
-            if (WeaponMagazines.enable == true)
-                WeaponMagazines.LoadFiles();
-
-        }
-
-        private void Main_WaitTick(object sender, EventArgs e)
-        {
-            WaitTickInterval=2000;
-            UnholsteredGunFix.WaitTick();
         }
         #endregion
 
@@ -113,10 +126,16 @@ namespace LibertyTweaks
         {
             QuickSave.IngameStartup();
             PersonalVehicle.IngameStartup();
+            LoadingFadeIn.IngameStartup();
         }
 
         private void Main_Initialized(object sender, EventArgs e)
         {
+            OnlyRaiseKeyEventsWhenInGame = true;
+
+            // Misc
+            verboseLogging = Settings.GetBoolean("Liberty Tweaks", "Verbose Logging", true);
+
             // Check .INI
             // MAIN
             HolsterWeapons.Init(Settings);
@@ -131,7 +150,7 @@ namespace LibertyTweaks
             SearchBody.Init(Settings);
             VLikeScreaming.Init(Settings);
             ArmoredCops.Init(Settings);
-            UnseenSlipAway.Init(Settings);
+            LoseStarsWhileUnseen.Init(Settings);
             RegenerateHP.Init(Settings);
             ToggleHUD.Init(Settings);
             Recoil.Init(Settings);
@@ -148,6 +167,10 @@ namespace LibertyTweaks
             BrakeLights.Init(Settings);
             ExtraHospitalSpawn.Init(Settings);
             CopShotgunFix.Init(Settings);
+            LoadingFadeIn.Init(Settings);
+            DynamicMovement.Init(Settings);
+            //SwitchWeaponReloadFix.Init(Settings);
+            //SwatExplosionDeathFix.Init(Settings);
 
             // SAVE
             saveGame = CustomIVSave.CreateOrLoadSaveGameData(this);
@@ -157,6 +180,7 @@ namespace LibertyTweaks
             holsterKey = Settings.GetKey("Weapon Holstering", "Key", Keys.H);
             toggleHudKey = Settings.GetKey("Toggle HUD", "Key", Keys.K);
             personalVehicleKey = Settings.GetKey("Personal Vehicle", "Save Key", Keys.F9);
+            personalVehicleKeyString = personalVehicleKey.ToString();
 
             // INTS
             pedAccuracy = Settings.GetInteger("Improved AI", "Accuracy", 85);
@@ -212,7 +236,7 @@ namespace LibertyTweaks
 
         private void Main_Tick(object sender, EventArgs e)
         {
-            // MAIN
+            // Main
             NoOvertaking.Tick();
             RemoveWeapons.Tick();
             HigherPedAccuracy.Tick(pedAccuracy, pedFirerate);
@@ -222,7 +246,7 @@ namespace LibertyTweaks
             SearchBody.Tick();
             VLikeScreaming.Tick();
             ArmoredCops.Tick(armoredCopsStars);
-            UnseenSlipAway.Tick(timer, unseenSlipAwayMinTimer, unseenSlipAwayMaxTimer);
+            LoseStarsWhileUnseen.Tick(timer, unseenSlipAwayMinTimer, unseenSlipAwayMaxTimer);
             RegenerateHP.Tick(timer, regenHealthMinTimer, regenHealthMaxTimer, regenHealthMinHeal, regenHealthMaxHeal);
             CarFireBreakdown.Tick();
             Recoil.Tick(recoilSmallPistolAmp1,recoilSmallPistolAmp2,recoilSmallPistolFreq1, recoilSmallPistolFreq2, 
@@ -235,17 +259,24 @@ namespace LibertyTweaks
             AutosaveOnCollectibles.Tick();
             PersonalVehicle.Tick();
 
-            // FIXES
+            // Fixes
             BrakeLights.Tick();
             CopShotgunFix.Tick();
             ExtraHospitalSpawn.Tick();
             IceCreamSpeechFix.Tick();
             WheelFix.PreChecks();
+            LoadingFadeIn.Tick();
+            DynamicMovement.Tick();
+            UnholsteredGunFix.Tick();
+            //SwitchWeaponReloadFix.Tick();
+            //SwatExplosionDeathFix.Tick();
+
+            // Other
+            TheDelayedCaller.Process();
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)
-        {
-
+        {            
             if (e.KeyCode == toggleHudKey)
             {
                 ToggleHUD.Process();
@@ -261,10 +292,27 @@ namespace LibertyTweaks
                 HolsterWeapons.Process();
             }
 
+            if (e.KeyCode == Keys.LShiftKey)
+            {
+                DynamicMovement.Process();
+            }
+            
             if (e.KeyCode == personalVehicleKey)
             {
                 PersonalVehicle.Process();
             }
+        }
+        public static void Log(string message, [CallerFilePath] string filePath = "")
+        {
+            if (verboseLogging == true)
+            {
+                string fileName = System.IO.Path.GetFileName(filePath);
+                IVGame.Console.Print($"Liberty Tweaks - [{fileName}] {message}");
+            }
+        }
+        public static void LogError(string message)
+        {
+            IVGame.Console.Print("Liberty Tweaks - Error: " + message);
         }
     }
 }

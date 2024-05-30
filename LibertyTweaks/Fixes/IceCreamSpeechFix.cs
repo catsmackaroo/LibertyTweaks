@@ -12,15 +12,18 @@ namespace LibertyTweaks
     {
 
         private static bool saidStealingLine;
-        private static bool enableFix;
+        private static bool enable;
         public static void Init(SettingsFile settings)
         {
-            enableFix = settings.GetBoolean("Fixes", "Ice Cream Speech Fix", true);
+            enable = settings.GetBoolean("Fixes", "Ice Cream Speech Fix", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
         public static void Tick()
         {
-            if (!enableFix) 
+            if (!enable) 
                 return;
 
             // Gets the player ped

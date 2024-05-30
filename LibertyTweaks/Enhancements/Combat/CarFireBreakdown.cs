@@ -13,6 +13,9 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Vehicles Break on Fire", "Enable", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
         public static void Tick()

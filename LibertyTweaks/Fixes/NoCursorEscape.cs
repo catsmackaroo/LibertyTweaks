@@ -12,6 +12,9 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Fixes", "No Cursor Escape", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
         public static void Process()

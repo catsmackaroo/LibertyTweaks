@@ -1,6 +1,7 @@
 ﻿using CCL.GTAIV;
 
 using IVSDKDotNet;
+using System;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: AssaultKifle47, catsmackaroo & ClonkAndre
@@ -14,6 +15,9 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Fixes", "Overtaking Fix", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
         public static void Tick()
@@ -56,8 +60,20 @@ namespace LibertyTweaks
                 if (closeCarPed == 0)
                     return;
 
+                uint playerIndex = GET_PLAYER_ID();
+                STORE_WANTED_LEVEL((int)playerIndex, out uint playerWantedLevel);
+
+                if (playerWantedLevel != 0)
+                    return;
+
                 // Tell driver of closest car to stand still
-                _TASK_STAND_STILL(closeCarPed, 3000);
+                Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(3.5), "Main", () =>
+                {
+                    _TASK_STAND_STILL(closeCarPed, 3000);
+                });
+
+
+                
             }
         }
     }

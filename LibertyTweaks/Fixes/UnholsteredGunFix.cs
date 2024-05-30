@@ -17,8 +17,11 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Improved Police", "Unholstered Wanted Fix", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
-        public static void WaitTick()
+        public static void Tick()
         {
             if (!enable)
             {
@@ -72,9 +75,11 @@ namespace LibertyTweaks
                                     // Check if the player is not wanted
                                     if (currentWantedLevel == 0)
                                     {
-                                        // Apply wanted level
-                                        ALTER_WANTED_LEVEL((int)playerId, 1);
-                                        APPLY_WANTED_LEVEL_CHANGE_NOW((int)playerId);
+                                        Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(2), "Main", () =>
+                                        {
+                                            ALTER_WANTED_LEVEL((int)playerId, 1);
+                                            APPLY_WANTED_LEVEL_CHANGE_NOW((int)playerId);
+                                        });
                                     }
                                 }
                             }

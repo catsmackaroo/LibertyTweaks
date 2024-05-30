@@ -10,6 +10,9 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Toggle HUD", "Keys", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
         public static void Process()

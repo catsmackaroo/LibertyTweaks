@@ -9,16 +9,19 @@ namespace LibertyTweaks
 {
     internal class HigherPedAccuracy
     {
-        private static bool enableFix;
+        private static bool enable;
 
         public static void Init(SettingsFile settings)
         {
-            enableFix = settings.GetBoolean("Improved AI", "Enable", true);
+            enable = settings.GetBoolean("Improved AI", "Enable", true);
+
+            if (enable)
+                Main.Log("script initialized...");
         }
 
         public static void Tick(int pedAccuracy, int pedFirerate)
         {
-            if (!enableFix)
+            if (!enable)
                 return;
 
 
