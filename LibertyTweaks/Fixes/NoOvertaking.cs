@@ -66,14 +66,8 @@ namespace LibertyTweaks
                 if (playerWantedLevel != 0)
                     return;
 
-                // Tell driver of closest car to stand still
-                Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(3.5), "Main", () =>
-                {
-                    _TASK_STAND_STILL(closeCarPed, 3000);
-                });
 
-
-                
+                _TASK_STAND_STILL(closeCarPed, 3000);
             }
         }
     }

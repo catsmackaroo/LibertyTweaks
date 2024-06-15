@@ -13,6 +13,8 @@ using IVSDKDotNet.Enums;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System.Linq;
+using AdvancedHookManaged;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 // Credits: catsmackaroo
 
@@ -23,6 +25,9 @@ namespace LibertyTweaks
     {
         // Main
         public static bool enable;
+
+        // Keys 
+        public static Keys personalVehicleKey;
 
         // Personal Vehicle
         private static NativeBlip vehBlip;
@@ -64,14 +69,14 @@ namespace LibertyTweaks
         // Impound Stuff
         private static bool isVehicleImpounded;
         private static List<Vector3> policeStations = new List<Vector3>();
-        private static Vector3 algonquinImpound = new Vector3(68, 1248, 15);
-        private static Vector3 southAlgonquinImpound = new Vector3(-421, 316, 10);
-        private static Vector3 southWestAlgonquinImpound = new Vector3(-415, -262, 12);
-        private static Vector3 airportImpound = new Vector3(2138, 465, 5);
-        private static Vector3 northAlderneyImpound = new Vector3(-845, 1314, 21);
-        private static Vector3 southAlderneyImpound = new Vector3(-1251, -252, 2);
-        private static Vector3 bohanImpound = new Vector3(993, 1894, 23);
-        private static Vector3 brokerImpound = new Vector3(1211, -100, 27);
+        private static Vector3 algonquinImpound = new Vector3(68, 1248, 17);
+        private static Vector3 southAlgonquinImpound = new Vector3(-421, 316, 13);
+        private static Vector3 southWestAlgonquinImpound = new Vector3(-415, -262, 13);
+        private static Vector3 airportImpound = new Vector3(2138, 465, 6);
+        private static Vector3 northAlderneyImpound = new Vector3(-845, 1314, 23);
+        private static Vector3 southAlderneyImpound = new Vector3(-1251, -252, 4);
+        private static Vector3 bohanImpound = new Vector3(993, 1894, 24);
+        private static Vector3 brokerImpound = new Vector3(1211, -100, 29);
 
         // After Mission Teleports
         private static bool canVehicleReplaceParked = false;
@@ -97,6 +102,7 @@ namespace LibertyTweaks
         {
             enable = settings.GetBoolean("Personal Vehicle", "Enable", true);
 
+            personalVehicleKey = settings.GetKey("Personal Vehicle", "Save Key", Keys.E);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -136,7 +142,6 @@ namespace LibertyTweaks
             //isDestroyed = false;
 
             savedVehicle = IVVehicle.FromUIntPtr(playerPed.GetVehicle());
-
             canFade = true;
 
             Main.Log("Set Unsaved Vehicle: " + savedVehicle.Handling.Name);
@@ -160,6 +165,7 @@ namespace LibertyTweaks
 
             if (firstFrame)
             {
+                
                 islandsUnlockedInitial = GET_INT_STAT(363);
                 romanMissionProgress = GET_INT_STAT(3);
                 brucieMissionProgress = GET_INT_STAT(16);
@@ -167,6 +173,11 @@ namespace LibertyTweaks
                 newGameCleanup = false;
                 SpawnSavedVehicle();
                 firstFrame = false;
+            }
+
+            if (Main.gxtEntries == true && IS_THIS_HELP_MESSAGE_WITH_NUMBER_BEING_DISPLAYED("INT4_P2", 0))
+            {
+                IVText.TheIVText.ReplaceTextOfTextLabel("INT4_P3", "~S~Additionally, services around all Pay 'n' Sprays can add a tracker to your vehicle.");
             }
 
             IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
@@ -187,7 +198,13 @@ namespace LibertyTweaks
                 newGameCleanup = true;
             }
 
-            if (islandsUnlockedInitial != islandsUnlocked || romanMissionProgress != romanMissionProgressAfter || brucieMissionProgress != brucieMissionProgressAfter)
+            if (IS_MISSION_COMPLETE_PLAYING())
+            {
+                AddServiceLocations();
+                ManageServiceBlips();
+            }
+
+                if (islandsUnlockedInitial != islandsUnlocked || romanMissionProgress != romanMissionProgressAfter || brucieMissionProgress != brucieMissionProgressAfter)
             {
                 if (currentEpisode != 0)
                     return;
@@ -338,7 +355,7 @@ namespace LibertyTweaks
             }
 
             // Replace the closest eligible vehicle with the saved vehicle
-            if (closestCarVeh != null && closestCar != 0)
+            if (closestCarVeh != null && closestCar != 0 && closestCar != savedVehicle.GetHandle())
             {
                 savedVehicle.Teleport(closestCarVeh.Matrix.Pos, false, true);
                 SET_CAR_HEADING(savedVehicle.GetHandle(), carHeading);
@@ -406,6 +423,7 @@ namespace LibertyTweaks
                 Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(10), "Main", () =>
                 {
                     savedVehicle.Teleport(nearestImpoundLocation, false, true);
+                    SET_CAR_ON_GROUND_PROPERLY(savedVehicle.GetHandle());
                     LOCK_CAR_DOORS(savedVehicle.GetHandle(), 7);
                     SET_CAR_ENGINE_ON(savedVehicle.GetHandle(), false, false);
                     CLOSE_ALL_CAR_DOORS(savedVehicle.GetHandle());
@@ -609,12 +627,12 @@ namespace LibertyTweaks
 
                         if (playerMoney < priceForTracking)
                         {
-                            IVGame.ShowSubtitleMessage("You have insufficient funds, a tracker costs $" + priceForTracking + ".");
+                            IVGame.ShowSubtitleMessage("You have insufficient funds. Tracker $" + priceForTracking);
                             messageShown[location] = true;
                             return;
                         }
 
-                        IVGame.ShowSubtitleMessage("Press " + Main.personalVehicleKeyString + " to add a tracker to this vehicle. " + "Price: $" + priceForTracking);
+                        IVGame.ShowSubtitleMessage("Press " + personalVehicleKey + " to add a tracker to this vehicle. " + "Price: $" + priceForTracking);
                         messageShown[location] = true;
                     }
 

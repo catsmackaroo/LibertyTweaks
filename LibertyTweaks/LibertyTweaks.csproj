@@ -63,24 +63,25 @@
     <Compile Include="DelayedCalling.cs" />
     <Compile Include="Enhancements\Combat\ArmoredCops.cs" />
     <Compile Include="Enhancements\Combat\CarFireBreakdown.cs" />
-    <Compile Include="Enhancements\Combat\HigherPedAccuracy.cs" />
+    <Compile Include="Enhancements\Combat\ImprovedAI.cs" />
     <Compile Include="Enhancements\Combat\HolsterWeapons.cs" />
     <Compile Include="Enhancements\Combat\MoveWithSniper.cs" />
     <Compile Include="Enhancements\Combat\RealisticReloading.cs" />
     <Compile Include="Enhancements\Combat\Recoil.cs" />
-    <Compile Include="Enhancements\Combat\RegenerateHP.cs" />
+    <Compile Include="Enhancements\Combat\HealthRegeneration.cs" />
     <Compile Include="Enhancements\Combat\RemoveWeapons.cs" />
     <Compile Include="Enhancements\Combat\LoseStarsWhileUnseen.cs" />
     <Compile Include="Enhancements\Combat\WeaponMagazines.cs" />
     <Compile Include="Enhancements\Dialogue\MoreCombatLines.cs" />
     <Compile Include="Enhancements\Dialogue\SearchBody.cs" />
     <Compile Include="Enhancements\Dialogue\VLikeScreaming.cs" />
+    <Compile Include="Enhancements\Misc\PedsLockDoors.cs" />
     <Compile Include="Fixes\LoadingFadeIn.cs" />
     <Compile Include="Enhancements\Misc\PersonalVehicle.cs" />
     <Compile Include="Enhancements\Misc\QuickSave.cs" />
     <Compile Include="Enhancements\Misc\AutosaveOnCollectibles.cs" />
     <Compile Include="Enhancements\Misc\ToggleHUD.cs" />
-    <Compile Include="Enhancements\Misc\TweakableFOV.cs" />
+    <Compile Include="Enhancements\Misc\FOV.cs" />
     <Compile Include="Fixes\BrakeLights.cs" />
     <Compile Include="Fixes\CopShotgunFix.cs" />
     <Compile Include="Fixes\ExtraHospitalSpawn.cs" />
@@ -100,6 +101,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "C:\catsmackaroo\Modding\LibertyTweaks\LibertyTweaks\bin\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll" "C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "C:\catsmackaroo\Modding\LibertyTweaks\LibertyTweaks\bin\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll" "C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto IV\GTAIV\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll"
+copy /Y "C:\catsmackaroo\Modding\LibertyTweaks\LibertyTweaks\bin\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll" "C:\catsmackaroo\Modding\LibertyTweaks\LibertyTweaks\release\IVSDKDotNet\scripts\LibertyTweaks.ivsdk.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>

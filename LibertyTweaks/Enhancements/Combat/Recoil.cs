@@ -1,4 +1,5 @@
 ﻿using CCL.GTAIV;
+using DocumentFormat.OpenXml.Wordprocessing;
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
 using static IVSDKDotNet.Native.Natives;
@@ -10,22 +11,66 @@ namespace LibertyTweaks
     internal class Recoil
     {
         private static bool enable;
-        private static uint currentWeapon;
+        public static float recoilSmallPistolAmp1;
+        public static float recoilSmallPistolAmp2;
+        public static float recoilSmallPistolFreq1;
+        public static float recoilSmallPistolFreq2;
+
+        public static float recoilHeavyPistolAmp1;
+        public static float recoilHeavyPistolAmp2;
+        public static float recoilHeavyPistolFreq1;
+        public static float recoilHeavyPistolFreq2;
+
+        public static float recoilShotgunsAmp1;
+        public static float recoilShotgunsAmp2;
+        public static float recoilShotgunsFreq1;
+        public static float recoilShotgunsFreq2;
+
+        public static float recoilSMGAmp1;
+        public static float recoilSMGAmp2;
+        public static float recoilSMGFreq1;
+        public static float recoilSMGFreq2;
+
+        public static float recoilAssaultRiflesAmp1;
+        public static float recoilAssaultRiflesAmp2;
+        public static float recoilAssaultRiflesFreq1;
+        public static float recoilAssaultRiflesFreq2;
 
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Immersive Recoil", "Enable", true);
+
+            recoilSmallPistolAmp1 = settings.GetFloat("Extensive Settings", "Pistol Amplitude 1", 0.4f);
+            recoilSmallPistolAmp2 = settings.GetFloat("Extensive Settings", "Pistol Amplitude 2", 0.6f);
+            recoilSmallPistolFreq1 = settings.GetFloat("Extensive Settings", "Pistol Frequency 1", 0.1f);
+            recoilSmallPistolFreq2 = settings.GetFloat("Extensive Settings", "Pistol Frequency 2", 0.3f);
+
+            recoilHeavyPistolAmp1 = settings.GetFloat("Extensive Settings", "Heavy Pistol Amplitude 2", 0.2f);
+            recoilHeavyPistolAmp2 = settings.GetFloat("Extensive Settings", "Heavy Pistol Ampltitude 2", 0.4f);
+            recoilHeavyPistolFreq1 = settings.GetFloat("Extensive Settings", "Heavy Pistol Frequency 1", 0.3f);
+            recoilHeavyPistolFreq2 = settings.GetFloat("Extensive Settings", "Heavy Pistol Frequency 2", 0.5f);
+
+            recoilShotgunsAmp1 = settings.GetFloat("Extensive Settings", "Shotgun Amplitude 1", 0.3f);
+            recoilShotgunsAmp2 = settings.GetFloat("Extensive Settings", "Shotgun Amplitude 2", 0.7f);
+            recoilShotgunsFreq1 = settings.GetFloat("Extensive Settings", "Shotgun Frequency 1", 0.4f);
+            recoilShotgunsFreq2 = settings.GetFloat("Extensive Settings", "Shotgun Frequency 2", 0.7f);
+
+            recoilSMGAmp1 = settings.GetFloat("Extensive Settings", "SMG Amplitude 1", 0.4f);
+            recoilSMGAmp2 = settings.GetFloat("Extensive Settings", "SMG Amplitude 2", 0.6f);
+            recoilSMGFreq1 = settings.GetFloat("Extensive Settings", "SMG Frequency 1", 0.1f);
+            recoilSMGFreq2 = settings.GetFloat("Extensive Settings", "SMG Frequency 2", 0.3f);
+
+            recoilAssaultRiflesAmp1 = settings.GetFloat("Extensive Settings", "Assault Rifle Amplitude 1", 0.4f);
+            recoilAssaultRiflesAmp2 = settings.GetFloat("Extensive Settings", "Assault Rifle Amplitude 2", 0.6f);
+            recoilAssaultRiflesFreq1 = settings.GetFloat("Extensive Settings", "Assault Rifle Frequency 1", 0.1f);
+            recoilAssaultRiflesFreq2 = settings.GetFloat("Extensive Settings", "Assault Rifle Frequency 2", 0.6f);
 
             if (enable)
                 Main.Log("script initialized...");
         }
 
 
-        public static void Tick(float recoilSmallPistolAmp1, float recoilSmallPistolAmp2, float recoilSmallPistolFreq1, float recoilSmallPistolFreq2,
-             float recoilHeavyPistolAmp1, float recoilHeavyPistolAmp2, float recoilHeavyPistolFreq1, float recoilHeavyPistolFreq2,
-             float recoilShotgunsAmp1, float recoilShotgunsAmp2, float recoilShotgunsFreq1, float recoilShotgunsFreq2,
-             float recoilSMGAmp1, float recoilSMGAmp2, float recoilSMGFreq1, float recoilSMGFreq2,
-             float recoilAssaultRiflesAmp1, float recoilAssaultRiflesAmp2, float recoilAssaultRiflesFreq1, float recoilAssaultRiflesFreq2)
+        public static void Tick()
         {
             if (!enable)
                 return;

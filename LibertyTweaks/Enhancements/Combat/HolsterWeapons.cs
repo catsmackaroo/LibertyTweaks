@@ -1,5 +1,6 @@
 ﻿using CCL.GTAIV;
 using IVSDKDotNet;
+using System.Windows.Forms;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
@@ -10,10 +11,12 @@ namespace LibertyTweaks
     {
         private static int lastWeapon;
         private static bool enableFix;
+        public static Keys holsterKey;
 
         public static void Init(SettingsFile Settings)
         {
             enableFix = Settings.GetBoolean("Weapon Holstering", "Enable", true);
+            holsterKey = Settings.GetKey("Weapon Holstering", "Key", Keys.H);
 
             if (enableFix)
                 Main.Log("script initialized...");

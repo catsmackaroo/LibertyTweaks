@@ -1,8 +1,10 @@
 ﻿using CCL.GTAIV;
+using DocumentFormat.OpenXml.Wordprocessing;
 using IVSDKDotNet;
 using IVSDKDotNet.Native;
 using System;
 using System.Numerics;
+using System.Windows.Forms;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo & ItsClonkAndre
@@ -16,13 +18,14 @@ namespace LibertyTweaks
         private static bool quickOrSelected;
         private static bool firstFrame = true;
         private static Vector3 lastSavedPosition;
-        private static float lastSavedPlayerHeading;
+        public static Keys quickSaveKey;
 
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Quick-Saving", "Enable", true);
             saveLocation = settings.GetBoolean("Quick-Saving", "Save Location", true);
             quickOrSelected = settings.GetBoolean("Quick-Saving", "Select Saves", true);
+            quickSaveKey = settings.GetKey("Quick-Saving", "Key", Keys.F9);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -74,6 +77,7 @@ namespace LibertyTweaks
                 Main.GetTheSaveGame().SetVector3("PlayerPosition", playerPed.Matrix.Pos);
                 Main.GetTheSaveGame().SetFloat("PlayerHeading", playerPed.GetHeading());
                 Main.GetTheSaveGame().Save();
+                Main.Log("Saved player position: " + playerPed.Matrix.Pos);
             }
         }
 
@@ -107,6 +111,9 @@ namespace LibertyTweaks
                 if (heightAboveGround < 2)
                 {
                     if (IS_PED_RAGDOLL(playerId))
+                        return;
+
+                    if (IVTheScripts.IsPlayerOnAMission())
                         return;
 
                     if (quickOrSelected == false)

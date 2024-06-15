@@ -24,10 +24,10 @@ namespace LibertyTweaks
             adjustableMultiplier = settings.GetFloat("Field of View", "Increased Multiplier", 1.1f); 
 
             if (enableIncreasedFov)
-                Main.Log("script initialized... Increased Field of View enabled...");
+                Main.Log("- Increased Field of View script initialized...");
 
             if (enableDynamicFov)
-                Main.Log("script initialized... Dynamic Field of View enabled...");
+                Main.Log("- Dynamic Field of View script initialized...");
         }
 
         public static void Tick()

@@ -32,7 +32,9 @@ internal class CustomIVSave
         SGTA409,
         SGTA410,
         SGTA411,
-        SGTA412
+        SGTA412,
+        SGTA413,
+        SGTA414
     }
     #endregion
 
@@ -83,7 +85,7 @@ internal class CustomIVSave
             settings.SetValue("CustomIVSave", "Version", Version);
 
             // Create save slot sections
-            for (int i = 0; i < 13; i++)
+            for (int i = 0; i < 15; i++)
                 settings.AddSection(((IVSaveGameSlot)i).ToString());
 
             if (settings.Save())

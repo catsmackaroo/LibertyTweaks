@@ -15,6 +15,7 @@ namespace LibertyTweaks
         private static bool enableBuffSWAT;
         public static bool enableVests;
         private static List<int> copsHadArmor = new List<int>();
+        private static int armoredCopsStars;
 
 
         public static void Init(SettingsFile settings)
@@ -22,6 +23,7 @@ namespace LibertyTweaks
             enable = settings.GetBoolean("Improved Police", "Armored Cops", true);
             enableVests = settings.GetBoolean("Improved Police", "Armored Cops Have Vests", true);
             enableBuffSWAT = settings.GetBoolean("Improved Police", "Buff SWAT", true);
+            armoredCopsStars = settings.GetInteger("Improved Police", "Armored Cops Start At", 4);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -30,7 +32,7 @@ namespace LibertyTweaks
         {
             IVCDStream.AddImage("IVSDKDotNet/scripts/LibertyTweaks/ArmoredCopFiles/armoredCops.img", 1, -1);
         }
-        public static void Tick(int armoredCopsStars)
+        public static void Tick()
         {
             if (!enable)
                 return;
@@ -127,6 +129,7 @@ namespace LibertyTweaks
                         {
                             if (GET_CHAR_DRAWABLE_VARIATION(pedHandle, 1) == 4)
                             {
+                                SET_CHAR_COMPONENT_VARIATION(pedHandle, 2, 0, 0);
                                 if (currentWantedLevel > armoredCopsStars)
                                     continue;
 

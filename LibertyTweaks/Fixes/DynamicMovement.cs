@@ -9,7 +9,7 @@ namespace LibertyTweaks
 {
     internal class DynamicMovement
     {
-        private const int KeyTime = 18;
+        private const int KeyTime = 30;
         private static int sprintTimer;
         private static bool enableSprintFix;
         private static bool enableLowHealthExhaustion;
@@ -37,32 +37,18 @@ namespace LibertyTweaks
 
             if (enableLowHealthExhaustion)
                 LowHealthExhaustionTick();
-            
+
         }
         private static void LowHealthExhaustionTick()
         {
+            if (!enableLowHealthExhaustion)
+                return;
+
             IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
             GET_CHAR_HEALTH(playerPed.GetHandle(), out uint playerHealth);
 
-            if (enableSprintFix)
-            {
-                if (playerHealth < 126)
-                {
-                    playerIsLowest = true;
-                }
-                else
-                {
-                    playerIsLowest = false;
-                }
-            }
-            
-            if (!enableSprintFix)
-            {
-                if (playerHealth < 126)
-                    DISABLE_PLAYER_SPRINT(0, true);
-                else
-                    DISABLE_PLAYER_SPRINT(0, false);
-            }
+            if (playerHealth < 126)
+                playerPed.PlayerInfo.Stamina = -140;
         }
         private static void SprintFixTick()
         {
@@ -72,7 +58,37 @@ namespace LibertyTweaks
                 return;
             }
 
-            if (!CapsLockActive() || playerIsLowest)
+            uint alwaysSprint = IVMenuManager.GetSetting(IVSDKDotNet.Enums.eSettings.SETTING_ALWAYS_SPRINT);
+
+            if (alwaysSprint == 0)
+            {
+                DISABLE_PLAYER_SPRINT(0, false);
+                return;
+            }
+
+            IVPool pedPool = IVPools.GetPedPool();
+            for (int i = 0; i < pedPool.Count; i++)
+            {
+                UIntPtr ptr = pedPool.Get(i);
+                if (ptr != UIntPtr.Zero)
+                {
+                    if (ptr == IVPlayerInfo.FindThePlayerPed())
+                        continue;
+
+                    int pedHandle = (int)pedPool.GetIndex(ptr);
+
+                    if (IS_PED_IN_COMBAT(pedHandle))
+                    {
+                        if (playerIsLowest)
+                            return;
+
+                        DISABLE_PLAYER_SPRINT(0, false);
+                        return;
+                    }
+                }
+            }
+
+            if (!CapsLockActive())
             {
 
                 if (sprintTimer == 0)

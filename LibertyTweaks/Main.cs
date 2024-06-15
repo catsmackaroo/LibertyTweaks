@@ -11,55 +11,9 @@ namespace LibertyTweaks
 
         #region Variables
         private static Random rnd; 
-        public float fovMulti;
-
-        public int pedAccuracy;
-        public int pedFirerate;
-
-        public int armoredCopsStars;
-
-        public int unseenSlipAwayMinTimer;
-        public int unseenSlipAwayMaxTimer;
-
-        public int regenHealthMinTimer;
-        public int regenHealthMaxTimer;
-        public int regenHealthMinHeal;
-        public int regenHealthMaxHeal;
-
-        public float recoilSmallPistolAmp1;
-        public float recoilSmallPistolAmp2;
-        public float recoilSmallPistolFreq1;
-        public float recoilSmallPistolFreq2;
-
-        public float recoilHeavyPistolAmp1;
-        public float recoilHeavyPistolAmp2;
-        public float recoilHeavyPistolFreq1;
-        public float recoilHeavyPistolFreq2;
-
-        public float recoilShotgunsAmp1;
-        public float recoilShotgunsAmp2;
-        public float recoilShotgunsFreq1;
-        public float recoilShotgunsFreq2;
-
-        public float recoilSMGAmp1;
-        public float recoilSMGAmp2;
-        public float recoilSMGFreq1;
-        public float recoilSMGFreq2;
-
-        public float recoilAssaultRiflesAmp1;
-        public float recoilAssaultRiflesAmp2;
-        public float recoilAssaultRiflesFreq1;
-        public float recoilAssaultRiflesFreq2;
-
         public static bool verboseLogging;
-
+        public static bool gxtEntries;
         public DateTime timer;
-
-        private Keys quickSaveKey;
-        private Keys holsterKey;
-        private Keys toggleHudKey;
-        private Keys personalVehicleKey;
-        public static string personalVehicleKeyString;
         private static CustomIVSave saveGame;
         public static DelayedCalling TheDelayedCaller;
         #endregion
@@ -118,7 +72,6 @@ namespace LibertyTweaks
         {
             if (ArmoredCops.enableVests == true)
                 ArmoredCops.LoadFiles();
-
         }
         #endregion
 
@@ -135,15 +88,16 @@ namespace LibertyTweaks
 
             // Misc
             verboseLogging = Settings.GetBoolean("Liberty Tweaks", "Verbose Logging", true);
+            gxtEntries = Settings.GetBoolean("Liberty Tweaks", "GXT Edits", true);
+            saveGame = CustomIVSave.CreateOrLoadSaveGameData(this);
 
-            // Check .INI
             // MAIN
             HolsterWeapons.Init(Settings);
-            HigherPedAccuracy.Init(Settings);
+            ImprovedAI.Init(Settings);
             WeaponMagazines.Init(Settings);
             MoveWithSniper.Init(Settings);
             RemoveWeapons.Init(Settings);
-            TweakableFOV.Init(Settings);
+            FOV.Init(Settings);
             QuickSave.Init(Settings);
             AutosaveOnCollectibles.Init(Settings);
             MoreCombatLines.Init(Settings);
@@ -151,12 +105,13 @@ namespace LibertyTweaks
             VLikeScreaming.Init(Settings);
             ArmoredCops.Init(Settings);
             LoseStarsWhileUnseen.Init(Settings);
-            RegenerateHP.Init(Settings);
+            HealthRegeneration.Init(Settings);
             ToggleHUD.Init(Settings);
             Recoil.Init(Settings);
             CarFireBreakdown.Init(Settings);
             RealisticReloading.Init(Settings);
             PersonalVehicle.Init(Settings);
+            PedsLockDoors.Init(Settings);
 
             // FIXES
             NoOvertaking.Init(Settings);
@@ -169,64 +124,11 @@ namespace LibertyTweaks
             CopShotgunFix.Init(Settings);
             LoadingFadeIn.Init(Settings);
             DynamicMovement.Init(Settings);
-            //SwitchWeaponReloadFix.Init(Settings);
-            //SwatExplosionDeathFix.Init(Settings);
-
-            // SAVE
-            saveGame = CustomIVSave.CreateOrLoadSaveGameData(this);
-
-            // KEYS
-            quickSaveKey = Settings.GetKey("Quick-Saving", "Key", Keys.F9);
-            holsterKey = Settings.GetKey("Weapon Holstering", "Key", Keys.H);
-            toggleHudKey = Settings.GetKey("Toggle HUD", "Key", Keys.K);
-            personalVehicleKey = Settings.GetKey("Personal Vehicle", "Save Key", Keys.F9);
-            personalVehicleKeyString = personalVehicleKey.ToString();
-
-            // INTS
-            pedAccuracy = Settings.GetInteger("Improved AI", "Accuracy", 85);
-            pedFirerate = Settings.GetInteger("Improved AI", "Firerate", 85);
-
-            armoredCopsStars = Settings.GetInteger("Improved Police", "Armored Cops Start At", 4);
-
-            unseenSlipAwayMinTimer = Settings.GetInteger("Improved Police", "Lose Stars While Unseen Minimum Count", 60);
-            unseenSlipAwayMaxTimer = Settings.GetInteger("Improved Police", "Lose Stars While Unseen Maximum Count", 120);
-
-            regenHealthMinTimer = Settings.GetInteger("Health Regeneration", "Regen Timer Minimum", 30);
-            regenHealthMaxTimer = Settings.GetInteger("Health Regeneration", "Regen Timer Maximum", 60);
-            regenHealthMinHeal = Settings.GetInteger("Health Regeneration", "Minimum Heal Amount", 5);
-            regenHealthMaxHeal = Settings.GetInteger("Health Regeneration", "Maximum Heal Amount", 10);
-
-            // FLOATS
-            fovMulti = Settings.GetFloat("Tweakable FOV", "Multiplier", 1.07f);
-            recoilSmallPistolAmp1 = Settings.GetFloat("Extensive Settings", "Pistol Amplitude 1", 0.4f);
-            recoilSmallPistolAmp2 = Settings.GetFloat("Extensive Settings", "Pistol Amplitude 2", 0.6f);
-            recoilSmallPistolFreq1 = Settings.GetFloat("Extensive Settings", "Pistol Frequency 1", 0.1f);
-            recoilSmallPistolFreq2 = Settings.GetFloat("Extensive Settings", "Pistol Frequency 2", 0.3f);
-
-            recoilHeavyPistolAmp1 = Settings.GetFloat("Extensive Settings", "Heavy Pistol Amplitude 2", 0.2f);
-            recoilHeavyPistolAmp2 = Settings.GetFloat("Extensive Settings", "Heavy Pistol Ampltitude 2", 0.4f);
-            recoilHeavyPistolFreq1 = Settings.GetFloat("Extensive Settings", "Heavy Pistol Frequency 1", 0.3f);
-            recoilHeavyPistolFreq2 = Settings.GetFloat("Extensive Settings", "Heavy Pistol Frequency 2", 0.5f);
-
-            recoilShotgunsAmp1 = Settings.GetFloat("Extensive Settings", "Shotgun Amplitude 1", 0.3f);
-            recoilShotgunsAmp2 = Settings.GetFloat("Extensive Settings", "Shotgun Amplitude 2", 0.7f);
-            recoilShotgunsFreq1 = Settings.GetFloat("Extensive Settings", "Shotgun Frequency 1", 0.4f);
-            recoilShotgunsFreq2 = Settings.GetFloat("Extensive Settings", "Shotgun Frequency 2", 0.7f);
-
-            recoilSMGAmp1 = Settings.GetFloat("Extensive Settings", "SMG Amplitude 1", 0.4f);
-            recoilSMGAmp2 = Settings.GetFloat("Extensive Settings", "SMG Amplitude 2", 0.6f);
-            recoilSMGFreq1 = Settings.GetFloat("Extensive Settings", "SMG Frequency 1", 0.1f);
-            recoilSMGFreq2 = Settings.GetFloat("Extensive Settings", "SMG Frequency 2", 0.3f);
-
-            recoilAssaultRiflesAmp1 = Settings.GetFloat("Extensive Settings", "Assault Rifle Amplitude 1", 0.4f);
-            recoilAssaultRiflesAmp2 = Settings.GetFloat("Extensive Settings", "Assault Rifle Amplitude 2", 0.6f);
-            recoilAssaultRiflesFreq1 = Settings.GetFloat("Extensive Settings", "Assault Rifle Frequency 1", 0.1f);
-            recoilAssaultRiflesFreq2 = Settings.GetFloat("Extensive Settings", "Assault Rifle Frequency 2", 0.6f);
         }
 
         private void Main_ProcessCamera(object sender, EventArgs e)
         {
-            TweakableFOV.Tick(fovMulti);
+            FOV.Tick();
         }
 
         private void Main_ProcessAutomobile(UIntPtr vehPtr)
@@ -239,25 +141,22 @@ namespace LibertyTweaks
             // Main
             NoOvertaking.Tick();
             RemoveWeapons.Tick();
-            HigherPedAccuracy.Tick(pedAccuracy, pedFirerate);
+            ImprovedAI.Tick();
             WeaponMagazines.Tick();
             MoveWithSniper.Tick();
             MoreCombatLines.Tick();
             SearchBody.Tick();
             VLikeScreaming.Tick();
-            ArmoredCops.Tick(armoredCopsStars);
-            LoseStarsWhileUnseen.Tick(timer, unseenSlipAwayMinTimer, unseenSlipAwayMaxTimer);
-            RegenerateHP.Tick(timer, regenHealthMinTimer, regenHealthMaxTimer, regenHealthMinHeal, regenHealthMaxHeal);
+            ArmoredCops.Tick();
+            LoseStarsWhileUnseen.Tick();
+            HealthRegeneration.Tick();
             CarFireBreakdown.Tick();
-            Recoil.Tick(recoilSmallPistolAmp1,recoilSmallPistolAmp2,recoilSmallPistolFreq1, recoilSmallPistolFreq2, 
-             recoilHeavyPistolAmp1, recoilHeavyPistolAmp2, recoilHeavyPistolFreq1, recoilHeavyPistolFreq2, 
-             recoilShotgunsAmp1, recoilShotgunsAmp2, recoilShotgunsFreq1, recoilShotgunsFreq2, 
-             recoilSMGAmp1, recoilSMGAmp2, recoilSMGFreq1, recoilSMGFreq2,
-             recoilAssaultRiflesAmp1, recoilAssaultRiflesAmp2, recoilAssaultRiflesFreq1, recoilAssaultRiflesFreq2);
+            Recoil.Tick();
             RealisticReloading.Tick();
             QuickSave.Tick();
             AutosaveOnCollectibles.Tick();
             PersonalVehicle.Tick();
+            PedsLockDoors.Tick();
 
             // Fixes
             BrakeLights.Tick();
@@ -268,26 +167,24 @@ namespace LibertyTweaks
             LoadingFadeIn.Tick();
             DynamicMovement.Tick();
             UnholsteredGunFix.Tick();
-            //SwitchWeaponReloadFix.Tick();
-            //SwatExplosionDeathFix.Tick();
 
             // Other
             TheDelayedCaller.Process();
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)
-        {            
-            if (e.KeyCode == toggleHudKey)
+        {         
+            if (e.KeyCode == ToggleHUD.toggleHudKey)
             {
                 ToggleHUD.Process();
             }
 
-            if (e.KeyCode == quickSaveKey)
+            if (e.KeyCode == QuickSave.quickSaveKey)
             {
                 QuickSave.Process();
             }
 
-            if (e.KeyCode == holsterKey)
+            if (e.KeyCode == HolsterWeapons.holsterKey)
             {
                 HolsterWeapons.Process();
             }
@@ -297,7 +194,7 @@ namespace LibertyTweaks
                 DynamicMovement.Process();
             }
             
-            if (e.KeyCode == personalVehicleKey)
+            if (e.KeyCode == PersonalVehicle.personalVehicleKey)
             {
                 PersonalVehicle.Process();
             }
