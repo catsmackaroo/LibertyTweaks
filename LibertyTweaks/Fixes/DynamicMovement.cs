@@ -3,101 +3,94 @@ using static IVSDKDotNet.Native.Natives;
 using System;
 using System.Windows.Forms;
 using CCL.GTAIV;
-using LibertyTweaks;
 
 namespace LibertyTweaks
 {
     internal class DynamicMovement
     {
-        private const int KeyTime = 30;
-        private static int sprintTimer;
+        private const int SprintCooldownTime = 30;
+        private static int sprintCooldownTimer;
         private static bool enableSprintFix;
         private static bool enableLowHealthExhaustion;
-        private static bool playerIsLowest = false;
+        private static bool disableInCombat;
+        private static bool isPlayerHealthLow;
+        private static bool playerIsLowest;
 
-        private static bool CapsLockActive() => Control.IsKeyLocked(Keys.Capital);
+        private static bool IsCapsLockActive() => Control.IsKeyLocked(Keys.Capital);
 
         public static void Init(SettingsFile settings)
         {
             enableLowHealthExhaustion = settings.GetBoolean("Low Health Exhaustion", "Enable", true);
             enableSprintFix = settings.GetBoolean("Fixes", "Sprint Fix", true);
+            disableInCombat = settings.GetBoolean("Fixes", "Sprint Fix Disabled In Combat", true);
 
             if (enableLowHealthExhaustion)
-                Main.Log("LowHealthExhaustion script initialized...");
+                Main.Log("Low Health Exhaustion script initialized...");
 
             if (enableSprintFix)
-                Main.Log("SprintFix script initialized...");
+                Main.Log("Sprint Fix script initialized...");
         }
 
         public static void Tick()
         {
-
             if (enableSprintFix)
-                SprintFixTick();
+                SprintFix();
 
             if (enableLowHealthExhaustion)
                 LowHealthExhaustionTick();
-
         }
+
         private static void LowHealthExhaustionTick()
         {
-            if (!enableLowHealthExhaustion)
-                return;
-
             IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
             GET_CHAR_HEALTH(playerPed.GetHandle(), out uint playerHealth);
 
-            if (playerHealth < 126)
-                playerPed.PlayerInfo.Stamina = -140;
-        }
-        private static void SprintFixTick()
-        {
-            if (IS_USING_CONTROLLER())
+            if (enableSprintFix)
             {
-                DISABLE_PLAYER_SPRINT(0, false);
-                return;
-            }
-
-            uint alwaysSprint = IVMenuManager.GetSetting(IVSDKDotNet.Enums.eSettings.SETTING_ALWAYS_SPRINT);
-
-            if (alwaysSprint == 0)
-            {
-                DISABLE_PLAYER_SPRINT(0, false);
-                return;
-            }
-
-            IVPool pedPool = IVPools.GetPedPool();
-            for (int i = 0; i < pedPool.Count; i++)
-            {
-                UIntPtr ptr = pedPool.Get(i);
-                if (ptr != UIntPtr.Zero)
+                if (playerHealth < 126)
                 {
-                    if (ptr == IVPlayerInfo.FindThePlayerPed())
-                        continue;
-
-                    int pedHandle = (int)pedPool.GetIndex(ptr);
-
-                    if (IS_PED_IN_COMBAT(pedHandle))
-                    {
-                        if (playerIsLowest)
-                            return;
-
-                        DISABLE_PLAYER_SPRINT(0, false);
-                        return;
-                    }
+                    playerIsLowest = true;
+                }
+                else
+                {
+                    playerIsLowest = false;
                 }
             }
 
-            if (!CapsLockActive())
+            if (!enableSprintFix)
             {
+                if (playerHealth < 126)
+                    DISABLE_PLAYER_SPRINT(0, true);
+                else
+                    DISABLE_PLAYER_SPRINT(0, false);
+            }
+        }
 
-                if (sprintTimer == 0)
+        private static void SprintFix()
+        {
+            uint alwaysSprintSetting = IVMenuManager.GetSetting(IVSDKDotNet.Enums.eSettings.SETTING_ALWAYS_SPRINT);
+            bool isUsingController = IS_USING_CONTROLLER();
+            PlayerChecks combatChecker = new PlayerChecks();
+            bool isInOrNearCombat = combatChecker.IsPlayerInOrNearCombat();
+
+            if (isUsingController || alwaysSprintSetting == 0 || isInOrNearCombat && disableInCombat == true)
+            {
+                DISABLE_PLAYER_SPRINT(0, false);
+                return;
+            }
+
+            if (isPlayerHealthLow)
+                return;
+
+            if (!IsCapsLockActive())
+            {
+                if (sprintCooldownTimer == 0)
                 {
                     DISABLE_PLAYER_SPRINT(0, true);
                 }
                 else
                 {
-                    sprintTimer--;
+                    sprintCooldownTimer--;
                     DISABLE_PLAYER_SPRINT(0, false);
                 }
             }
@@ -106,17 +99,18 @@ namespace LibertyTweaks
                 DISABLE_PLAYER_SPRINT(0, false);
             }
         }
+
         public static void Process()
         {
-
-            if (playerIsLowest && enableLowHealthExhaustion)
-                sprintTimer = 0;
-
-            if (!playerIsLowest && enableLowHealthExhaustion)
-                sprintTimer = KeyTime;
+            if (enableLowHealthExhaustion)
+            {
+                sprintCooldownTimer = isPlayerHealthLow ? 0 : SprintCooldownTime;
+            }
 
             if (!enableLowHealthExhaustion && enableSprintFix)
-                sprintTimer = KeyTime;
+            {
+                sprintCooldownTimer = SprintCooldownTime;
+            }
         }
     }
 }

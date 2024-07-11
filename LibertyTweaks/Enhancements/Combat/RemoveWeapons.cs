@@ -61,7 +61,7 @@ namespace LibertyTweaks
                 if (hadKnife)
                     GIVE_WEAPON_TO_CHAR(playerPed.GetHandle(), (int)eWeaponType.WEAPON_KNIFE, 1, true);
 
-                if (hadKnife)
+                if (hadParachute)
                     GIVE_WEAPON_TO_CHAR(playerPed.GetHandle(), (int)eWeaponType.WEAPON_EPISODIC_21, 1, true);
 
                 hadBat = false;

@@ -1,8 +1,7 @@
-﻿using IVSDKDotNet;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using System;
 using static IVSDKDotNet.Native.Natives;
-using CCL.GTAIV;
-using DocumentFormat.OpenXml.Wordprocessing;
 
 // Credits: catsmackaroo 
 
@@ -36,12 +35,14 @@ namespace LibertyTweaks
         {
             if (!enable)
                 return;
+            PlayerChecks combatChecker = new PlayerChecks();
+            bool isInOrNearCombat = combatChecker.IsPlayerInOrNearCombat();
 
             IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
 
             GET_CHAR_HEALTH(playerPed.GetHandle(), out uint playerHealth);
 
-            if (IS_CHAR_DEAD(playerPed.GetHandle()) || playerHealth >= 126 || IS_PAUSE_MENU_ACTIVE())
+            if (IS_CHAR_DEAD(playerPed.GetHandle()) || IS_PAUSE_MENU_ACTIVE() || playerHealth == 200)
             {
                 lock (lockObject)
                 {
@@ -62,13 +63,33 @@ namespace LibertyTweaks
 
                 if (DateTime.UtcNow > lastRegenTime.AddSeconds(Main.GenerateRandomNumber(regenHealthMinTimer, regenHealthMaxTimer)))
                 {
-                    uint newHealth = (uint)(playerHealth + Main.GenerateRandomNumber(regenHealthMinHeal, regenHealthMaxHeal));
-                    newHealth = Math.Min(newHealth, 126);
-                    SET_CHAR_HEALTH(playerPed.GetHandle(), newHealth);
-                    Main.Log($"Player health regenerated to {newHealth}");
-                    lastRegenTime = DateTime.UtcNow;
-                }
+                    uint newHealth;
 
+                    if (!isInOrNearCombat)
+                    {
+                        newHealth = playerHealth + (uint)regenHealthMinHeal;
+                        newHealth = Math.Min(newHealth, 200);
+                        SET_CHAR_HEALTH(playerPed.GetHandle(), newHealth);
+                        Main.Log($"Player health regenerated to {newHealth}");
+                        lastRegenTime = DateTime.UtcNow;
+                    }
+                    else if (playerHealth <= 126)
+                    {
+                        newHealth = (uint)(playerHealth + Main.GenerateRandomNumber(regenHealthMinHeal, regenHealthMaxHeal));
+                        newHealth = Math.Min(newHealth, 126);
+                        SET_CHAR_HEALTH(playerPed.GetHandle(), newHealth);
+                        Main.Log($"Player health regenerated to {newHealth}");
+                        lastRegenTime = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        lock (lockObject)
+                        {
+                            lastRegenTime = DateTime.MinValue;
+                        }
+                        return;
+                    }
+                }
                 lastKnownHealth = playerHealth;
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using CCL.GTAIV;
 using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
@@ -8,15 +9,14 @@ namespace LibertyTweaks
 {
     internal class ImprovedAI
     {
-        private static bool enable;
-        private static bool enableFireMoreInCar;
-        private static HashSet<uint> policeHashes = new HashSet<uint>
+        private static bool enableAccuracyFirerate;
+        private static readonly HashSet<uint> policeHashes = new HashSet<uint>
         {
             4111764146,
             2776029317,
             4205665177,
         };
-        private static List<uint> gangTypes = new List<uint>
+        private static readonly List<uint> gangTypes = new List<uint>
         {
             3,
             4,
@@ -47,8 +47,7 @@ namespace LibertyTweaks
 
         public static void Init(SettingsFile settings)
         {
-            enable = settings.GetBoolean("Improved AI", "Enable", true);
-            enableFireMoreInCar = settings.GetBoolean("Improved AI", "Aggressive Vehicle Response", true);
+            enableAccuracyFirerate = settings.GetBoolean("Improved AI", "Increased Accuracy & Firerates", true);
 
             defaultPedAccuracy = settings.GetInteger("Extensive Settings", "Default Accuracy", 40);
             defaultPedFirerate = settings.GetInteger("Extensive Settings", "Default Firerate", 40);
@@ -63,15 +62,12 @@ namespace LibertyTweaks
             policeSixStarsAccuracy = settings.GetInteger("Extensive Settings", "Police Six Star Accuracy", 100);
             policeSixStarsFirerate = settings.GetInteger("Extensive Settings", "Police Six Star Firerate", 100);
 
-            if (enable)
+            if (enableAccuracyFirerate)
                 Main.Log("script initialized...");
         }
 
         public static void Tick()
         {
-            if (!enable)
-                return;
-
             IVPool pedPool = IVPools.GetPedPool();
             for (int i = 0; i < pedPool.Count; i++)
             {
@@ -89,48 +85,51 @@ namespace LibertyTweaks
                     STORE_WANTED_LEVEL((int)playerId, out uint currentWantedLevel);
                     GET_PED_TYPE(pedHandle, out uint pedType);
 
-                    // Default
-                    SET_CHAR_ACCURACY(pedHandle, (uint)defaultPedAccuracy);
-                    SET_CHAR_SHOOT_RATE(pedHandle, defaultPedFirerate);
-
-                    // Police
-                    if (policeHashes.Contains(pedModel))
+                    if (enableAccuracyFirerate)
                     {
-                        if (IS_CHAR_IN_ANY_CAR(playerPed.GetHandle()) && enableFireMoreInCar)
+                        // Default
+                        SET_CHAR_ACCURACY(pedHandle, (uint)defaultPedAccuracy);
+                        SET_CHAR_SHOOT_RATE(pedHandle, defaultPedFirerate);
+
+                        // Police
+                        if (policeHashes.Contains(pedModel))
                         {
-                            SET_CHAR_SHOOT_RATE(pedHandle, 100);
+                            if (IS_CHAR_IN_ANY_CAR(playerPed.GetHandle()))
+                            {
+                                SET_CHAR_SHOOT_RATE(pedHandle, 100);
+                            }
+                            else if (currentWantedLevel == 6)
+                            {
+                                SET_CHAR_ACCURACY(pedHandle, (uint)policeSixStarsAccuracy);
+                                SET_CHAR_SHOOT_RATE(pedHandle, policeSixStarsFirerate);
+                            }
+                            else
+                            {
+                                SET_CHAR_ACCURACY(pedHandle, (uint)policeRegularAccuracy);
+                                SET_CHAR_SHOOT_RATE(pedHandle, policeRegularFirerate);
+                            }
                         }
-                        else if (currentWantedLevel == 6)
+
+                        // FIB
+                        if (pedModel == 3295460374)
                         {
-                            SET_CHAR_ACCURACY(pedHandle, (uint)policeSixStarsAccuracy);
-                            SET_CHAR_SHOOT_RATE(pedHandle, policeSixStarsFirerate);
+                            SET_CHAR_ACCURACY(pedHandle, (uint)fibAccuracy);
+                            SET_CHAR_SHOOT_RATE(pedHandle, fibFirerates);
                         }
-                        else
+
+                        // NOoSE
+                        if (pedModel == 3290204350)
                         {
-                            SET_CHAR_ACCURACY(pedHandle, (uint)policeRegularAccuracy);
-                            SET_CHAR_SHOOT_RATE(pedHandle, policeRegularFirerate);
+                            SET_CHAR_ACCURACY(pedHandle, (uint)nooseAccuracy);
+                            SET_CHAR_SHOOT_RATE(pedHandle, nooseFirerate);
                         }
-                    }
 
-                    // FIB
-                    if (pedModel == 3295460374)
-                    {
-                        SET_CHAR_ACCURACY(pedHandle, (uint)fibAccuracy);
-                        SET_CHAR_SHOOT_RATE(pedHandle, fibFirerates);
-                    }
-
-                    // NOoSE
-                    if (pedModel == 3290204350)
-                    {
-                        SET_CHAR_ACCURACY(pedHandle, (uint)nooseAccuracy);
-                        SET_CHAR_SHOOT_RATE(pedHandle, nooseFirerate);
-                    }
-
-                    // Gang
-                    if (gangTypes.Contains(pedType))
-                    {
-                        SET_CHAR_ACCURACY(pedHandle, (uint)gangAccuracy);
-                        SET_CHAR_SHOOT_RATE(pedHandle, gangFirerate);
+                        // Gang
+                        if (gangTypes.Contains(pedType))
+                        {
+                            SET_CHAR_ACCURACY(pedHandle, (uint)gangAccuracy);
+                            SET_CHAR_SHOOT_RATE(pedHandle, gangFirerate);
+                        }
                     }
                 }
             }

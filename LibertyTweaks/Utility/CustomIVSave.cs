@@ -14,7 +14,7 @@ internal class CustomIVSave
     #region Variables and Enums
     // Variables
     private const string Version = "100";
-    private SettingsFile Settings;
+    private readonly SettingsFile Settings;
     private bool tempBool;
 
     // Enums
@@ -54,7 +54,7 @@ internal class CustomIVSave
     public static CustomIVSave CreateOrLoadSaveGameData(Script targetScript)
     {
         // Get file name for savegame settings file
-        string scriptName = targetScript.GetName();
+        string scriptName = "LibertyTweaks";
         string fileName;
 
         if (string.IsNullOrWhiteSpace(targetScript.ScriptResourceFolder))
@@ -63,7 +63,7 @@ internal class CustomIVSave
             fileName = string.Format("{0}\\{1}.save", targetScript.ScriptResourceFolder, scriptName);
 
         // Create or load settings file
-        SettingsFile settings = null;
+        SettingsFile settings;
 
         if (System.IO.File.Exists(fileName))
         // Load
@@ -222,7 +222,7 @@ internal class CustomIVSave
     #endregion
 
     #region Color
-    public Color GetColor(string key, Color defaultValue = default(Color))
+    public Color GetColor(string key, Color defaultValue = default)
     {
         if (Settings == null)
             return defaultValue;
@@ -266,7 +266,7 @@ internal class CustomIVSave
     #endregion
 
     #region Quaternion
-    public Quaternion GetQuaternion(string key, Quaternion defaultValue = default(Quaternion))
+    public Quaternion GetQuaternion(string key, Quaternion defaultValue = default)
     {
         if (Settings == null)
             return defaultValue;
@@ -288,7 +288,7 @@ internal class CustomIVSave
     #endregion
 
     #region Vector2
-    public Vector2 GetVector2(string key, Vector2 defaultValue = default(Vector2))
+    public Vector2 GetVector2(string key, Vector2 defaultValue = default)
     {
         if (Settings == null)
             return defaultValue;
@@ -310,7 +310,7 @@ internal class CustomIVSave
     #endregion
 
     #region Vector3
-    public Vector3 GetVector3(string key, Vector3 defaultValue = default(Vector3))
+    public Vector3 GetVector3(string key, Vector3 defaultValue = default)
     {
         if (Settings == null)
             return defaultValue;
@@ -332,7 +332,7 @@ internal class CustomIVSave
     #endregion
 
     #region Vector4
-    public Vector4 GetVector4(string key, Vector4 defaultValue = default(Vector4))
+    public Vector4 GetVector4(string key, Vector4 defaultValue = default)
     {
         if (Settings == null)
             return defaultValue;

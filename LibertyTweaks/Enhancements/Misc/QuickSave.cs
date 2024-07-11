@@ -50,7 +50,7 @@ namespace LibertyTweaks
                 try
                 {
                     // Teleport player to last saved position if there is a last saved position
-                    Vector3 lastSavedPosition = Main.GetTheSaveGame().GetVector3("PlayerPosition");
+                    lastSavedPosition = Main.GetTheSaveGame().GetVector3("PlayerPosition");
                     float lastSavedPlayerHeading = Main.GetTheSaveGame().GetFloat("PlayerHeading");
 
                     if (lastSavedPosition != Vector3.Zero)

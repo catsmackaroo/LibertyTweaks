@@ -58,8 +58,11 @@ namespace LibertyTweaks
 
                 if (PLAYER_HAS_GREYED_OUT_STARS((int)playerId))
                 {
-                    if (PLAYER_HAS_FLASHING_STARS_ABOUT_TO_DROP((int)playerId))
+                    if (PLAYER_HAS_FLASHING_STARS_ABOUT_TO_DROP((int)playerId) || IS_INTERIOR_SCENE())
+                    {
                         lastUnseenTime = DateTime.UtcNow;
+
+                    }
 
                     if (DateTime.UtcNow > lastUnseenTime.AddSeconds(Main.GenerateRandomNumber(minUnseenTimeToLoseStars, maxUnseenTimeToLoseStars)))
                     {

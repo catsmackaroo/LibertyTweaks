@@ -12,9 +12,10 @@ namespace LibertyTweaks
     internal class ArmoredCops
     {
         private static bool enable;
-        private static bool enableBuffSWAT;
+        private static bool enableNoHeadshotNOoSE;
+        private static bool enableNoRagdollNOoSE;
         public static bool enableVests;
-        private static List<int> copsHadArmor = new List<int>();
+        private static readonly List<int> copsHadArmor = new List<int>();
         private static int armoredCopsStars;
 
 
@@ -22,7 +23,8 @@ namespace LibertyTweaks
         {
             enable = settings.GetBoolean("Improved Police", "Armored Cops", true);
             enableVests = settings.GetBoolean("Improved Police", "Armored Cops Have Vests", true);
-            enableBuffSWAT = settings.GetBoolean("Improved Police", "Buff SWAT", true);
+            enableNoHeadshotNOoSE = settings.GetBoolean("Improved Police", "No Headshot NOoSE", true);
+            enableNoRagdollNOoSE = settings.GetBoolean("Improved Police", "No Ragdoll NOoSE", true);
             armoredCopsStars = settings.GetInteger("Improved Police", "Armored Cops Start At", 4);
 
             if (enable)
@@ -75,19 +77,20 @@ namespace LibertyTweaks
                     // Check if NOoSE
                     if (pedModel == 3290204350)
                     {
-                        if (!enableBuffSWAT)
+                        if (!enableNoHeadshotNOoSE && !enableNoRagdollNOoSE)
                             return;
 
                         GET_CHAR_ARMOUR(pedHandle, out uint nooseArmor);
                         IVPed noosePed = NativeWorld.GetPedInstaceFromHandle(pedHandle);
 
+                        // If the character is dead, allow ragdoll
                         if (IS_CHAR_DEAD(pedHandle))
                         {
                             noosePed.PreventRagdoll(false);
                         }
-
-                        if (nooseArmor == 0)
+                        else if (nooseArmor == 0)
                         {
+                            // If the character has no armor, disable headshots and ragdoll prevention
                             noosePed.PedFlags.NoHeadshots = false;
                             noosePed.PreventRagdoll(false);
                         }
@@ -96,31 +99,34 @@ namespace LibertyTweaks
                             GET_CHAR_PROP_INDEX(pedHandle, 0, out int pedPropIndex);
                             GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out int currentWeapon);
 
-                            if (currentWeapon == (int)eWeaponType.WEAPON_SNIPERRIFLE || currentWeapon == (int)eWeaponType.WEAPON_M40A1 || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_15)
+                            bool isSniperWeapon = currentWeapon == (int)eWeaponType.WEAPON_SNIPERRIFLE
+                                                  || currentWeapon == (int)eWeaponType.WEAPON_M40A1
+                                                  || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_15;
+
+                            if (isSniperWeapon)
                             {
-                                // Chat GPT test
+                                // If the current weapon is a sniper rifle, disable headshots and ragdoll prevention
                                 noosePed.PedFlags.NoHeadshots = false;
                                 noosePed.PreventRagdoll(false);
                             }
                             else
                             {
-                                noosePed.PedFlags.NoHeadshots = true;
+                                // Enable headshot prevention unless the character has no prop index
+                                if (enableNoHeadshotNOoSE)
+                                    noosePed.PedFlags.NoHeadshots = pedPropIndex != -1;
 
-                                if (pedPropIndex == -1)
+                                // Enable ragdoll prevention if the character is not on fire
+                                if (enableNoRagdollNOoSE)
                                 {
-                                    noosePed.PedFlags.NoHeadshots = false;
+                                    if (!IS_CHAR_ON_FIRE(pedHandle))
+                                    {
+                                        noosePed.PreventRagdoll(true);
+                                    }
                                 }
-
-                                if (!IS_CHAR_ON_FIRE(pedHandle))
-                                {
-                                    noosePed.PreventRagdoll(true);
-                                }
-
                             }
-
-                            
                         }
                     }
+
 
                     // With or without stars, if a cop spawns with the armor vests they will be given armor (consistency!)
                     if (enableVests == true)

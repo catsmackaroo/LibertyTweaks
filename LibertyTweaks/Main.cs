@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Runtime.CompilerServices;
 using IVSDKDotNet;
+using DocumentFormat.OpenXml.Office.CustomUI;
 
 namespace LibertyTweaks
 {
@@ -13,9 +14,12 @@ namespace LibertyTweaks
         private static Random rnd; 
         public static bool verboseLogging;
         public static bool gxtEntries;
+        public static bool debugMode;
+        public static Keys debugMenuKey;
         public DateTime timer;
         private static CustomIVSave saveGame;
         public static DelayedCalling TheDelayedCaller;
+
         #endregion
 
         #region Functions
@@ -89,6 +93,8 @@ namespace LibertyTweaks
             // Misc
             verboseLogging = Settings.GetBoolean("Liberty Tweaks", "Verbose Logging", true);
             gxtEntries = Settings.GetBoolean("Liberty Tweaks", "GXT Edits", true);
+            debugMode = Settings.GetBoolean("Liberty Tweaks", "Debug Mode", false);
+            debugMenuKey = Settings.GetKey("Liberty Tweaks", "Debug Menu Key", Keys.F10);
             saveGame = CustomIVSave.CreateOrLoadSaveGameData(this);
 
             // MAIN
@@ -97,7 +103,7 @@ namespace LibertyTweaks
             WeaponMagazines.Init(Settings);
             MoveWithSniper.Init(Settings);
             RemoveWeapons.Init(Settings);
-            FOV.Init(Settings);
+            DynamicFOV.Init(Settings);
             QuickSave.Init(Settings);
             AutosaveOnCollectibles.Init(Settings);
             MoreCombatLines.Init(Settings);
@@ -111,7 +117,7 @@ namespace LibertyTweaks
             CarFireBreakdown.Init(Settings);
             RealisticReloading.Init(Settings);
             PersonalVehicle.Init(Settings);
-            PedsLockDoors.Init(Settings);
+            //PedsLockDoors.Init(Settings);
 
             // FIXES
             NoOvertaking.Init(Settings);
@@ -124,11 +130,13 @@ namespace LibertyTweaks
             CopShotgunFix.Init(Settings);
             LoadingFadeIn.Init(Settings);
             DynamicMovement.Init(Settings);
+            AllowCopsAllMissions.Init(Settings);
+            //SwitchWeaponReloadFix.Init(Settings);
         }
 
         private void Main_ProcessCamera(object sender, EventArgs e)
         {
-            FOV.Tick();
+            DynamicFOV.Tick();
         }
 
         private void Main_ProcessAutomobile(UIntPtr vehPtr)
@@ -156,7 +164,7 @@ namespace LibertyTweaks
             QuickSave.Tick();
             AutosaveOnCollectibles.Tick();
             PersonalVehicle.Tick();
-            PedsLockDoors.Tick();
+            //PedsLockDoors.Tick();
 
             // Fixes
             BrakeLights.Tick();
@@ -167,6 +175,8 @@ namespace LibertyTweaks
             LoadingFadeIn.Tick();
             DynamicMovement.Tick();
             UnholsteredGunFix.Tick();
+            AllowCopsAllMissions.Tick();
+            //SwitchWeaponReloadFix.Tick();
 
             // Other
             TheDelayedCaller.Process();
@@ -175,29 +185,19 @@ namespace LibertyTweaks
         private void Main_KeyDown(object sender, KeyEventArgs e)
         {         
             if (e.KeyCode == ToggleHUD.toggleHudKey)
-            {
                 ToggleHUD.Process();
-            }
 
             if (e.KeyCode == QuickSave.quickSaveKey)
-            {
                 QuickSave.Process();
-            }
 
             if (e.KeyCode == HolsterWeapons.holsterKey)
-            {
                 HolsterWeapons.Process();
-            }
 
             if (e.KeyCode == Keys.LShiftKey)
-            {
                 DynamicMovement.Process();
-            }
             
             if (e.KeyCode == PersonalVehicle.personalVehicleKey)
-            {
                 PersonalVehicle.Process();
-            }
         }
         public static void Log(string message, [CallerFilePath] string filePath = "")
         {
