@@ -1,14 +1,15 @@
 ![](https://cdn.discordapp.com/attachments/734888920046764105/1119994948968796210/main.png)
 A highly configurable quality-of-life mod for Grand Theft Auto IV.
-Requires: [IV SDK .NET](https://github.com/ClonkAndre/IV-SDK-DotNet) & [Clonk's Coding Library](https://github.com/ClonkAndre/ClonksCodingLib.GTAIV)
 
 Check out the [GTAForums](https://gtaforums.com/topic/991160-liberty-tweaks/) page for a better layout.
 
 # Installation
-[Video Guide](https://www.youtube.com/watch?v=6dMkwexv2EY)
-
+- Requires: [IV SDK .NET](https://github.com/ClonkAndre/IV-SDK-DotNet) & [Clonk's Coding Library](https://github.com/ClonkAndre/ClonksCodingLib.GTAIV)
+  
 Ensure you have all requirements, then download Liberty Tweaks. Drag & drop into main directory. 
 
+
+[Video Guide](https://www.youtube.com/watch?v=6dMkwexv2EY)
 # Features
 [Video Showcase](https://www.youtube.com/watch?v=NnbC1-kv8q0)
 
