@@ -27,7 +27,6 @@ Check out the [GTAForums](https://gtaforums.com/topic/991160-liberty-tweaks/) pa
 
 **Pedestrian/Traffic Adjustments**
 - Peds no longer overtake the player.
-- The game will auto-save when grabbing collectibles.
 - Upon loading in, there is now be a fade-in.
 - When stopped in a vehicle, brake lights flick on.
 - Pedestrians sometimes drive with their doors locked.
@@ -40,6 +39,7 @@ Check out the [GTAForums](https://gtaforums.com/topic/991160-liberty-tweaks/) pa
 - Ice cream truck theft voice lines from console are restored.
 - The hospital in South Algonquin is now a possible respawn point.
 - Hold sprint key to jog. Tap the key to sprint. Disabled via CAPSLOCK or Toggle Sprint in the pause menu.
+- The game will auto-save when grabbing collectibles.
 
 **Difficulty & Combat**
 - Player guns are removed upon death.
