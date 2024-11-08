@@ -11,13 +11,13 @@ Check out the [GTAForums](https://gtaforums.com/topic/991160-liberty-tweaks/) pa
 
 [Video Guide](https://www.youtube.com/watch?v=6dMkwexv2EY)
 # Features
-[Video Showcase](https://www.youtube.com/watch?v=NnbC1-kv8q0)
+[Video Showcase (1.4)](https://www.youtube.com/watch?v=NnbC1-kv8q0)
 
-Player Abilities
+**Player Abilities**
 - Quick-save while on-foot. Current location will also be saved.
 - Utilize Tracker Services at Pay'N'Sprays and Stevie's. This saves and tracks vehicles with a blip, acting as a personal vehicle.
 
-Player Gunplay
+**Player Gunplay**
 - Gun magazines, shotgun shells, & rockets are visibly disposed/inserted.
 - Recoil occurs when the player is firing any gun
 - Holster & unholster your weapons.
@@ -25,14 +25,14 @@ Player Gunplay
 - Scope & unscope with any sniper.
 - When reloading, ammunition left in the magazine is properly rid of.
 
-Pedestrian/Traffic Adjustments
+**Pedestrian/Traffic Adjustments**
 - Peds no longer overtake the player.
 - The game will auto-save when grabbing collectibles.
 - Upon loading in, there is now be a fade-in.
 - When stopped in a vehicle, brake lights flick on.
 - Pedestrians sometimes drive with their doors locked.
 
-Enhancements & Fixes
+**Enhancements & Fixes**
 - Field of view varies depending on the player's circumstances. E.g, in & out of combat, on & off foot, in & out interiors, etc. 
 - The player will speak more. E.g, in combat, when stealing items, or when falling.
 - Mouse cursor won't move to another monitor if in-game.
@@ -41,7 +41,7 @@ Enhancements & Fixes
 - The hospital in South Algonquin is now a possible respawn point.
 - Hold sprint key to jog. Tap the key to sprint. Disabled via CAPSLOCK or Toggle Sprint in the pause menu.
 
-Difficulty & Combat
+**Difficulty & Combat**
 - Player guns are removed upon death.
 - All AI has varied accuracy & firerates.
 - Health is regenerated to 25% in combat, and 50% out of combat.
@@ -50,7 +50,7 @@ Difficulty & Combat
 - Some pedestrians have a varied assortment of weapons. E.g, some gang members could have an UZI.
 - Vehicles can explode when catching on fire, as seen in certain vanilla missions.
 
-Police Changes
+**Police Changes**
 - Gain police stars when weapons are equipped with police nearby.
 - Gradually lose police stars if you're unseen for a certain duration.
 - Armored police appear at 4+ stars.
