@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using CCL.GTAIV;
-using IVSDKDotNet;
+﻿using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
+
+// Credits: catsmackaroo
 
 namespace LibertyTweaks
 {

@@ -9,7 +9,7 @@ namespace LibertyTweaks
     internal class BrakeLights
     {
 
-        private static bool enable;
+        public static bool enable;
 
         public static void Init(SettingsFile settings)
         {
@@ -24,21 +24,17 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            // Gets the player ped
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-            int playerId = playerPed.GetHandle();
-
             // Gets the current vehicle of the player
-            IVVehicle playerVehicle = IVVehicle.FromUIntPtr(playerPed.GetVehicle());
+            IVVehicle playerVehicle = IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle());
 
-            if (!IS_CHAR_DEAD(playerId))
+            if (!IS_CHAR_DEAD(Main.PlayerPed.GetHandle()))
             {
                 if (playerVehicle != null)
                 {
                     // Gets the speed of the current vehicle of the player
                     GET_CAR_SPEED(playerVehicle.GetHandle(), out float carSpeed);
 
-                    // If speed of the vehicle is below 2f
+                    // If speed of the vehicle is below a certain point
                     if (carSpeed < 0.09500f)
                     {
                         // Disable the brake lights if the player presses the gas pedal

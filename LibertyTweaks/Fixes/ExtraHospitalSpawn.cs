@@ -3,12 +3,14 @@ using static IVSDKDotNet.Native.Natives;
 using CCL.GTAIV;
 using IVSDKDotNet.Native;
 
+// Credits: catsmackaroo
+
 namespace LibertyTweaks
 {
     internal class ExtraHospitalSpawn
     {
         private static bool enable;
-        private static bool added;
+        private static bool added = false;
 
         public static void Init(SettingsFile settings)
         {
@@ -20,9 +22,7 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-
-            if (IS_CHAR_DEAD(playerPed.GetHandle()))
+            if (IS_CHAR_DEAD(Main.PlayerPed.GetHandle()))
             {
                 if (!added)
                 {

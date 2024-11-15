@@ -7,8 +7,6 @@ using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
 using DocumentFormat.OpenXml;
 using System.Linq;
-using IVSDKDotNet.Enums;
-using DocumentFormat.OpenXml.Drawing.Diagrams;
 
 // Credits: catsmackaroo
 
@@ -23,6 +21,7 @@ namespace LibertyTweaks
         public static bool enable;
         public static bool enableReplaceParkedVeh;
         public static bool enableImpound;
+        public static bool enableAlwaysUnlocked;
 
         // Keys 
         public static Keys personalVehicleKey;
@@ -60,10 +59,9 @@ namespace LibertyTweaks
         private static Vector3 stevieLocation = new Vector3(722, 1392, 14);
         private static bool canBeTracked = false;
         private static bool canShowTrackerGuide = false;
-        private static bool canFade = false;
         private static uint priceForTracking = 1000;
         private static Dictionary<Vector3, bool> messageShown = new Dictionary<Vector3, bool>();
-        private static string trackerName = "Tracker Service";
+        private static readonly string trackerName = "Tracker Service";
 
         // Impound Stuff
         private static bool isVehicleImpounded;
@@ -77,37 +75,49 @@ namespace LibertyTweaks
         private static Vector3 bohanImpound = new Vector3(993, 1894, 24);
         private static Vector3 brokerImpound = new Vector3(1211, -100, 29);
 
-        // After Mission Teleports
+        // Teleports
         private static bool hasVehicleBeenReplaced = false;
+        private static bool canTeleportPostDeathOrFail = false;
 
         // Player Stats
-        private static uint islandsUnlocked;
-        private static uint islandsUnlockedInitial;
-        private static uint romanMissionProgress;
-        private static uint romanMissionProgressInitial;
-        private static uint brucieMissionProgress;
-        private static uint brucieMissionProgressInitial;
-        private static uint missionsCompleted;
+        //private static readonly int delayInMilliseconds = 5000;
+        private static int islandsUnlocked;
+        private static int islandsUnlockedInitial;
+        private static int romanMissionProgress;
+        private static int romanMissionProgressInitial;
+        private static int brucieMissionProgress;
+        private static int brucieMissionProgressInitial;
+        private static int missionsCompleted;
         private static uint currentEpisode;
-        private static uint totalDeathsInitial;
-        private static uint totalDeaths;
-        private static uint totalFailedMissionsInitial;
-        private static uint totalFailedMissions;
-        private static uint totalArrestsInitial;
-        private static uint totalArrests;
+        private static int totalDeathsInitial;
+        private static int totalDeaths;
+        private static int totalFailedMissionsInitial;
+        private static int totalFailedMissions;
+        private static int totalArrestsInitial;
+        private static int totalArrests;
         #endregion
 
         #region Initialization Methods
-        public static void Init(SettingsFile settings)
+        public static void Init(Script instance, SettingsFile settings)
         {
             enable = settings.GetBoolean("Personal Vehicle", "Enable", true);
             enableReplaceParkedVeh = settings.GetBoolean("Personal Vehicle", "Deliveries", true);
             enableImpound = settings.GetBoolean("Personal Vehicle", "Impound", true);
+            enableAlwaysUnlocked = settings.GetBoolean("Personal Vehicle", "Service Always Unlocked", true);
 
             personalVehicleKey = settings.GetKey("Personal Vehicle", "Tracker Key", Keys.E);
 
             if (enable)
+            {
                 Main.Log("script initialized...");
+                instance.RegisterPhoneNumber("3345550100", () =>
+                {
+                    FindNearestPossibleTeleport();
+                    IVText.TheIVText.ReplaceTextOfTextLabel("PLACEHOLDER_1", "~S~Cheat activated");
+                    PRINT_HELP("PLACEHOLDER_1");
+                    IVCheat.HasPlayerCheated = true;
+                });
+            }
         }
 
         public static void IngameStartup()
@@ -126,19 +136,12 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-            uint playerMoney = IVPlayerInfoExtensions.GetMoney(playerPed.PlayerInfo);
+            uint playerMoney = IVPlayerInfoExtensions.GetMoney(Main.PlayerPed.PlayerInfo);
 
-            if (!IS_CHAR_IN_ANY_CAR(playerPed.GetHandle()))
+            if (!IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle()) || canBeTracked == false || playerMoney < priceForTracking)
                 return;
 
-            if (canBeTracked == false)
-                return;
-
-            if (playerMoney < priceForTracking)
-                return;
-
-            if (IS_CHAR_IN_CAR(playerPed.GetHandle(), savedVehicle.GetHandle()))
+            if (IS_CHAR_IN_CAR(Main.PlayerPed.GetHandle(), savedVehicle.GetHandle()))
             {
                 IVGame.ShowSubtitleMessage("This vehicle already has a tracker.");
                 return;
@@ -147,8 +150,7 @@ namespace LibertyTweaks
             Cleanup();
             //isDestroyed = false;
 
-            savedVehicle = IVVehicle.FromUIntPtr(playerPed.GetVehicle());
-            canFade = true;
+            savedVehicle = IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle());
 
             Main.Log("Set Unsaved Vehicle: " + savedVehicle.Handling.Name);
 
@@ -156,12 +158,13 @@ namespace LibertyTweaks
             uint afterTime = (uint)(beforeTime + 3);
             uint afterTimeMinute = (uint)(beforeTimeMinute + 30);
             IVGame.ShowSubtitleMessage("");
-            Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(2), "Main", () =>
+
+            CommonHelpers.HandleScreenFade(2000, false, () =>
             {
                 canShowTrackerGuide = true;
                 SET_TIME_OF_DAY(afterTime, afterTimeMinute);
                 SKIP_RADIO_FORWARD();
-                IVPlayerInfoExtensions.RemoveMoney(playerPed.PlayerInfo, (int)priceForTracking);
+                IVPlayerInfoExtensions.RemoveMoney(Main.PlayerPed.PlayerInfo, (int)priceForTracking);
             });
         }
         public static void Tick()
@@ -170,22 +173,21 @@ namespace LibertyTweaks
                 return;
 
             if (firstFrame)
-            {
                 InitializeFirstFrame();
-            }
 
             if (Main.gxtEntries && IS_THIS_HELP_MESSAGE_WITH_NUMBER_BEING_DISPLAYED("INT4_P2", 0))
-            {
                 IVText.TheIVText.ReplaceTextOfTextLabel("INT4_P3", "~S~Additionally, services around all Pay 'n' Sprays can add a tracker to your vehicle.");
-            }
 
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-            uint playerIndex = GET_PLAYER_ID();
-            uint playerMoney = IVPlayerInfoExtensions.GetMoney(playerPed.PlayerInfo);
+            uint playerMoney = IVPlayerInfoExtensions.GetMoney(Main.PlayerPed.PlayerInfo);
 
-            STORE_WANTED_LEVEL((int)playerIndex, out uint playerWantedLevel);
+            STORE_WANTED_LEVEL(Main.PlayerIndex, out uint playerWantedLevel);
 
             CheckPlayerStats();
+            HandleSaving();
+            HandleBlipSpawning();
+            HandleMissionBlipVisibility();
+            HandleTrackerService(serviceLocations, playerMoney);
+            HandleImpoundLogic(playerWantedLevel);
 
             if (missionsCompleted == 0 && !newGameCleanup)
             {
@@ -204,36 +206,41 @@ namespace LibertyTweaks
 
             if (HasPlayerDiedOrFailMission() && savedVehicle != null)
             {
-                Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(12), "Main", () =>
-                {
-                    if (Vector3.Distance(playerPed.Matrix.Pos, savedVehicle.Matrix.Pos) > 100f)
-                    {
-                        if (isVehicleImpounded)
-                            return;
+                canTeleportPostDeathOrFail = true;
+            }
 
-                        if (!hasVehicleBeenReplaced)
+            if (canTeleportPostDeathOrFail)
+            {
+                GET_CHAR_HEALTH(Main.PlayerPed.GetHandle(), out uint pHealth);
+
+                if (pHealth == 200)
+                {
+                    Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(1), "Main", () =>
+                    {
+                        if (Vector3.Distance(Main.PlayerPed.Matrix.Pos, savedVehicle.Matrix.Pos) > 100f)
                         {
-                            FindNearestPossibleTeleport(playerPed);
-                            UpdateDeathsAndFails();
+                            if (!isVehicleImpounded && !hasVehicleBeenReplaced)
+                            {
+                                FindNearestPossibleTeleport();
+                                UpdateDeathsAndFails();
+                                canTeleportPostDeathOrFail = false;
+                            }
                         }
-                    }
-                });            
+                    });
+                }
             }
 
             if (savedVehicle != null)
             {
                 savedVehicle.SetAsMissionVehicle();
-                ManageVehicleBlip(playerPed);
-                HandleMissionCompletion(playerPed);
-                HandleVehicleStatus();
-            }
 
-            HandleSaveMessages();
-            HandleBlipSpawning();
-            HandleMissionBlipVisibility();
-            HandleTrackerService(playerPed, serviceLocations, playerMoney, playerIndex);
-            HandleScreenFade(playerIndex);
-            HandleImpoundLogic(playerPed, playerIndex, playerWantedLevel);
+                ManageVehicleBlip();
+                HandleMissionCompletion();
+                HandleVehicleStatus();
+
+                if (!isVehicleImpounded)
+                    LOCK_CAR_DOORS(savedVehicle.GetHandle(), 1);
+            }
         }
         private static void InitializeFirstFrame()
         {
@@ -243,6 +250,7 @@ namespace LibertyTweaks
             totalFailedMissionsInitial = GET_INT_STAT(254);
             totalDeathsInitial = GET_INT_STAT(261);
             totalArrestsInitial = GET_INT_STAT(419);
+            currentEpisode = GET_CURRENT_EPISODE();
 
             blipsSpawned = false;
             newGameCleanup = false;
@@ -251,14 +259,13 @@ namespace LibertyTweaks
         }
         private static void CheckPlayerStats()
         {
+            totalFailedMissions = GET_INT_STAT(254);
+            totalArrests = GET_INT_STAT(419);
             islandsUnlocked = GET_INT_STAT(363);
             romanMissionProgress = GET_INT_STAT(3);
             brucieMissionProgress = GET_INT_STAT(16);
-            currentEpisode = GET_CURRENT_EPISODE();
             missionsCompleted = GET_INT_STAT(253);
-            totalFailedMissions = GET_INT_STAT(254);
             totalDeaths = GET_INT_STAT(261);
-            totalArrests = GET_INT_STAT(419);
         }
         private static bool HasMissionProgressChanged()
         {
@@ -269,8 +276,8 @@ namespace LibertyTweaks
         private static void UpdateMissionProgress()
         {
             islandsUnlockedInitial = islandsUnlocked;
-            romanMissionProgress = romanMissionProgressInitial;
-            brucieMissionProgress = brucieMissionProgressInitial;
+            romanMissionProgressInitial = romanMissionProgress;
+            brucieMissionProgressInitial = brucieMissionProgress;
         }
         private static bool HasPlayerDiedOrFailMission()
         {
@@ -289,22 +296,20 @@ namespace LibertyTweaks
         {
             totalArrestsInitial = totalArrests;
         }
-        private static void HandleMissionCompletion(IVPed playerPed)
+        private static void HandleMissionCompletion()
         {
             if (IS_MISSION_COMPLETE_PLAYING())
             {
                 if (!enableReplaceParkedVeh)
                     return;
 
-                if (Vector3.Distance(playerPed.Matrix.Pos, savedVehicle.Matrix.Pos) > 100f)
+                if (Vector3.Distance(Main.PlayerPed.Matrix.Pos, savedVehicle.Matrix.Pos) > 100f)
                 {
                     if (isVehicleImpounded)
                         return;
 
                     if (!hasVehicleBeenReplaced)
-                    {
-                        FindNearestPossibleTeleport(playerPed);
-                    }
+                        FindNearestPossibleTeleport();
                 }
             }
             else
@@ -319,7 +324,7 @@ namespace LibertyTweaks
                 Cleanup();
             }
         }
-        private static void HandleSaveMessages()
+        private static void HandleSaving()
         {
             if (GET_IS_DISPLAYINGSAVEMESSAGE() && !hasSaved)
             {
@@ -352,23 +357,23 @@ namespace LibertyTweaks
                     vehBlip.ShowOnlyWhenNear = false;
             }
         }
-        private static void HandleScreenFade(uint playerIndex)
-        {
-            if (canFade)
-            {
-                DO_SCREEN_FADE_OUT(2000);
-                SET_PLAYER_CONTROL((int)playerIndex, false);
-                if (IS_SCREEN_FADING())
-                {
-                    Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(2), "Main", () =>
-                    {
-                        DO_SCREEN_FADE_IN(2000);
-                        SET_PLAYER_CONTROL((int)playerIndex, true);
-                    });
-                }
-                canFade = false;
-            }
-        }
+        //private static void HandleScreenFade()
+        //{
+        //    if (canFade)
+        //    {
+        //        DO_SCREEN_FADE_OUT(2000);
+        //        SET_PLAYER_CONTROL(Main.PlayerIndex, false);
+        //        if (IS_SCREEN_FADING())
+        //        {
+        //            Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(2), "Main", () =>
+        //            {
+        //                DO_SCREEN_FADE_IN(2000);
+        //                SET_PLAYER_CONTROL(Main.PlayerIndex, true);
+        //            });
+        //        }
+        //        canFade = false;
+        //    }
+        //}
         private static (Vector3 nearestLocation, int nearestIndex) FindNearestLocation(Vector3 currentPos, List<Vector3> locations)
         {
             float minDistance = float.MaxValue;
@@ -393,35 +398,33 @@ namespace LibertyTweaks
             Main.Log("Entering AddServiceLocations method...");
 
             serviceLocations.Clear();
-
-            if (romanMissionProgress >= 33)
+            
+            if (enableAlwaysUnlocked || islandsUnlocked == 3)
             {
-                serviceLocations.Clear();
                 serviceLocations.Add(dukesPNS);
-            }
-            if (brucieMissionProgress == 100)
-            {
-                serviceLocations.Clear();
-                serviceLocations.Add(dukesPNS);
-                serviceLocations.Add(stevieLocation);
-            }
-            if (islandsUnlocked == 2)
-            {
-                serviceLocations.Clear();
-                serviceLocations.Add(dukesPNS);
-                serviceLocations.Add(stevieLocation);
-                serviceLocations.Add(northAlgonquinPNS);
-                serviceLocations.Add(southAlgonquinPNS);
-            }
-            if (islandsUnlocked == 3)
-            {
-                serviceLocations.Clear();
-                serviceLocations.Add(dukesPNS);
-                serviceLocations.Add(stevieLocation);
                 serviceLocations.Add(northAlgonquinPNS);
                 serviceLocations.Add(southAlgonquinPNS);
                 serviceLocations.Add(northAlderneyPNS);
                 serviceLocations.Add(southAlderneyPNS);
+            }
+            else
+            {
+                if (islandsUnlocked == 2)
+                {
+                    serviceLocations.Add(dukesPNS);
+                    serviceLocations.Add(northAlgonquinPNS);
+                    serviceLocations.Add(southAlgonquinPNS);
+                }
+
+                if (romanMissionProgress >= 33)
+                {
+                    serviceLocations.Add(dukesPNS);
+                }
+
+                if (brucieMissionProgress == 100)
+                {
+                    serviceLocations.Add(stevieLocation);
+                }
             }
         }
         private static void ManageServiceBlips()
@@ -430,26 +433,41 @@ namespace LibertyTweaks
 
             if (trackerBlip != null)
             {
-                trackerBlip.Dispose();
+                trackerBlip.Delete();
                 trackerBlip = null;
                 blipsSpawned = false;
             }
 
+            if (serviceLocations.Count == 0)
+            {
+                Main.Log("Service locations are not populated.");
+                return;
+            }
+
             foreach (Vector3 location in serviceLocations)
             {
-                NativeBlip trackerBlip = NativeBlip.AddBlip(location);
-                trackerBlip.ShowOnlyWhenNear = true;
-                trackerBlip.Icon = BlipIcon.Building_Garage;
-                trackerBlip.Scale = 1f;
-                trackerBlip.Name = trackerName;
+                try
+                {
+                    trackerBlip = NativeBlip.AddBlip(location);
+                    trackerBlip.ShowOnlyWhenNear = true;
+                    trackerBlip.Icon = BlipIcon.Building_Garage;
+                    trackerBlip.Name = trackerName;
+                }
+                catch
+                {
+                    Main.Log($"Error adding blips at {location}. Restarting the game may fix this issue.");
+                }
+                blipsSpawned = true;
             }
-            blipsSpawned = true;
         }
-        private static void FindNearestPossibleTeleport(IVPed playerPed)
+        public static void FindNearestPossibleTeleport()
         {
             Main.Log("Entering FindNearestPossibleTeleport method...");
 
             if (isVehicleImpounded)
+                return;
+
+            if (savedVehicle == null)
                 return;
 
             float searchRadius = 1000f;
@@ -461,23 +479,22 @@ namespace LibertyTweaks
 
             try
             {
-                // Check nearest vehicles
                 for (int i = 0; i < vehPool.Count; i++)
                 {
-                    int vehicle = GET_CLOSEST_CAR(playerPed.Matrix.Pos, searchRadius, 0, (uint)i);
+                    int vehicle = GET_CLOSEST_CAR(Main.PlayerPed.Matrix.Pos, searchRadius, 0, (uint)i);
                     if (vehicle == 0 || nearbyVehicles.Contains(vehicle))
                         continue;
 
                     GET_DRIVER_OF_CAR(vehicle, out int carDriver);
                     GET_CAR_HEADING(vehicle, out float vehicleHeading);
-                    IVVehicle currentCarVeh = NativeWorld.GetVehicleInstaceFromHandle(vehicle);
+                    IVVehicle currentCarVeh = NativeWorld.GetVehicleInstanceFromHandle(vehicle);
 
                     if (currentCarVeh != null && !currentCarVeh.VehicleFlags.EngineOn && carDriver == 0 &&
                         vehicle != savedVehicle.GetHandle() &&
-                        !IS_CAR_A_MISSION_CAR(vehicle))
+                        !IS_CAR_A_MISSION_CAR(vehicle) && !IS_THIS_MODEL_A_BOAT((uint)currentCarVeh.ModelIndex) && !IS_THIS_MODEL_A_HELI((uint)currentCarVeh.ModelIndex))
                     {
                         nearbyVehicles.Add(vehicle);
-                        float distanceToPlayer = (currentCarVeh.Matrix.Pos - playerPed.Matrix.Pos).Length();
+                        float distanceToPlayer = (currentCarVeh.Matrix.Pos - Main.PlayerPed.Matrix.Pos).Length();
 
                         if (distanceToPlayer < closestDistance)
                         {
@@ -490,12 +507,12 @@ namespace LibertyTweaks
 
                 TeleportationScript teleportScript = new TeleportationScript();
                 Vector3 savedVehiclePos = savedVehicle.Matrix.Pos;
-                teleportScript.GetNearestTeleportLocation(savedVehiclePos); // Update nearest teleport location based on saved vehicle position
-                TeleportLocation nearestLocation = teleportScript.GetNearestTeleportLocation(playerPed.Matrix.Pos);
+                teleportScript.GetNearestTeleportLocation(savedVehiclePos);
+                TeleportLocation nearestLocation = teleportScript.GetNearestTeleportLocation(Main.PlayerPed.Matrix.Pos);
 
                 if (nearestLocation != null)
                 {
-                    float distanceToTeleport = Vector3.Distance(playerPed.Matrix.Pos, nearestLocation.ToVector3());
+                    float distanceToTeleport = Vector3.Distance(Main.PlayerPed.Matrix.Pos, nearestLocation.ToVector3());
                     if (distanceToTeleport < 150f)
                     {
                         Main.Log($"Teleporting saved vehicle to nearest location: {nearestLocation} at distance {distanceToTeleport}");
@@ -506,11 +523,10 @@ namespace LibertyTweaks
                         SET_CAR_ENGINE_ON(savedVehicle.GetHandle(), false, false);
                         CLOSE_ALL_CAR_DOORS(savedVehicle.GetHandle());
 
-                        return; // Exit method after teleporting
+                        return; 
                     }
                 }
 
-                // If no suitable teleport location found, replace nearest parked vehicle
                 if (closestCarVeh != null)
                 {
                     Main.Log($"Closest vehicle found: {closestCarVeh.Handling.Name} at distance {closestDistance}");
@@ -553,8 +569,11 @@ namespace LibertyTweaks
                 canShowTrackerGuide = false;
             }
         }
-        private static void HandleTrackerService(IVPed playerPed, List<Vector3> locations, uint playerMoney, uint playerIndex)
+        private static void HandleTrackerService(List<Vector3> locations, uint playerMoney)
         {
+            if (!IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle()))
+                return;
+
             string[] emergencyVehicles = { "POL", "FBI", "NOOSE", "AMBUL", "FIRE" };
 
             if (messageShown == null)
@@ -568,9 +587,9 @@ namespace LibertyTweaks
 
             foreach (Vector3 location in locations)
             {
-                if (Vector3.Distance(playerPed.Matrix.Pos, location) < 5f)
+                if (Vector3.Distance(Main.PlayerPed.Matrix.Pos, location) < 5f)
                 {
-                    STORE_WANTED_LEVEL((int)playerIndex, out uint currentWantedLevel);
+                    STORE_WANTED_LEVEL(Main.PlayerIndex, out uint currentWantedLevel);
 
                     if (currentWantedLevel > 0)
                         return;
@@ -581,15 +600,16 @@ namespace LibertyTweaks
                         return;
                     }
 
-                    if (!IS_CHAR_IN_CAR(playerPed.GetHandle(), savedVehicle.GetHandle()))
+
+                    if (!IS_CHAR_IN_CAR(Main.PlayerPed.GetHandle(), savedVehicle.GetHandle()))
                     {
                         if (messageShown[location])
                             return;
 
-                        GET_CAR_CHAR_IS_USING(playerPed.GetHandle(), out int currentCar);
+                        GET_CAR_CHAR_IS_USING(Main.PlayerPed.GetHandle(), out int currentCar);
                         GET_CAR_HEALTH(currentCar, out uint currentCarHealth);
                         GET_CAR_MODEL(currentCar, out uint currentCarModel);
-                        checkVehicle = IVVehicle.FromUIntPtr(playerPed.GetVehicle());
+                        checkVehicle = IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle());
 
                         if (emergencyVehicles.Any(identifier => checkVehicle.Handling.Name.Contains(identifier)) || currentCarModel == 1911513875)
                         {
@@ -600,7 +620,7 @@ namespace LibertyTweaks
                             priceForTracking = (uint)(checkVehicle.Handling.MonetaryValue * (1.0 / 6.0));
                         }
 
-                        if (Vector3.Distance(playerPed.Matrix.Pos, stevieLocation) < 5f)
+                        if (Vector3.Distance(Main.PlayerPed.Matrix.Pos, stevieLocation) < 5f)
                         {
                             priceForTracking = (uint)(priceForTracking * (1.0 / 2.0));
                         }
@@ -646,59 +666,70 @@ namespace LibertyTweaks
 
             canBeTracked = false;
         }
-        private static void ManageVehicleBlip(IVPed playerPed)
+        private static void ManageVehicleBlip()
         {
+            if (savedVehicle == null)
+                return;
 
-            if (IS_CHAR_IN_CAR(playerPed.GetHandle(), savedVehicle.GetHandle()))
+            if (IS_CHAR_IN_CAR(Main.PlayerPed.GetHandle(), savedVehicle.GetHandle()))
             {
                 if (vehBlip != null)
                 {
-                    vehBlip.Dispose();
+                    vehBlip.Delete();
                     vehBlip = null;
                     isBlipAttached = false;
                     Main.Log("Blip detached; player in saved vehicle.");
                 }
             }
-            else if (!isBlipAttached && savedVehicle != null)
+            else if (!isBlipAttached)
             {
                 SET_CAR_AS_MISSION_CAR(savedVehicle.GetHandle());
-                vehBlip = savedVehicle.AttachBlip();
-                vehBlip.Icon = BlipIcon.Building_Garage;
-                vehBlip.Name = "Personal Vehicle";
-                isBlipAttached = true;
-                Main.Log("Blip attached; player not in saved vehicle.");
+                try
+                {
+                    vehBlip = savedVehicle.AttachBlip();
+                    vehBlip.Icon = BlipIcon.Building_Garage;
+                    vehBlip.Name = "Personal Vehicle";
+                    isBlipAttached = true;
+                    Main.Log("Blip attached; player not in saved vehicle.");
+                }
+                catch
+                {
+                    Main.Log($"Error attaching blip to saved vehicle. Restarting the game may fix this issue.");
+                    isBlipAttached = true;
+                }
+
             }
         }
-        private static void HandleImpoundLogic(IVPed playerPed, uint playerIndex, uint playerWantedLevel)
+        private static void HandleImpoundLogic(uint playerWantedLevel)
         {
             if (savedVehicle == null || !enableImpound)
                 return;
 
-            if (Vector3.Distance(playerPed.Matrix.Pos, savedVehicle.Matrix.Pos) > 200f)
+            if (Vector3.Distance(Main.PlayerPed.Matrix.Pos, savedVehicle.Matrix.Pos) > 200f)
                 return;
 
-            if (isVehicleImpounded && Vector3.Distance(playerPed.Matrix.Pos, savedVehicle.Matrix.Pos) < 10f && playerWantedLevel < 4)
+            if (isVehicleImpounded && Vector3.Distance(Main.PlayerPed.Matrix.Pos, savedVehicle.Matrix.Pos) < 10f && playerWantedLevel < 4)
             {
                 Main.Log("Player is near impounded car; giving 4 stars.");
-                ALTER_WANTED_LEVEL((int)playerIndex, 4);
-                APPLY_WANTED_LEVEL_CHANGE_NOW((int)playerIndex);
+                ALTER_WANTED_LEVEL(Main.PlayerIndex, 4);
+                APPLY_WANTED_LEVEL_CHANGE_NOW(Main.PlayerIndex);
                 isVehicleImpounded = false;
             }
 
             if (!isVehicleImpounded)
             {
-                if (playerWantedLevel >= 1 && (IS_PLAYER_DEAD((int)playerIndex)) || HasPlayerBeenBusted())
+                if (playerWantedLevel >= 1 && (IS_PLAYER_DEAD(Main.PlayerIndex)) || HasPlayerBeenBusted())
                 {
 
                     Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(12), "Main", () =>
                     {
-                        ImpoundVehicle(playerPed);
+                        ImpoundVehicle();
                         UpdateArrests();
                     });
                 }
             }
         }
-        private static void ImpoundVehicle(IVPed playerPed)
+        private static void ImpoundVehicle()
         {
             if (!isVehicleImpounded && savedVehicle != null)
             {
@@ -716,7 +747,7 @@ namespace LibertyTweaks
                     policeStations.Add(southWestAlgonquinImpound);
                 }
 
-                var (nearestImpoundLocation, nearestIndex) = FindNearestLocation(playerPed.Matrix.Pos, policeStations);
+                var (nearestImpoundLocation, nearestIndex) = FindNearestLocation(Main.PlayerPed.Matrix.Pos, policeStations);
 
                     savedVehicle.Teleport(nearestImpoundLocation, false, true);
                     SET_CAR_ON_GROUND_PROPERLY(savedVehicle.GetHandle());
@@ -852,7 +883,6 @@ namespace LibertyTweaks
             {
                 try
                 {
-                    // pre-car check 
                     int closestCar = GET_CLOSEST_CAR(lastSavedVehiclePosition, 10f, 0, 70);
                     if (closestCar != 0)
                     {
@@ -860,7 +890,7 @@ namespace LibertyTweaks
                         DELETE_CAR(ref closestCar);
                     }
 
-                    savedVehicle = NativeWorld.SpawnVehicle(lastSavedVehicleModel, lastSavedVehiclePosition, out int savedVehicleHandle, true, true);
+                    savedVehicle = NativeWorld.SpawnVehicle(lastSavedVehicleModel, lastSavedVehiclePosition, out int savedVehicleHandle, true);
                     CHANGE_CAR_COLOUR(savedVehicleHandle, lastSavedVehiclePrimaryColor, lastSavedVehicleSecondaryColor);
                     SET_EXTRA_CAR_COLOURS(savedVehicleHandle, lastSavedVehicleQuaternaryColor, lastSavedVehicleTertiaryColor);
                     SET_CAR_ON_GROUND_PROPERLY(savedVehicleHandle);
@@ -906,7 +936,7 @@ namespace LibertyTweaks
 
             if (vehBlip != null)
             {
-                vehBlip.Dispose();
+                vehBlip.Delete();
                 vehBlip = null;
                 isBlipAttached = false;
             }
@@ -935,52 +965,6 @@ namespace LibertyTweaks
                 isVehicleImpounded = false;
             }
         }
-        #endregion
-
-        #region Scrap
-        // Insurance Feature
-        //private static bool isDestroyed;
-        //private static bool canShowInsuranceGuide;
-        //private static NativeBlip insuranceBlip;
-        //private static bool insuranceBlipSpawned;
-        //private static Vector3 insuranceServiceCoord = new Vector3(-262, 427, 14);
-        //private static void ManageInsuranceBlips()
-        //{
-        //    Main.Log("Entering ManageInsuranceBlips method...");
-
-        //    if (insuranceBlip != null)
-        //    {
-        //        insuranceBlip.Dispose();
-        //        insuranceBlip = null;
-        //        insuranceBlipSpawned = false;
-        //    }
-
-        //    if (isDestroyed == true)
-        //    {
-        //        NativeBlip insuranceBlip = NativeBlip.AddBlip(insuranceServiceCoord);
-        //        insuranceBlip.ShowOnlyWhenNear = true;
-        //        insuranceBlip.Icon = BlipIcon.Building_Garage;
-        //        insuranceBlip.Name = "Tracker Service";
-        //        insuranceBlip.Scale = 0.8f;
-        //    }
-        //}
-        //private static void InsuranceService()
-        //{
-        //    if (isDestroyed)
-        //    {
-
-        //    }
-        //}
-        //private static void DisplayInsuranceGuide()
-        //{
-
-        //    if (canShowTrackerGuide)
-        //    {
-        //        IVText.TheIVText.ReplaceTextOfTextLabel("PLACEHOLDER_1", "Your tracked vehicle has been lost or destroyed. You can go to Mors Mutual Insurance to file a claim.");
-        //        PRINT_HELP("PLACEHOLDER_1");
-        //        canShowInsuranceGuide = false;
-        //    }
-        //}
         #endregion
     }
 }

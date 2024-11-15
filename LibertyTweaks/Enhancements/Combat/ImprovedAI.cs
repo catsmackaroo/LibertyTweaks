@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using CCL.GTAIV;
+﻿using System.Collections.Generic;
 using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
+
+// Credits: catsmackaroo
 
 namespace LibertyTweaks
 {
@@ -12,38 +11,22 @@ namespace LibertyTweaks
         private static bool enableAccuracyFirerate;
         private static readonly HashSet<uint> policeHashes = new HashSet<uint>
         {
-            4111764146,
+            4111764146, // Police
             2776029317,
-            4205665177,
+            4205665177
         };
         private static readonly List<uint> gangTypes = new List<uint>
         {
-            3,
-            4,
-            11,
-            13,
-            9,
-            10,
-            12,
-            14,
-            6,
-            8,
-            7,
-            5,
+            3, 4, 11, 13, 9, 10, 12, 14, 6, 8, 7, 5 // Gangs
         };
 
         private static int defaultPedAccuracy;
         private static int defaultPedFirerate;
-        private static int gangAccuracy;
-        private static int gangFirerate;
-        private static int policeRegularAccuracy;
-        private static int policeRegularFirerate;
-        private static int fibAccuracy;
-        private static int fibFirerates;
-        private static int nooseAccuracy;
-        private static int nooseFirerate;
-        private static int policeSixStarsAccuracy;
-        private static int policeSixStarsFirerate;
+        private static readonly Dictionary<uint, (int accuracy, int firerate)> pedTypeSettings = new Dictionary<uint, (int accuracy, int firerate)>
+        {
+            {3295460374, (95, 80)},  // FIB
+            {3290204350, (80, 70)}   // NOoSE
+        };
 
         public static void Init(SettingsFile settings)
         {
@@ -51,16 +34,6 @@ namespace LibertyTweaks
 
             defaultPedAccuracy = settings.GetInteger("Extensive Settings", "Default Accuracy", 40);
             defaultPedFirerate = settings.GetInteger("Extensive Settings", "Default Firerate", 40);
-            gangAccuracy = settings.GetInteger("Extensive Settings", "Gang Accuracy", 55);
-            gangFirerate = settings.GetInteger("Extensive Settings", "Gang Firerate", 85);
-            fibAccuracy = settings.GetInteger("Extensive Settings", "FIB Accuracy", 95);
-            fibFirerates = settings.GetInteger("Extensive Settings", "FIB Firerate", 80);
-            nooseAccuracy = settings.GetInteger("Extensive Settings", "NOoSE Accuracy", 80);
-            nooseFirerate = settings.GetInteger("Extensive Settings", "NOoSE Firerate", 70);
-            policeRegularAccuracy = settings.GetInteger("Extensive Settings", "Police Accuracy", 80);
-            policeRegularFirerate = settings.GetInteger("Extensive Settings", "Police Firerate", 70);
-            policeSixStarsAccuracy = settings.GetInteger("Extensive Settings", "Police Six Star Accuracy", 100);
-            policeSixStarsFirerate = settings.GetInteger("Extensive Settings", "Police Six Star Firerate", 100);
 
             if (enableAccuracyFirerate)
                 Main.Log("script initialized...");
@@ -68,70 +41,53 @@ namespace LibertyTweaks
 
         public static void Tick()
         {
-            IVPool pedPool = IVPools.GetPedPool();
-            for (int i = 0; i < pedPool.Count; i++)
+            if (!enableAccuracyFirerate)
+                return;
+
+            foreach (var kvp in PedHelper.PedHandles)
             {
-                UIntPtr ptr = pedPool.Get(i);
-                if (ptr != UIntPtr.Zero)
+                int pedHandle = kvp.Value;
+                GET_CHAR_MODEL(pedHandle, out uint pedModel);
+                GET_PED_TYPE(pedHandle, out uint pedType);
+
+                int accuracy = defaultPedAccuracy;
+                int firerate = defaultPedFirerate;
+
+                if (pedTypeSettings.ContainsKey(pedModel))
                 {
-                    if (ptr == IVPlayerInfo.FindThePlayerPed())
-                        continue;
+                    accuracy = pedTypeSettings[pedModel].accuracy;
+                    firerate = pedTypeSettings[pedModel].firerate;
+                }
 
-                    IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-                    uint playerId = GET_PLAYER_ID();
-                    int pedHandle = (int)pedPool.GetIndex(ptr);
 
-                    GET_CHAR_MODEL(pedHandle, out uint pedModel);
-                    STORE_WANTED_LEVEL((int)playerId, out uint currentWantedLevel);
-                    GET_PED_TYPE(pedHandle, out uint pedType);
+                STORE_WANTED_LEVEL(Main.PlayerIndex, out uint currentWantedLevel);
 
-                    if (enableAccuracyFirerate)
+                if (policeHashes.Contains(pedModel))
+                {
+                    if (currentWantedLevel == 6)
                     {
-                        // Default
-                        SET_CHAR_ACCURACY(pedHandle, (uint)defaultPedAccuracy);
-                        SET_CHAR_SHOOT_RATE(pedHandle, defaultPedFirerate);
-
-                        // Police
-                        if (policeHashes.Contains(pedModel))
-                        {
-                            if (IS_CHAR_IN_ANY_CAR(playerPed.GetHandle()))
-                            {
-                                SET_CHAR_SHOOT_RATE(pedHandle, 100);
-                            }
-                            else if (currentWantedLevel == 6)
-                            {
-                                SET_CHAR_ACCURACY(pedHandle, (uint)policeSixStarsAccuracy);
-                                SET_CHAR_SHOOT_RATE(pedHandle, policeSixStarsFirerate);
-                            }
-                            else
-                            {
-                                SET_CHAR_ACCURACY(pedHandle, (uint)policeRegularAccuracy);
-                                SET_CHAR_SHOOT_RATE(pedHandle, policeRegularFirerate);
-                            }
-                        }
-
-                        // FIB
-                        if (pedModel == 3295460374)
-                        {
-                            SET_CHAR_ACCURACY(pedHandle, (uint)fibAccuracy);
-                            SET_CHAR_SHOOT_RATE(pedHandle, fibFirerates);
-                        }
-
-                        // NOoSE
-                        if (pedModel == 3290204350)
-                        {
-                            SET_CHAR_ACCURACY(pedHandle, (uint)nooseAccuracy);
-                            SET_CHAR_SHOOT_RATE(pedHandle, nooseFirerate);
-                        }
-
-                        // Gang
-                        if (gangTypes.Contains(pedType))
-                        {
-                            SET_CHAR_ACCURACY(pedHandle, (uint)gangAccuracy);
-                            SET_CHAR_SHOOT_RATE(pedHandle, gangFirerate);
-                        }
+                        accuracy = 100;
+                        firerate = 100;
+                    }
+                    else
+                    {
+                        accuracy = 80;
+                        firerate = 70;
                     }
                 }
+                else if (gangTypes.Contains(pedType))
+                {
+                    accuracy = 55;
+                    firerate = 85;
+                }
+                else if (IS_PED_IN_GROUP(pedHandle))
+                {
+                    accuracy = 100;
+                    firerate = 100;
+                }
+
+                SET_CHAR_ACCURACY(pedHandle, (uint)accuracy);
+                SET_CHAR_SHOOT_RATE(pedHandle, firerate);
             }
         }
     }

@@ -34,8 +34,7 @@ namespace LibertyTweaks
 
             if (firstFrame)
             {
-                IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-                uint missionsComplete = GET_INT_STAT(253);
+                int missionsComplete = GET_INT_STAT(253);
                 
                 // Check if player has beaten the first mission
                 // Simply to avoid a bug

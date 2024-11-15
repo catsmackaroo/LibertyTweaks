@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Numerics;
-
 using IVSDKDotNet;
-
 using CCL.GTAIV;
 using static IVSDKDotNet.Native.Natives;
 
@@ -10,7 +8,6 @@ namespace LibertyTweaks
 {
     internal class SearchBody
     {
-
         private static bool didSpeak;
         private static bool enable;
 
@@ -18,58 +15,41 @@ namespace LibertyTweaks
         {
             enable = settings.GetBoolean("More Dialogue", "Looting", true);
 
-
             if (enable)
                 Main.Log("script initialized...");
         }
 
         public static void Tick()
         {
-            if (!enable)
+            if (!enable || IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle()))
                 return;
 
-            // Grab the player IVPed, then the player handle (ID)
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-            Vector3 playerGroundPos = NativeWorld.GetGroundPosition(playerPed.Matrix.Pos);
+            Vector3 playerGroundPos = NativeWorld.GetGroundPosition(Main.PlayerPed.Matrix.Pos);
 
-            // Grab all peds in world (looped) then grab ped ID
-            IVPool pedPool = IVPools.GetPedPool();
-            for (int i = 0; i < pedPool.Count; i++)
+
+            foreach (var kvp in PedHelper.PedHandles)
             {
-                UIntPtr ptr = pedPool.Get(i);
-                if (ptr != UIntPtr.Zero)
+                int pedHandle = kvp.Value;
+
+                if (IS_CHAR_DEAD(pedHandle))
                 {
-                    // Get the handle (ID) of the ped 
-                    int pedHandle = (int)pedPool.GetIndex(ptr);
+                    GET_CHAR_COORDINATES(pedHandle, out Vector3 pedCoords);
 
-                    // Check if ped is in any police vehicle or if the ped model is equals to the current basic cop model
-                    if (IS_CHAR_DEAD(pedHandle))
+                    if (Vector3.Distance(Main.PlayerPed.Matrix.Pos, pedCoords) < 2f)
                     {
-                        // Get ped coordinates
-                        GET_CHAR_COORDINATES(pedHandle, out Vector3 pedCoords);
-
-                        // Check distance between the player and the ped
-                        if (Vector3.Distance(playerPed.Matrix.Pos, pedCoords) < 2f)
+                        if (NativePickup.IsAnyPickupAtPos(playerGroundPos))
                         {
-                            if (NativePickup.IsAnyPickupAtPos(playerGroundPos))
+                            if (!didSpeak)
                             {
-                                if (!didSpeak)
-                                {
-                                    playerPed.SayAmbientSpeech("SEARCH_BODY_TAKE_ITEM");
-                                    //CGame.ShowSubtitleMessage("Corpse Item");
-                                    didSpeak = true;
-                                }
-                            }
-                            else
-                            {
-                                didSpeak = false;
+                                Main.PlayerPed.SayAmbientSpeech("SEARCH_BODY_TAKE_ITEM");
+                                didSpeak = true;
                             }
                         }
+                        else
+                            didSpeak = false;
                     }
                 }
             }
-
         }
-
     }
 }

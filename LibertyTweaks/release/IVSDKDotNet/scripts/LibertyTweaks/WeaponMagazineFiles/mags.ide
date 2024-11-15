@@ -15,5 +15,9 @@ weap
 ###############################################################################
 AMB_MAGAZINE, 		AMB_MAGAZINE, 		null,			 	1, 	50, 	0
 AMB_SHSHELL, 		AMB_MAGAZINE, 		null,			 	1, 	50, 	0
+AMB_DSR1_MAGAZINE, 	AMB_DSR1_MAGAZINE,	null,				1,	50,	0
+AMB_UZI_MAGAZINE,	AMB_UZI_MAGAZINE,	null,				1,	50,	0
+AMB_P90_MAGAZINE,	AMB_P90_MAGAZINE,	null,				1,	50,	0
+AMB_M249_MAGAZINE,	AMB_M249_MAGAZINE,	null,				1,	50,	0
 
 end

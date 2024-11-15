@@ -6,12 +6,15 @@ using System.Numerics;
 using CCL.GTAIV;
 using IVSDKDotNet.Enums;
 
+// Credits: catsmackaroo
+
 namespace LibertyTweaks
 {
     internal class PedsLockDoors
     {
         private static bool enable;
-        private static List<int> lockedVehicles = new List<int>();
+        private static readonly List<int> lockedVehicles = new List<int>();
+        private static readonly Dictionary<int, int> pedToVehicleMap = new Dictionary<int, int>();
 
         public static void Init(SettingsFile settings)
         {
@@ -23,52 +26,52 @@ namespace LibertyTweaks
 
         public static void Tick()
         {
+            // TODO: figure out a fix for when peds drive off too soon
+
             if (!enable)
                 return;
 
-            IVPool pedPool = IVPools.GetPedPool();
-            for (int i = 0; i < pedPool.Count; i++)
+            foreach (var kvp in PedHelper.PedHandles)
             {
-                UIntPtr ptr = pedPool.Get(i);
+                int pedHandle = kvp.Value;
 
-                if (ptr != UIntPtr.Zero)
+                if (IS_CHAR_DEAD(pedHandle))
+                    continue;
+
+                if (IS_CHAR_IN_ANY_CAR(pedHandle))
                 {
-                    if (ptr == IVPlayerInfo.FindThePlayerPed())
+                    GET_CAR_CHAR_IS_USING(pedHandle, out int pedVehicle);
+                    GET_DRIVER_OF_CAR(pedVehicle, out int pedDriver);
+
+                    if (pedDriver == 0 || pedDriver == Main.PlayerPed.GetHandle() || IS_PED_A_MISSION_PED(pedDriver))
                         continue;
 
-                    int pedHandle = (int)pedPool.GetIndex(ptr);
-                    IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
+                    if (IS_CHAR_PLAYING_ANIM(pedHandle, "veh@std", "shock_left") || IS_CHAR_PLAYING_ANIM(pedHandle, "veh@bus", "shock_right") || IS_CHAR_PLAYING_ANIM(pedHandle, "veh@truck", "shock_left") || IS_CHAR_PLAYING_ANIM(pedHandle, "veh@low", "shock_left"))
+                        _TASK_STAND_STILL(pedHandle, 2000);
 
-                    if (IS_CHAR_IN_ANY_CAR(pedHandle))
+                    if (!lockedVehicles.Contains(pedVehicle))
                     {
-                        GET_CAR_CHAR_IS_USING(pedHandle, out int pedVehicle);
-                        GET_DRIVER_OF_CAR(pedVehicle, out int pedDriver);
-
-                        if (pedDriver == 0)
-                            continue;
-
-                        if (IS_CHAR_PLAYING_ANIM(pedHandle, "veh@std", "shock_left") || IS_CHAR_PLAYING_ANIM(pedHandle, "veh@bus", "shock_right") || IS_CHAR_PLAYING_ANIM(pedHandle, "veh@truck", "shock_left") || IS_CHAR_PLAYING_ANIM(pedHandle, "veh@low", "shock_left"))
-                        {
-                            _TASK_STAND_STILL(pedHandle, 1000);
-                        }
-
-                        // Check if this vehicle has already been processed
-                        if (lockedVehicles.Contains(pedVehicle))
-                            continue;
-
                         int rnd = Main.GenerateRandomNumber(0, 5);
 
                         if (rnd != 3)
-                        {
                             LOCK_CAR_DOORS(pedVehicle, 7);
-                        }
                         else
-                        {
                             LOCK_CAR_DOORS(pedVehicle, 0);
-                        }
 
-                        // Add the vehicle to the list to prevent repeated locking
                         lockedVehicles.Add(pedVehicle);
+                    }
+
+                    if (!pedToVehicleMap.ContainsKey(pedHandle))
+                        pedToVehicleMap[pedHandle] = pedVehicle;
+                }
+                else
+                {
+                    if (pedToVehicleMap.ContainsKey(pedHandle))
+                    {
+                        int exitedVehicle = pedToVehicleMap[pedHandle];
+                        LOCK_CAR_DOORS(exitedVehicle, 0);
+                        lockedVehicles.Remove(exitedVehicle);
+                        pedToVehicleMap.Remove(pedHandle);
                     }
                 }
             }

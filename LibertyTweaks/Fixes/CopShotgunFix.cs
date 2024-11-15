@@ -1,7 +1,8 @@
 ﻿using IVSDKDotNet;
-using System;
 using static IVSDKDotNet.Native.Natives;
 using IVSDKDotNet.Native;
+
+// Credits: catsmackaroo
 
 namespace LibertyTweaks
 {
@@ -22,26 +23,21 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            IVPool pedPool = IVPools.GetPedPool();
-            for (int i = 0; i < pedPool.Count; i++)
+            foreach (var kvp in PedHelper.PedHandles)
             {
-                UIntPtr ptr = pedPool.Get(i);
+                int pedHandle = kvp.Value;
 
-                if (ptr != UIntPtr.Zero)
+                if (IS_CHAR_DEAD(pedHandle))
+                    continue;
+
+                GET_CHAR_MODEL(pedHandle, out uint pedModel);
+                Natives.GET_CURRENT_CHAR_WEAPON(pedHandle, out int currentPedWeapon);
+
+                if (pedModel == 4111764146 || pedModel == 2776029317 || pedModel == 4205665177 || pedModel == 3295460374 || pedModel == 148777611)
                 {
-                    if (ptr == IVPlayerInfo.FindThePlayerPed())
-                        continue;
-
-                    int pedHandle = (int)pedPool.GetIndex(ptr);
-                    GET_CHAR_MODEL(pedHandle, out uint pedModel);
-                    Natives.GET_CURRENT_CHAR_WEAPON(pedHandle, out int currentPedWeapon);
-
-                    if (pedModel == 4111764146 || pedModel == 2776029317 || pedModel == 4205665177 || pedModel == 3295460374)
+                    if (currentPedWeapon == 10)
                     {
-                        if (currentPedWeapon == 10)
-                        {
-                            GIVE_WEAPON_TO_CHAR(pedHandle, 11, 30, false);
-                        }
+                        GIVE_WEAPON_TO_CHAR(pedHandle, 11, 30, false);
                     }
                 }
             }

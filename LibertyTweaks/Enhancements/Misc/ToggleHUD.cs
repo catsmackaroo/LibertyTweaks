@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using IVSDKDotNet;
+﻿using IVSDKDotNet;
 using System.Windows.Forms;
 
 // Credits: ClonkAndre 
@@ -12,8 +11,8 @@ namespace LibertyTweaks
         public static Keys toggleHudKey;
         public static void Init(SettingsFile settings)
         {
-            enable = settings.GetBoolean("Toggle HUD", "Keys", true);
-            toggleHudKey = settings.GetKey("Toggle HUD", "Key", Keys.K);
+            enable = settings.GetBoolean("Toggle HUD", "Enable", true);
+            toggleHudKey = settings.GetKey("Toggle HUD", "Key", Keys.LMenu);
 
             if (enable)
                 Main.Log("script initialized...");

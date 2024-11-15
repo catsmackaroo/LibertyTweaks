@@ -20,19 +20,15 @@ namespace LibertyTweaks
         {
             if (!enable)
                 return;
+
             float heightAboveGround;
-            int playerId;
-
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-
-            playerId = IVPedExtensions.GetHandle(playerPed);
-            heightAboveGround = IVPedExtensions.GetHeightAboveGround(playerPed);
+            heightAboveGround = IVPedExtensions.GetHeightAboveGround(Main.PlayerPed);
 
             if (heightAboveGround > 6)
             {
-                if (IS_PED_RAGDOLL(playerId))
+                if (IS_PED_RAGDOLL(Main.PlayerPed.GetHandle()))
                 {
-                    HIGH_FALL_SCREAM(playerId);
+                    HIGH_FALL_SCREAM(Main.PlayerPed.GetHandle());
                 }
             }
         }

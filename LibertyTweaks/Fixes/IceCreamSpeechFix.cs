@@ -26,11 +26,8 @@ namespace LibertyTweaks
             if (!enable) 
                 return;
 
-            // Gets the player ped
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-
             // Checks if the player is trying to enter a locked car
-            if (IS_CHAR_TRYING_TO_ENTER_A_LOCKED_CAR(playerPed.GetHandle()))
+            if (IS_CHAR_TRYING_TO_ENTER_A_LOCKED_CAR(Main.PlayerPed.GetHandle()))
             {
                 // Gets the car the player would enter
                 GET_VEHICLE_PLAYER_WOULD_ENTER(0, out int veh);
@@ -45,7 +42,7 @@ namespace LibertyTweaks
                         // Say speech if we can but only once
                         if (!saidStealingLine && !PLAYER_IS_PISSED_OFF(0))
                         {
-                            playerPed.SayAmbientSpeech("JACKING_ICE_CREAM");
+                            Main.PlayerPed.SayAmbientSpeech("JACKING_ICE_CREAM");
                             saidStealingLine = true;
                         }
                     }

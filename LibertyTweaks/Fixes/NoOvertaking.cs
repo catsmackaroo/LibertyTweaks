@@ -4,7 +4,7 @@ using IVSDKDotNet;
 using System;
 using static IVSDKDotNet.Native.Natives;
 
-// Credits: AssaultKifle47, catsmackaroo & ClonkAndre
+// Credits: AssaultKifle47, ItsClonkAndre
 
 namespace LibertyTweaks
 {
@@ -25,9 +25,7 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            // Gets the playerPed
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-            int playerPedHandle = playerPed.GetHandle();
+            int playerPedHandle = Main.PlayerPed.GetHandle();
 
             // Checks if the player is in any car
             if (!IS_CHAR_IN_ANY_CAR(playerPedHandle))
@@ -48,9 +46,14 @@ namespace LibertyTweaks
 
                 // Gets the closest car by the offset Position from above
                 int closestCar = GET_CLOSEST_CAR(pOffX, pOffY, pOffZ, 4f, 0, 69);
-                
+
                 // If there is no closest car then return
                 if (closestCar == 0)
+                    return;
+
+                GET_CAR_SPEED(closestCar, out float pVehSpeed);
+
+                if (pVehSpeed > 7.0)
                     return;
 
                 // Gets the driver of the closest car
@@ -60,12 +63,10 @@ namespace LibertyTweaks
                 if (closeCarPed == 0)
                     return;
 
-                uint playerIndex = GET_PLAYER_ID();
-                STORE_WANTED_LEVEL((int)playerIndex, out uint playerWantedLevel);
+                STORE_WANTED_LEVEL(Main.PlayerIndex, out uint playerWantedLevel);
 
                 if (playerWantedLevel != 0)
                     return;
-
 
                 _TASK_STAND_STILL(closeCarPed, 3000);
             }

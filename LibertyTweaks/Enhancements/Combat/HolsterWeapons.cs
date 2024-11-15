@@ -27,23 +27,21 @@ namespace LibertyTweaks
             if (!enableFix)
                 return;
 
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-            uint playerId = GET_PLAYER_ID();
-            GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out int currentWeapon);
+            GET_CURRENT_CHAR_WEAPON(Main.PlayerPed.GetHandle(), out int currentWeapon);
 
-            if (IS_CHAR_IN_ANY_CAR(playerPed.GetHandle()))
+            if (IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle()))
                 return;
 
-            if (IS_PLAYER_PLAYING((int)playerId))
+            if (IS_PLAYER_PLAYING(Main.PlayerIndex))
             {
                 if (currentWeapon != 0)
                 {
-                    GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out lastWeapon);
-                    GIVE_DELAYED_WEAPON_TO_CHAR(playerPed.GetHandle(), 0, 1, true);
+                    GET_CURRENT_CHAR_WEAPON(Main.PlayerPed.GetHandle(), out lastWeapon);
+                    GIVE_DELAYED_WEAPON_TO_CHAR(Main.PlayerPed.GetHandle(), 0, 1, true);
                 }
                 else
                 {
-                    GIVE_DELAYED_WEAPON_TO_CHAR(playerPed.GetHandle(), lastWeapon, 1, true);
+                    GIVE_DELAYED_WEAPON_TO_CHAR(Main.PlayerPed.GetHandle(), lastWeapon, 1, true);
                 }
 
             }

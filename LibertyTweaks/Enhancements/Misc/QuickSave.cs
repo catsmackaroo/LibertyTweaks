@@ -1,13 +1,11 @@
 ﻿using CCL.GTAIV;
-using DocumentFormat.OpenXml.Wordprocessing;
 using IVSDKDotNet;
 using IVSDKDotNet.Native;
-using System;
 using System.Numerics;
 using System.Windows.Forms;
 using static IVSDKDotNet.Native.Natives;
 
-// Credits: catsmackaroo & ItsClonkAndre
+// Credits: catsmackaroo, ItsClonkAndre
 
 namespace LibertyTweaks
 {
@@ -42,8 +40,6 @@ namespace LibertyTweaks
             if (lastSavedPosition == null)
                 return;
 
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-
             // Only teleport player on very first frame
             if (firstFrame)
             {
@@ -57,9 +53,9 @@ namespace LibertyTweaks
                     {
                         if (lastSavedPlayerHeading != 0)
                         {
-                            playerPed.Teleport(lastSavedPosition, false, true);
-                            SET_CHAR_HEADING(playerPed.GetHandle(), lastSavedPlayerHeading);
-                            CLEAR_ROOM_FOR_CHAR(playerPed.GetHandle());
+                            Main.PlayerPed.Teleport(lastSavedPosition, false, true);
+                            SET_CHAR_HEADING(Main.PlayerPed.GetHandle(), lastSavedPlayerHeading);
+                            CLEAR_ROOM_FOR_CHAR(Main.PlayerPed.GetHandle());
                         }
                     }
                 }
@@ -74,10 +70,10 @@ namespace LibertyTweaks
             // Save last player position if game is saving
             if (Main.GetTheSaveGame().IsGameSaving())
             {
-                Main.GetTheSaveGame().SetVector3("PlayerPosition", playerPed.Matrix.Pos);
-                Main.GetTheSaveGame().SetFloat("PlayerHeading", playerPed.GetHeading());
+                Main.GetTheSaveGame().SetVector3("PlayerPosition", Main.PlayerPed.Matrix.Pos);
+                Main.GetTheSaveGame().SetFloat("PlayerHeading", Main.PlayerPed.GetHeading());
                 Main.GetTheSaveGame().Save();
-                Main.Log("Saved player position: " + playerPed.Matrix.Pos);
+                Main.Log("Saved player position: " + Main.PlayerPed.Matrix.Pos);
             }
         }
 
@@ -97,20 +93,16 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            int playerId;
             float heightAboveGround;
             bool autoSaveStatus = Natives.GET_IS_AUTOSAVE_OFF();
 
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
+            heightAboveGround = IVPedExtensions.GetHeightAboveGround(Main.PlayerPed);
 
-            playerId = IVPedExtensions.GetHandle(playerPed);
-            heightAboveGround = IVPedExtensions.GetHeightAboveGround(playerPed);
-
-            if (!IS_CHAR_IN_ANY_CAR(playerId))
+            if (!IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle()))
             {
                 if (heightAboveGround < 2)
                 {
-                    if (IS_PED_RAGDOLL(playerId))
+                    if (IS_PED_RAGDOLL(Main.PlayerPed.GetHandle()))
                         return;
 
                     if (IVTheScripts.IsPlayerOnAMission())

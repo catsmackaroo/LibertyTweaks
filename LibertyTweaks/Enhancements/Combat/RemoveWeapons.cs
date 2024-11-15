@@ -1,9 +1,6 @@
 ﻿using CCL.GTAIV;
-
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
-using System;
-using System.Numerics;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: ClonkAndre 
@@ -31,54 +28,41 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-
-            if (playerPed == null)
+            if (Main.PlayerPed == null)
                 return;
 
-            if (IS_CHAR_DEAD(playerPed.GetHandle()))
+            if (IS_CHAR_DEAD(Main.PlayerPed.GetHandle()))
             {
-                if (HAS_CHAR_GOT_WEAPON(playerPed.GetHandle(), (int)eWeaponType.WEAPON_BASEBALLBAT))
+                if (HAS_CHAR_GOT_WEAPON(Main.PlayerPed.GetHandle(), (int)eWeaponType.WEAPON_BASEBALLBAT))
                 {
                     hadBat = true;
                 }
 
-                if (HAS_CHAR_GOT_WEAPON(playerPed.GetHandle(), (int)eWeaponType.WEAPON_KNIFE))
+                if (HAS_CHAR_GOT_WEAPON(Main.PlayerPed.GetHandle(), (int)eWeaponType.WEAPON_KNIFE))
                 {
                     hadKnife = true;
                 }
 
-                if (HAS_CHAR_GOT_WEAPON(playerPed.GetHandle(), (int)eWeaponType.WEAPON_EPISODIC_21))
+                if (HAS_CHAR_GOT_WEAPON(Main.PlayerPed.GetHandle(), (int)eWeaponType.WEAPON_EPISODIC_21))
                 {
                     hadParachute = true;
                 }
 
-                REMOVE_ALL_CHAR_WEAPONS(playerPed.GetHandle());
+                REMOVE_ALL_CHAR_WEAPONS(Main.PlayerPed.GetHandle());
 
                 if (hadBat)
-                    GIVE_WEAPON_TO_CHAR(playerPed.GetHandle(), (int)eWeaponType.WEAPON_BASEBALLBAT, 1, true);
+                    GIVE_WEAPON_TO_CHAR(Main.PlayerPed.GetHandle(), (int)eWeaponType.WEAPON_BASEBALLBAT, 1, true);
 
                 if (hadKnife)
-                    GIVE_WEAPON_TO_CHAR(playerPed.GetHandle(), (int)eWeaponType.WEAPON_KNIFE, 1, true);
+                    GIVE_WEAPON_TO_CHAR(Main.PlayerPed.GetHandle(), (int)eWeaponType.WEAPON_KNIFE, 1, true);
 
                 if (hadParachute)
-                    GIVE_WEAPON_TO_CHAR(playerPed.GetHandle(), (int)eWeaponType.WEAPON_EPISODIC_21, 1, true);
+                    GIVE_WEAPON_TO_CHAR(Main.PlayerPed.GetHandle(), (int)eWeaponType.WEAPON_EPISODIC_21, 1, true);
 
                 hadBat = false;
                 hadKnife = false;
                 hadParachute = false;
-
-                //SpawnGunVan();
             }
         }
-
-        //private static void SpawnGunVan()
-        //{
-        //    Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(10), "Main", () =>
-        //    {
-        //        REQUEST_SCRIPT("jacob_gun_car");
-        //        START_NEW_SCRIPT("jacob_gun_car", 1024);
-        //    });
-        //}
     }
 }

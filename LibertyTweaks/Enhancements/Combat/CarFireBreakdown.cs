@@ -23,11 +23,9 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-
-            if (IS_CHAR_IN_ANY_CAR(playerPed.GetHandle()))
+            if (IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle()))
             {
-                GET_CAR_CHAR_IS_USING(playerPed.GetHandle(), out int pVeh); 
+                GET_CAR_CHAR_IS_USING(Main.PlayerPed.GetHandle(), out int pVeh); 
 
                 if (IS_CAR_ON_FIRE(pVeh))
                 {

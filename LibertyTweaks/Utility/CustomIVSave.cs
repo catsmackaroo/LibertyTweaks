@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Numerics;
 using System.Windows.Forms;
 
+// Credits: ItsClonkAndre
+
 /// <summary>
 /// This class can be used to store data alongside the current save game that is loaded.
 /// Still has some flavs tho.

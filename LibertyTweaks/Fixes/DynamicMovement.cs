@@ -4,6 +4,8 @@ using System;
 using System.Windows.Forms;
 using CCL.GTAIV;
 
+// Credits: catsmackaroo
+
 namespace LibertyTweaks
 {
     internal class DynamicMovement
@@ -14,7 +16,6 @@ namespace LibertyTweaks
         private static bool enableLowHealthExhaustion;
         private static bool disableInCombat;
         private static bool isPlayerHealthLow;
-        private static bool playerIsLowest;
 
         private static bool IsCapsLockActive() => Control.IsKeyLocked(Keys.Capital);
 
@@ -42,18 +43,17 @@ namespace LibertyTweaks
 
         private static void LowHealthExhaustionTick()
         {
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-            GET_CHAR_HEALTH(playerPed.GetHandle(), out uint playerHealth);
+            GET_CHAR_HEALTH(Main.PlayerPed.GetHandle(), out uint playerHealth);
 
             if (enableSprintFix)
             {
                 if (playerHealth < 126)
                 {
-                    playerIsLowest = true;
+                    isPlayerHealthLow = true;
                 }
                 else
                 {
-                    playerIsLowest = false;
+                    isPlayerHealthLow = false;
                 }
             }
 
@@ -73,14 +73,17 @@ namespace LibertyTweaks
             PlayerChecks combatChecker = new PlayerChecks();
             bool isInOrNearCombat = combatChecker.IsPlayerInOrNearCombat();
 
+            if (isPlayerHealthLow && enableLowHealthExhaustion)
+            {
+                DISABLE_PLAYER_SPRINT(0, true);
+                return;
+            }
+
             if (isUsingController || alwaysSprintSetting == 0 || isInOrNearCombat && disableInCombat == true)
             {
                 DISABLE_PLAYER_SPRINT(0, false);
                 return;
             }
-
-            if (isPlayerHealthLow)
-                return;
 
             if (!IsCapsLockActive())
             {

@@ -1,5 +1,4 @@
 ﻿using System;
-
 using CCL.GTAIV;
 using IVSDKDotNet;
 
@@ -29,11 +28,8 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            // Get the player ped
-            IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-
             // If the player was atleast once in a vehicle we allow the actual wheel fix code to be executed to prevent the error
-            if (playerPed.GetVehicle() != null)
+            if (Main.PlayerPed.GetVehicle() != null)
                 canWheelFixCodeBeExecuted = true;
         }
 
@@ -58,11 +54,8 @@ namespace LibertyTweaks
             if (plyPtr == UIntPtr.Zero)
                 return;
 
-            // Get the player ped from the pointer above
-            IVPed playerPed = IVPed.FromUIntPtr(plyPtr);
-
             // If player is dead then reset values
-            if (playerPed.Dead)
+            if (Main.PlayerPed.Dead)
             {
                 newWheelValue = 0f;
                 canChangeWheelValue = false;
@@ -70,7 +63,7 @@ namespace LibertyTweaks
             }
 
             // Get the last/current vehicle of the player ped
-            IVVehicle veh = IVVehicle.FromUIntPtr(playerPed.Vehicle);
+            IVVehicle veh = IVVehicle.FromUIntPtr(Main.PlayerPed.Vehicle);
  
             // Check if the veh is null
             if (veh is null || veh == null)
@@ -80,7 +73,7 @@ namespace LibertyTweaks
             if (vehPtr == veh.GetUIntPtr())
             {
                 // If the driver of the veh is the player ped
-                if (veh.Driver == playerPed.GetUIntPtr())
+                if (veh.Driver == Main.PlayerPed.GetUIntPtr())
                 {
                     // If player pressed the EnterCar key we will store the last "SteerActual" value so when player is no longer in vehicle it will be applied
                     if (NativeControls.IsGameKeyPressed(0, GameKey.EnterCar))

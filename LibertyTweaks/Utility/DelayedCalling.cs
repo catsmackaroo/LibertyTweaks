@@ -2,6 +2,8 @@ using IVSDKDotNet;
 using System;
 using System.Collections.Generic;
 
+// Credits: ItsClonkAndre
+
 public class DelayedCalling
 {
     private readonly List<DelayedCall> delayedCalls;

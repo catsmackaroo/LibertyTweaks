@@ -1,12 +1,11 @@
 ﻿using IVSDKDotNet;
-using System;
-using static IVSDKDotNet.Native.Natives;
 using System.Collections.Generic;
-using System.Numerics;
+using static IVSDKDotNet.Native.Natives;
 using CCL.GTAIV;
 using IVSDKDotNet.Enums;
 
-// Credits: catsmackaroo, ItsClonkAndre, GQComms (for model)
+// Credits: catsmackaroo, ItsClonkAndre, GQComms
+
 namespace LibertyTweaks
 {
     internal class ArmoredCops
@@ -15,9 +14,8 @@ namespace LibertyTweaks
         private static bool enableNoHeadshotNOoSE;
         private static bool enableNoRagdollNOoSE;
         public static bool enableVests;
-        private static readonly List<int> copsHadArmor = new List<int>();
+        private static readonly List<int> copsWithArmor = new List<int>();
         private static int armoredCopsStars;
-
 
         public static void Init(SettingsFile settings)
         {
@@ -28,173 +26,99 @@ namespace LibertyTweaks
             armoredCopsStars = settings.GetInteger("Improved Police", "Armored Cops Start At", 4);
 
             if (enable)
-                Main.Log("script initialized...");
+                Main.Log("ArmoredCops script initialized...");
         }
+
         public static void LoadFiles()
         {
             IVCDStream.AddImage("IVSDKDotNet/scripts/LibertyTweaks/ArmoredCopFiles/armoredCops.img", 1, -1);
         }
+
         public static void Tick()
         {
             if (!enable)
                 return;
 
-            // Grab all peds
-            IVPool pedPool = IVPools.GetPedPool();
-            for (int i = 0; i < pedPool.Count; i++)
+            foreach (var kvp in PedHelper.PedHandles)
             {
-                UIntPtr ptr = pedPool.Get(i);
+                int pedHandle = kvp.Value;
 
-                if (ptr != UIntPtr.Zero)
-                {
-                    // Ignore player ped
-                    if (ptr == IVPlayerInfo.FindThePlayerPed())
-                        continue;
+                if (IS_CHAR_DEAD(pedHandle))
+                    continue;
 
-                    // Grab player ID & ped
-                    uint playerId = GET_PLAYER_ID();
-                    IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
+                GET_CHAR_MODEL(pedHandle, out uint pedModel);
 
-                    // Get ped handles
-                    int pedHandle = (int)pedPool.GetIndex(ptr);
-
-                    // Get the model of the ped
-                    GET_CHAR_MODEL(pedHandle, out uint pedModel);
-
-                    // Get the models of basic policia
-                    GET_CURRENT_BASIC_COP_MODEL(out uint copModel);
-
-                    // Check player's wanted level
-                    STORE_WANTED_LEVEL((int)playerId, out uint currentWantedLevel);
-
-                    // Get ped coords
-                    GET_CHAR_COORDINATES(pedHandle, out Vector3 pedCoords);
-
-                    // Check if ped is dead
-                    if (IS_CHAR_DEAD(pedHandle))
-                        continue;
-
-                    // Check if NOoSE
-                    if (pedModel == 3290204350)
-                    {
-                        if (!enableNoHeadshotNOoSE && !enableNoRagdollNOoSE)
-                            return;
-
-                        GET_CHAR_ARMOUR(pedHandle, out uint nooseArmor);
-                        IVPed noosePed = NativeWorld.GetPedInstaceFromHandle(pedHandle);
-
-                        // If the character is dead, allow ragdoll
-                        if (IS_CHAR_DEAD(pedHandle))
-                        {
-                            noosePed.PreventRagdoll(false);
-                        }
-                        else if (nooseArmor == 0)
-                        {
-                            // If the character has no armor, disable headshots and ragdoll prevention
-                            noosePed.PedFlags.NoHeadshots = false;
-                            noosePed.PreventRagdoll(false);
-                        }
-                        else
-                        {
-                            GET_CHAR_PROP_INDEX(pedHandle, 0, out int pedPropIndex);
-                            GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out int currentWeapon);
-
-                            bool isSniperWeapon = currentWeapon == (int)eWeaponType.WEAPON_SNIPERRIFLE
-                                                  || currentWeapon == (int)eWeaponType.WEAPON_M40A1
-                                                  || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_15;
-
-                            if (isSniperWeapon)
-                            {
-                                // If the current weapon is a sniper rifle, disable headshots and ragdoll prevention
-                                noosePed.PedFlags.NoHeadshots = false;
-                                noosePed.PreventRagdoll(false);
-                            }
-                            else
-                            {
-                                // Enable headshot prevention unless the character has no prop index
-                                if (enableNoHeadshotNOoSE)
-                                    noosePed.PedFlags.NoHeadshots = pedPropIndex != -1;
-
-                                // Enable ragdoll prevention if the character is not on fire
-                                if (enableNoRagdollNOoSE)
-                                {
-                                    if (!IS_CHAR_ON_FIRE(pedHandle))
-                                    {
-                                        noosePed.PreventRagdoll(true);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-
-                    // With or without stars, if a cop spawns with the armor vests they will be given armor (consistency!)
-                    if (enableVests == true)
-                    {
-                        if (pedModel == 4111764146)
-                        {
-                            if (GET_CHAR_DRAWABLE_VARIATION(pedHandle, 1) == 4)
-                            {
-                                SET_CHAR_COMPONENT_VARIATION(pedHandle, 2, 0, 0);
-                                if (currentWantedLevel > armoredCopsStars)
-                                    continue;
-
-                                if (copsHadArmor.Contains(pedHandle))
-                                    continue;
-
-                                ADD_ARMOUR_TO_CHAR(pedHandle, 100);
-                                copsHadArmor.Add(pedHandle);
-                            }
-                        }
-                    }
-
-                    // If player has more than 4 or more stars
-                    if (currentWantedLevel < armoredCopsStars)
-                        continue;
-
-                    // Check if it's a cop
-                    if (pedModel != copModel)
-                        continue;
-
-                    // Check if ped is not for a mission
-                    if (IS_PED_A_MISSION_PED(pedHandle))
-                        continue;
-
-                    // Check for Fat cops
-                    if (pedModel == 3924571768)
-                        continue;
-
-                    // Check for Alderney cops
-                    if (pedModel == 4205665177)
-                        continue;
-
-                    // Check if the grabbed ped has already been given armor
-                    if (copsHadArmor.Contains(pedHandle))
-                        continue;
-
-                    // Check distance between police & player
-                    if (Vector3.Distance(playerPed.Matrix.Pos, pedCoords) < 125f)
-                        continue;
-
-                    // Finally adds armor to the policia
-                    ADD_ARMOUR_TO_CHAR(pedHandle, 100);
-
-                    // Gives cops visible armor vests if the feature is enabled
-                    if (enableVests == true)
-                        SET_CHAR_COMPONENT_VARIATION(pedHandle, 1, 4, 0);
-
-                    copsHadArmor.Add(pedHandle);
-                }
+                if (pedModel == 3290204350) // NOoSE
+                    HandleNOoSEBehavior(pedHandle);
+                else if (pedModel == 4111764146) // General Police
+                    HandleGeneralPoliceBehavior(pedHandle);
             }
 
-            // Loop through the list of peds that already got armor and check if we can delete them from the list
-            for (int i = 0; i < copsHadArmor.Count; i++)
-            {
-                int pedHandle = copsHadArmor[i];
+            RemoveInvalidCops();
+        }
 
-                // Check if ped still exists
+        private static void HandleNOoSEBehavior(int pedHandle)
+        {
+            if (!enableNoHeadshotNOoSE && !enableNoRagdollNOoSE)
+                return;
+
+            IVPed noosePed = NativeWorld.GetPedInstanceFromHandle(pedHandle);
+            GET_CHAR_ARMOUR(pedHandle, out uint nooseArmor);
+
+            if (IS_CHAR_DEAD(pedHandle))
+                noosePed.PreventRagdoll(false);
+            else if (nooseArmor <= 50)
+            {
+                noosePed.PedFlags.NoHeadshots = false;
+                noosePed.PreventRagdoll(false);
+            }
+            else
+            {
+                GET_CHAR_PROP_INDEX(pedHandle, 0, out int pedPropIndex);
+                GET_CURRENT_CHAR_WEAPON(Main.PlayerPed.GetHandle(), out int currentWeapon);
+
+                bool isSniperWeapon = currentWeapon == (int)eWeaponType.WEAPON_SNIPERRIFLE
+                                      || currentWeapon == (int)eWeaponType.WEAPON_M40A1
+                                      || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_15;
+
+                if (isSniperWeapon)
+                {
+                    noosePed.PedFlags.NoHeadshots = false;
+                    noosePed.PreventRagdoll(false);
+                }
+                else
+                {
+                    if (enableNoHeadshotNOoSE)
+                        noosePed.PedFlags.NoHeadshots = pedPropIndex != -1;
+
+                    if (enableNoRagdollNOoSE && !IS_CHAR_ON_FIRE(pedHandle))
+                        noosePed.PreventRagdoll(true);
+                }
+            }
+        }
+
+        private static void HandleGeneralPoliceBehavior(int pedHandle)
+        {
+            if (!enableVests || GET_CHAR_DRAWABLE_VARIATION(pedHandle, 1) != 4)
+                return;
+
+            SET_CHAR_COMPONENT_VARIATION(pedHandle, 2, 0, 0);
+            STORE_WANTED_LEVEL(Main.PlayerIndex, out uint currentWantedLevel);
+
+            if (currentWantedLevel > armoredCopsStars || copsWithArmor.Contains(pedHandle))
+                return;
+
+            ADD_ARMOUR_TO_CHAR(pedHandle, 100);
+            copsWithArmor.Add(pedHandle);
+        }
+
+        private static void RemoveInvalidCops()
+        {
+            for (int i = copsWithArmor.Count - 1; i >= 0; i--)
+            {
+                int pedHandle = copsWithArmor[i];
                 if (!DOES_CHAR_EXIST(pedHandle))
-                    copsHadArmor.RemoveAt(i); // Remove ped from list because they dont exists anymore
+                    copsWithArmor.RemoveAt(i);
             }
         }
     }

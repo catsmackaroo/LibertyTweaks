@@ -1,12 +1,9 @@
 ﻿using CCL.GTAIV;
-
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
-using IVSDKDotNet.Native;
-using System;
-using System.Numerics;
-using System.Windows.Forms;
 using static IVSDKDotNet.Native.Natives;
+
+// Credits: catsmackaroo
 
 namespace LibertyTweaks
 {
@@ -29,21 +26,13 @@ namespace LibertyTweaks
 
             if (NativeControls.IsGameKeyPressed(0, GameKey.Reload))
             {
-                int playerId;
-                IVPed playerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
-                playerId = IVPedExtensions.GetHandle(playerPed);
+                GET_CURRENT_CHAR_WEAPON(Main.PlayerPed.GetHandle(), out int currentWeapon);
 
-                // Get current weapon
-                GET_CURRENT_CHAR_WEAPON(playerPed.GetHandle(), out int currentWeapon);
+                GET_AMMO_IN_CHAR_WEAPON(Main.PlayerPed.GetHandle(), currentWeapon, out int weaponAmmo);
 
-                // Get total ammo for weapon
-                GET_AMMO_IN_CHAR_WEAPON(playerPed.GetHandle(), currentWeapon, out int weaponAmmo);
+                GET_AMMO_IN_CLIP(Main.PlayerPed.GetHandle(), currentWeapon, out int clipAmmo);
 
-                // Get ammo in current clip
-                GET_AMMO_IN_CLIP(playerPed.GetHandle(), currentWeapon, out int clipAmmo);
-
-                // Get max ammo that can be in weapon clip
-                GET_MAX_AMMO_IN_CLIP(playerPed.GetHandle(), currentWeapon, out int clipAmmoMax);
+                GET_MAX_AMMO_IN_CLIP(Main.PlayerPed.GetHandle(), currentWeapon, out int clipAmmoMax);
 
                 if (clipAmmo == 0)
                     return;
@@ -57,9 +46,7 @@ namespace LibertyTweaks
                         return;
                     }
                     else if (!IS_MOUSE_BUTTON_PRESSED(1))
-                    {
-                        SET_AMMO_IN_CLIP(playerPed.GetHandle(), (int)currentWeapon, 0);
-                    }
+                        SET_AMMO_IN_CLIP(Main.PlayerPed.GetHandle(), (int)currentWeapon, 0);
                 }
             }
         }

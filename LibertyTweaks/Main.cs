@@ -4,12 +4,15 @@ using System.Windows.Forms;
 using System.Runtime.CompilerServices;
 using IVSDKDotNet;
 using DocumentFormat.OpenXml.Office.CustomUI;
+using System.Reflection;
+using System.Collections.Generic;
+using static IVSDKDotNet.Native.Natives;
+using CCL.GTAIV;
 
 namespace LibertyTweaks
 {
     public class Main : Script
     {
-
         #region Variables
         private static Random rnd; 
         public static bool verboseLogging;
@@ -19,6 +22,10 @@ namespace LibertyTweaks
         public DateTime timer;
         private static CustomIVSave saveGame;
         public static DelayedCalling TheDelayedCaller;
+
+        public static IVPed PlayerPed { get; private set; }
+        public static int PlayerIndex { get; private set; }
+        public static List<UIntPtr> Peds { get; private set; } = new List<UIntPtr>();
 
         #endregion
 
@@ -49,7 +56,6 @@ namespace LibertyTweaks
             GameLoad += Main_GameLoad;
             Uninitialize += Main_Uninitialize;
             TheDelayedCaller = new DelayedCalling();
-
         }
 
         private void Main_Uninitialize(object sender, EventArgs e)
@@ -84,24 +90,26 @@ namespace LibertyTweaks
             QuickSave.IngameStartup();
             PersonalVehicle.IngameStartup();
             LoadingFadeIn.IngameStartup();
+            WeaponMagazines.IngameStartup();
         }
 
         private void Main_Initialized(object sender, EventArgs e)
         {
+            // Misc
             OnlyRaiseKeyEventsWhenInGame = true;
 
-            // Misc
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+
             verboseLogging = Settings.GetBoolean("Liberty Tweaks", "Verbose Logging", true);
             gxtEntries = Settings.GetBoolean("Liberty Tweaks", "GXT Edits", true);
-            debugMode = Settings.GetBoolean("Liberty Tweaks", "Debug Mode", false);
-            debugMenuKey = Settings.GetKey("Liberty Tweaks", "Debug Menu Key", Keys.F10);
             saveGame = CustomIVSave.CreateOrLoadSaveGameData(this);
 
             // MAIN
+            Log($"LibertyTweaks version {version} has loaded.");
             HolsterWeapons.Init(Settings);
             ImprovedAI.Init(Settings);
             WeaponMagazines.Init(Settings);
-            MoveWithSniper.Init(Settings);
+            SniperAdjustments.Init(Settings);
             RemoveWeapons.Init(Settings);
             DynamicFOV.Init(Settings);
             QuickSave.Init(Settings);
@@ -116,8 +124,13 @@ namespace LibertyTweaks
             Recoil.Init(Settings);
             CarFireBreakdown.Init(Settings);
             RealisticReloading.Init(Settings);
-            PersonalVehicle.Init(Settings);
-            //PedsLockDoors.Init(Settings);
+            PersonalVehicle.Init(this, Settings);
+            ExtendedPedWeaponPool.Init(Settings);
+            PedsLockDoors.Init(Settings);
+            ArmorHurts.Init(Settings);
+            IncreasedDamage.Init(Settings);
+            CarsMayExplode.Init(Settings);
+            //StaminaProgression.Init(Settings);
 
             // FIXES
             NoOvertaking.Init(Settings);
@@ -131,7 +144,6 @@ namespace LibertyTweaks
             LoadingFadeIn.Init(Settings);
             DynamicMovement.Init(Settings);
             AllowCopsAllMissions.Init(Settings);
-            //SwitchWeaponReloadFix.Init(Settings);
         }
 
         private void Main_ProcessCamera(object sender, EventArgs e)
@@ -146,12 +158,16 @@ namespace LibertyTweaks
 
         private void Main_Tick(object sender, EventArgs e)
         {
+            PlayerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
+            PlayerIndex = (int)GET_PLAYER_ID();
+            PedHelper.GrabAllPeds();
+
             // Main
             NoOvertaking.Tick();
             RemoveWeapons.Tick();
             ImprovedAI.Tick();
             WeaponMagazines.Tick();
-            MoveWithSniper.Tick();
+            SniperAdjustments.Tick();
             MoreCombatLines.Tick();
             SearchBody.Tick();
             VLikeScreaming.Tick();
@@ -164,7 +180,14 @@ namespace LibertyTweaks
             QuickSave.Tick();
             AutosaveOnCollectibles.Tick();
             PersonalVehicle.Tick();
-            //PedsLockDoors.Tick();
+            ExtendedPedWeaponPool.Tick();
+            PedsLockDoors.Tick();
+            ArmorHurts.Tick();
+            IncreasedDamage.Tick();
+            CarsMayExplode.Tick();
+            //StaminaProgression.Tick();
+            //WorkingPhoneCamera.Tick();
+            //AppropriatePoliceScanner.Tick();
 
             // Fixes
             BrakeLights.Tick();

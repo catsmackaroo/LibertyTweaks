@@ -1,11 +1,6 @@
 using CCL.GTAIV;
-using CLR;
-using IVSDKDotNet;
-using IVSDKDotNet.Enums;
 using IVSDKDotNet.Native;
-using System;
-using System.Numerics;
-using System.Reflection;
+using IVSDKDotNet;
 
 // Credits: Gillian
 
@@ -15,10 +10,12 @@ namespace LibertyTweaks
     {
         private static bool enable;
         private static uint lastEpisode = 3; // this is done so it'll init the stats
-        private static uint pigeons;
-        private static uint stuntJumps;
-        private static uint seagullsTLAD;
-        private static uint seagullsTBoGT;
+        private static int pigeons;
+        private static int stuntJumps;
+        private static int seagullsTLAD;
+        private static int seagullsTBoGT;
+
+        private static readonly int delayInMilliseconds = 5000;
 
         public static void Init(SettingsFile settings)
         {
@@ -27,6 +24,7 @@ namespace LibertyTweaks
             if (enable)
                 Main.Log("script initialized...");
         }
+
         private static void InitStats()
         {
             pigeons = Natives.GET_INT_STAT(361);
@@ -39,16 +37,22 @@ namespace LibertyTweaks
         {
             if (!enable)
                 return;
+
+            if (!CommonHelpers.ShouldExecute(delayInMilliseconds))
+                return;
+
             bool autoSaveStatus = Natives.GET_IS_AUTOSAVE_OFF();
             if (autoSaveStatus)
                 return;
+
             // get episode and declare variables
             uint episode = Natives.GET_CURRENT_EPISODE();
-            uint tickPigeons = Natives.GET_INT_STAT(361);
-            uint tickStuntJumps = Natives.GET_INT_STAT(270);
-            uint tickSeagullsTLAD = Natives.GET_INT_STAT(143);
-            uint tickSeagullsTBoGT = Natives.GET_INT_STAT(211);
-            // incase the stats still didn't initialize, return; alternatively, if there's nothing to check
+            int tickPigeons = Natives.GET_INT_STAT(361);
+            int tickStuntJumps = Natives.GET_INT_STAT(270);
+            int tickSeagullsTLAD = Natives.GET_INT_STAT(143);
+            int tickSeagullsTBoGT = Natives.GET_INT_STAT(211);
+
+            // in case the stats still didn't initialize, return; alternatively, if there's nothing to check
             if (tickPigeons == 0 && tickStuntJumps == 0 && tickSeagullsTLAD == 0 && tickSeagullsTBoGT == 0)
             {
                 return;
@@ -58,12 +62,13 @@ namespace LibertyTweaks
             if (tickPigeons == 200 && tickStuntJumps == 50 || tickSeagullsTLAD == 50 || tickSeagullsTBoGT == 50)
                 return;
 
-            // first initialize the stats, after that just reinitialize stats incase user changes the episode
+            // first initialize the stats, after that just reinitialize stats in case user changes the episode
             if (episode != lastEpisode)
             {
                 InitStats();
                 lastEpisode = episode;
             }
+
             // do the actual checks based on the episode that you're currently in and autosave
             switch (episode)
             {
@@ -80,7 +85,7 @@ namespace LibertyTweaks
             }
         }
 
-        private static void AutosaveOnChange(uint tickValue, ref uint value)
+        private static void AutosaveOnChange(int tickValue, ref int value)
         {
             // compare the stats, and if the value got incremented, autosave
             if (tickValue > value)
