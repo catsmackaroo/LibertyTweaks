@@ -79,7 +79,6 @@
     <Compile Include="Enhancements\Combat\CarsMayExplode.cs" />
     <Compile Include="Enhancements\Combat\ExtendedPedWeaponPool.cs" />
     <Compile Include="Enhancements\Combat\IncreasedDamage.cs" />
-    <Compile Include="Enhancements\Misc\PhotoMode.cs" />
     <Compile Include="Enhancements\Progression\StaminaProgression.cs" />
     <Compile Include="Enhancements\Progression\WeaponProgression.cs" />
     <Compile Include="Fixes\AllowCopsAllMissions.cs" />
@@ -115,7 +114,6 @@
     <Compile Include="Fixes\NoCursorEscape.cs" />
     <Compile Include="Fixes\NoOvertaking.cs" />
     <Compile Include="Fixes\DynamicMovement.cs" />
-    <Compile Include="Fixes\SwitchWeaponReloadFix.cs" />
     <Compile Include="Fixes\UnholsteredGunFix.cs" />
     <Compile Include="Fixes\WheelFix.cs" />
     <Compile Include="FloatExtensions.cs" />
