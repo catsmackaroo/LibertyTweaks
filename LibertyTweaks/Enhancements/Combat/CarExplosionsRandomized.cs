@@ -8,14 +8,14 @@ using CCL.GTAIV;
 
 namespace LibertyTweaks
 {
-    internal class CarsMayExplode
+    internal class CarExplosionsRandomized
     {
         private static bool enable;
         private static readonly List<int> attachedVehicles = new List<int>();
 
         public static void Init(SettingsFile settings)
         {
-            enable = settings.GetBoolean("Vehicles May Explode on Fire", "Enable", true);
+            enable = settings.GetBoolean("Randomized Car Explosions", "Enable", true);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -37,14 +37,26 @@ namespace LibertyTweaks
                         continue;
 
                     IVVehicle v = IVVehicle.FromUIntPtr(ptr);
+                    UIntPtr pVuIntPtr = Main.PlayerPed.GetVehicle();
+                    IVVehicle pV = IVVehicle.FromUIntPtr(pVuIntPtr);
 
                     if (!attachedVehicles.Contains(v.GetHandle()) && IS_CAR_ON_FIRE(v.GetHandle()))
                     {
-                        int rnd = Main.GenerateRandomNumber(0, 3);
-
-                        if (rnd == 1)
+                        // An immediate car explosion system
+                        int rndImmediate = Main.GenerateRandomNumber(0, 3);
+                        if (rndImmediate == 3 && v != pV)
+                        {
                             EXPLODE_CAR(v.GetHandle(), true, false);
+                            attachedVehicles.Add(v.GetHandle());
+                        }
 
+                        // A more randomized car explosion system
+                        int rndTimer = Main.GenerateRandomNumber(-999, 0);
+
+                        if (v == pV)
+                            rndTimer = Main.GenerateRandomNumber(-555, 0);
+
+                        SET_PETROL_TANK_HEALTH(v.GetHandle(), rndTimer);
                         attachedVehicles.Add(v.GetHandle());
                     }
                 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using CCL.GTAIV;
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
@@ -91,7 +92,6 @@ namespace LibertyTweaks
                 magObj2 = 0;
             }
         }
-
         // Clonk: Quite alot of duplicated code in those methods, maybe make the animation time check code universal
         private static void ProcessHandgunReloading(PedAnimationController animController, bool isPlayerDucking)
         {
@@ -122,7 +122,7 @@ namespace LibertyTweaks
                 {
                     if (magObj1 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -136,7 +136,7 @@ namespace LibertyTweaks
                 {
                     if (magObj2 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -187,7 +187,7 @@ namespace LibertyTweaks
                 {
                     if (magObj1 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_shshell"), Main.PlayerPed.Matrix.Pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_shshell"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.09f, 0.01f, 0f, 0f, 0f, 0f, 0);
                     }
@@ -204,7 +204,7 @@ namespace LibertyTweaks
                 {
                     if (magObj2 == 0)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_shshell"), Main.PlayerPed.Matrix.Pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_shshell"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.09f, 0.01f, 0f, 0f, 0f, 0f, 0);
                     }
@@ -250,19 +250,19 @@ namespace LibertyTweaks
                 {
                     if (magObj1 == 0 && !isP90Reloading && !isGoldUziReloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
                     if (magObj1 == 0 && isP90Reloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_p90_magazine"), Main.PlayerPed.Matrix.Pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_p90_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
                     if (magObj1 == 0 && isGoldUziReloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_uzi_magazine"), Main.PlayerPed.Matrix.Pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_uzi_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -276,19 +276,19 @@ namespace LibertyTweaks
                 {
                     if (magObj2 == 0 && !isP90Reloading && !isGoldUziReloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
                     if (magObj2 == 0 && isP90Reloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_p90_magazine"), Main.PlayerPed.Matrix.Pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_p90_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
                     if (magObj2 == 0 && isGoldUziReloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_uzi_magazine"), Main.PlayerPed.Matrix.Pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_uzi_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -330,13 +330,13 @@ namespace LibertyTweaks
                 {
                     if (magObj1 == 0 && !lmgReloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
                     if (magObj1 == 0 && lmgReloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_m249_magazine"), Main.PlayerPed.Matrix.Pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_m249_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -350,13 +350,13 @@ namespace LibertyTweaks
                 {
                     if (magObj2 == 0 && !lmgReloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
                     if (magObj2 == 0 && lmgReloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_m249_magazine"), Main.PlayerPed.Matrix.Pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_m249_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }   
@@ -401,13 +401,13 @@ namespace LibertyTweaks
                 {
                     if (magObj1 == 0 && !isDsrReloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
                     else if (magObj1 == 0 && isDsrReloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_dsr1_magazine"), Main.PlayerPed.Matrix.Pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_dsr1_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -421,14 +421,14 @@ namespace LibertyTweaks
                 {
                     if (magObj2 == 0 && !isDsrReloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
 
                     if (magObj2 == 0 && isDsrReloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("amb_dsr1_magazine"), Main.PlayerPed.Matrix.Pos, out magObj2, true);
+                        CREATE_OBJECT(GET_HASH_KEY("amb_dsr1_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
                     }
@@ -455,7 +455,7 @@ namespace LibertyTweaks
 
             bool isRPGReloading = animController.IsPlaying("gun@rocket", isPlayerDucking ? "reload_crouch" : "reload");
             bool isGLauncherReloading = animController.IsPlaying("gun@grnde_launch", isPlayerDucking ? "reload_crouch" : "reload");
-
+            
             if (isRPGReloading || isGLauncherReloading)
             {
                 isAnyGunReloadingAnimPlaying = true;
@@ -470,19 +470,19 @@ namespace LibertyTweaks
                 {
                     if (magObj1 == 0 && isRPGReloading)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("cj_rpg_rocket"), Main.PlayerPed.Matrix.Pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("cj_rpg_rocket"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.13f, 0.02f, 0.1f, 1.5f, 0f, 0f, 0);
                     }
                     else if (magObj1 == 0 && isGLauncherReloading && ep == 1)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("w_e1_grenade"), Main.PlayerPed.Matrix.Pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("w_e1_grenade"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, 0.062f, -0.015f, 1.5f, 0f, 0f, 0);
                     }
                     else if (magObj1 == 0 && isGLauncherReloading && ep == 2)
                     {
-                        CREATE_OBJECT(GET_HASH_KEY("w_e2_grenade"), Main.PlayerPed.Matrix.Pos, out magObj1, true);
+                        CREATE_OBJECT(GET_HASH_KEY("w_e2_grenade"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj1, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                         ATTACH_OBJECT_TO_PED(magObj1, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, 0.062f, -0.015f, 1.5f, 0f, 0f, 0);
                     }
@@ -506,7 +506,7 @@ namespace LibertyTweaks
             {
                 Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(1), "Main", () =>
                 {
-                    CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos, out magObj1, true);
+                    CREATE_OBJECT(GET_HASH_KEY("amb_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj1, true);
                     MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj1);
                     //DELETE_OBJECT(ref magObj1);
                     ATTACH_OBJECT_TO_PED(magObj1, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
@@ -516,6 +516,32 @@ namespace LibertyTweaks
             magObj1 = 0;
 
         }
+        //private static bool IsVehicleTooClose(float maxDistance = 2.0f)
+        //{
+        //    // Get the player's position
+        //    Vector3 playerPosition = Main.playerPos;
+
+        //    foreach (var kvp in PedHelper.VehHandles)
+        //    {
+        //        int vehHandle = kvp.Value;
+
+        //        IVVehicle closestVehicle = NativeWorld.GetVehicleInstanceFromHandle(vehHandle);
+
+        //        // Check if the vehicle is too close using Vector3.Distance
+        //        if (closestVehicle != null)
+        //        {
+        //            Vector3 vehiclePosition = closestVehicle.Matrix.Pos; // Assuming there's a method to get the vehicle's position
+        //            float distance = Vector3.Distance(playerPosition, vehiclePosition); // Calculate the distance between player and vehicle
+        //            IVGame.ShowSubtitleMessage(closestVehicle.Handling.Name);
+        //            // Check if the distance is within the allowed maxDistance
+        //            if (distance <= maxDistance)
+        //            {
+        //                return true; // Vehicle is too close
+        //            }
+        //        }
+        //    }
+        //    return false; // No vehicle nearby within the max distance
+        //}
         public static void Tick()
         {
             if (!enable)
@@ -564,8 +590,6 @@ namespace LibertyTweaks
 
             // Gets the PedAnimationController of the player ped used to play animations, get the time of the currently playing animation etc.
             PedAnimationController animController = Main.PlayerPed.GetAnimationController();
-
-            
 
             // Only do the animation checks and weapon reloading things for the currently equipped weapon
             switch ((eWeaponType)currentWeapon)

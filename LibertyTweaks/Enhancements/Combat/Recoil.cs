@@ -113,7 +113,7 @@ namespace LibertyTweaks
             CrouchMultiplier = settings.GetFloat("Extensive Settings", "Crouch Multiplier", 0.5f);
 
             if (enable)
-                Main.Log("Recoil script initialized...");
+                Main.Log("script initialized...");
         }
 
         public static void Tick()
@@ -128,19 +128,13 @@ namespace LibertyTweaks
             if (enableIncrease)
             {
                 if (PlayerChecks.HasPlayerShotRecently())
-                {
                     CurrentRecoil = Math.Min(CurrentRecoil + AdditionalRecoil, MaximumRecoil);
-                }
                 else
-                {
                     CurrentRecoil = Math.Max(CurrentRecoil - DecayRate, BaseRecoil);
-                }
             }
 
             if (isPlayerCrouched)
-            {
                 appliedRecoil *= CrouchMultiplier;
-            }
 
             if (IS_CHAR_SHOOTING(Main.PlayerPed.GetHandle()) && !IS_CAM_SHAKING())
             {

@@ -1,6 +1,7 @@
 ﻿using CCL.GTAIV;
 using IVSDKDotNet;
 using IVSDKDotNet.Native;
+using System;
 using System.Numerics;
 using System.Windows.Forms;
 using static IVSDKDotNet.Native.Natives;
@@ -12,18 +13,30 @@ namespace LibertyTweaks
     internal class QuickSave
     {
         private static bool enable;
-        private static bool saveLocation;
+        private static bool location;
         private static bool quickOrSelected;
-        private static bool firstFrame = true;
+        public static Keys key;
+
+
+        // Controller Support
+        private static uint padIndex = 0;
+        private static ControllerButton controllerKey1;
+        private static ControllerButton controllerKey2;
+        private static DateTime lastProcessTime = DateTime.MinValue;
+        private static readonly TimeSpan delay = TimeSpan.FromMilliseconds(500);
+
         private static Vector3 lastSavedPosition;
-        public static Keys quickSaveKey;
+        private static bool firstFrame = true;
+
 
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Quick-Saving", "Enable", true);
-            saveLocation = settings.GetBoolean("Quick-Saving", "Save Location", true);
+            location = settings.GetBoolean("Quick-Saving", "Save Location", true);
             quickOrSelected = settings.GetBoolean("Quick-Saving", "Select Saves", true);
-            quickSaveKey = settings.GetKey("Quick-Saving", "Key", Keys.F9);
+            key = settings.GetKey("Quick-Saving", "Key", Keys.F9);
+            controllerKey1 = (ControllerButton)settings.GetInteger("Quick-Saving", "Controller Key 1", (int)ControllerButton.BUTTON_DPAD_DOWN);
+            controllerKey2 = (ControllerButton)settings.GetInteger("Quick-Saving", "Controller Key 2", (int)ControllerButton.BUTTON_START);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -34,7 +47,7 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            if (!saveLocation)
+            if (!location)
                 return;
 
             if (lastSavedPosition == null)
@@ -75,6 +88,18 @@ namespace LibertyTweaks
                 Main.GetTheSaveGame().Save();
                 Main.Log("Saved player position: " + Main.PlayerPed.Matrix.Pos);
             }
+
+            if (IS_USING_CONTROLLER())
+            {
+                bool bothKeysPressed = NativeControls.IsControllerButtonPressed(padIndex, controllerKey1)
+                                    && NativeControls.IsControllerButtonPressed(padIndex, controllerKey2);
+
+                if (bothKeysPressed && DateTime.Now - lastProcessTime >= delay)
+                {
+                    Process();
+                    lastProcessTime = DateTime.Now;
+                }
+            }
         }
 
         public static void IngameStartup()
@@ -82,7 +107,7 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            if (!saveLocation)
+            if (!location)
                 return;
 
             firstFrame = true;

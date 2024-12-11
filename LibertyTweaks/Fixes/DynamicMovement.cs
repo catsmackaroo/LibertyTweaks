@@ -70,8 +70,6 @@ namespace LibertyTweaks
         {
             uint alwaysSprintSetting = IVMenuManager.GetSetting(IVSDKDotNet.Enums.eSettings.SETTING_ALWAYS_SPRINT);
             bool isUsingController = IS_USING_CONTROLLER();
-            PlayerChecks combatChecker = new PlayerChecks();
-            bool isInOrNearCombat = combatChecker.IsPlayerInOrNearCombat();
 
             if (isPlayerHealthLow && enableLowHealthExhaustion)
             {
@@ -79,7 +77,7 @@ namespace LibertyTweaks
                 return;
             }
 
-            if (isUsingController || alwaysSprintSetting == 0 || isInOrNearCombat && disableInCombat == true)
+            if (isUsingController || alwaysSprintSetting == 0 || PlayerChecks.IsPlayerInOrNearCombat() && disableInCombat == true)
             {
                 DISABLE_PLAYER_SPRINT(0, false);
                 return;

@@ -8,6 +8,8 @@ using System.Reflection;
 using System.Collections.Generic;
 using static IVSDKDotNet.Native.Natives;
 using CCL.GTAIV;
+using LibertyTweaks.Enhancements.Combat;
+using System.Numerics;
 
 namespace LibertyTweaks
 {
@@ -25,6 +27,8 @@ namespace LibertyTweaks
 
         public static IVPed PlayerPed { get; private set; }
         public static int PlayerIndex { get; private set; }
+        public static int PlayerWantedLevel { get; private set; }
+        public static Vector3 PlayerPos {  get; private set; }
         public static List<UIntPtr> Peds { get; private set; } = new List<UIntPtr>();
 
         #endregion
@@ -91,6 +95,7 @@ namespace LibertyTweaks
             PersonalVehicle.IngameStartup();
             LoadingFadeIn.IngameStartup();
             WeaponMagazines.IngameStartup();
+            Killcam.IngameStartup();
         }
 
         private void Main_Initialized(object sender, EventArgs e)
@@ -109,7 +114,8 @@ namespace LibertyTweaks
             HolsterWeapons.Init(Settings);
             ImprovedAI.Init(Settings);
             WeaponMagazines.Init(Settings);
-            SniperAdjustments.Init(Settings);
+            SniperMovement.Init(Settings);
+            SniperScopeToggle.Init(Settings);
             RemoveWeapons.Init(Settings);
             DynamicFOV.Init(Settings);
             QuickSave.Init(Settings);
@@ -127,12 +133,12 @@ namespace LibertyTweaks
             PersonalVehicle.Init(this, Settings);
             ExtendedPedWeaponPool.Init(Settings);
             PedsLockDoors.Init(Settings);
-            ArmorHurts.Init(Settings);
+            ArmorPenetration.Init(Settings);
             IncreasedDamage.Init(Settings);
-            CarsMayExplode.Init(Settings);
-            //StaminaProgression.Init(Settings);
-
-            // FIXES
+            CarExplosionsRandomized.Init(Settings);
+            StaminaProgression.Init(Settings);
+            //WeaponProgression.Init(Settings);
+            Killcam.Init(Settings);
             NoOvertaking.Init(Settings);
             NoCursorEscape.Init(Settings);
             IceCreamSpeechFix.Init(Settings);
@@ -144,6 +150,7 @@ namespace LibertyTweaks
             LoadingFadeIn.Init(Settings);
             DynamicMovement.Init(Settings);
             AllowCopsAllMissions.Init(Settings);
+            //DebugTests.Init(Settings);
         }
 
         private void Main_ProcessCamera(object sender, EventArgs e)
@@ -158,16 +165,21 @@ namespace LibertyTweaks
 
         private void Main_Tick(object sender, EventArgs e)
         {
+            // Helpers & Player Data
             PlayerPed = IVPed.FromUIntPtr(IVPlayerInfo.FindThePlayerPed());
+            PlayerPos = Main.PlayerPed.Matrix.Pos;
             PlayerIndex = (int)GET_PLAYER_ID();
+            STORE_WANTED_LEVEL(PlayerIndex, out uint PlayerWantedLevel);
             PedHelper.GrabAllPeds();
+            PedHelper.GrabAllVehicles();
 
             // Main
             NoOvertaking.Tick();
             RemoveWeapons.Tick();
             ImprovedAI.Tick();
             WeaponMagazines.Tick();
-            SniperAdjustments.Tick();
+            SniperMovement.Tick();  
+            SniperScopeToggle.Tick();
             MoreCombatLines.Tick();
             SearchBody.Tick();
             VLikeScreaming.Tick();
@@ -182,14 +194,13 @@ namespace LibertyTweaks
             PersonalVehicle.Tick();
             ExtendedPedWeaponPool.Tick();
             PedsLockDoors.Tick();
-            ArmorHurts.Tick();
+            ArmorPenetration.Tick();
             IncreasedDamage.Tick();
-            CarsMayExplode.Tick();
-            //StaminaProgression.Tick();
-            //WorkingPhoneCamera.Tick();
-            //AppropriatePoliceScanner.Tick();
-
-            // Fixes
+            CarExplosionsRandomized.Tick();
+            StaminaProgression.Tick();
+            //WeaponProgression.Tick();
+            Killcam.Tick();
+            ToggleHUD.Tick();
             BrakeLights.Tick();
             CopShotgunFix.Tick();
             ExtraHospitalSpawn.Tick();
@@ -199,21 +210,31 @@ namespace LibertyTweaks
             DynamicMovement.Tick();
             UnholsteredGunFix.Tick();
             AllowCopsAllMissions.Tick();
-            //SwitchWeaponReloadFix.Tick();
+            HolsterWeapons.Tick();
+
+            // Scrapped Ideas
+            //WorkingPhoneCamera.Tick();
+            //AppropriatePoliceScanner.Tick();
 
             // Other
             TheDelayedCaller.Process();
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)
-        {         
-            if (e.KeyCode == ToggleHUD.toggleHudKey)
+        {
+            //if (e.KeyCode == Keys.B)
+            //    StaminaProgression.Process();
+
+            //if (e.KeyCode == DebugTests.key)
+            //    DebugTests.Process();
+
+            if (e.KeyCode == ToggleHUD.key)
                 ToggleHUD.Process();
 
-            if (e.KeyCode == QuickSave.quickSaveKey)
+            if (e.KeyCode == QuickSave.key)
                 QuickSave.Process();
 
-            if (e.KeyCode == HolsterWeapons.holsterKey)
+            if (e.KeyCode == HolsterWeapons.key)
                 HolsterWeapons.Process();
 
             if (e.KeyCode == Keys.LShiftKey)

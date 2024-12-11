@@ -73,6 +73,9 @@ namespace LibertyTweaks
             // Grab IVPed version of noose ped
             IVPed noosePed = NativeWorld.GetPedInstanceFromHandle(pedHandle);
 
+            if (noosePed == null)
+                return;
+
             // Disable ragdoll on death
             if (IS_CHAR_DEAD(pedHandle))
             {
@@ -118,7 +121,6 @@ namespace LibertyTweaks
                 || currentWeapon == (int)eWeaponType.WEAPON_EPISODIC_15;
         }
 
-
         private static void HandleGeneralPoliceBehavior(int pedHandle)
         {
             // If cop already had armor, don't run further code
@@ -133,13 +135,25 @@ namespace LibertyTweaks
                 // Seems to help but doesn't remove them completely?
                 SUPPRESS_PED_MODEL(3924571768);
 
+                // If the added vests aren't enabled, it'll give them armor regardless
                 if (enableVests)
                     SET_CHAR_COMPONENT_VARIATION(pedHandle, 1, 4, 0);
-
-                ADD_ARMOUR_TO_CHAR(pedHandle, 100);
-                copsWithArmor.Add(pedHandle);
+                else
+                {
+                    ADD_ARMOUR_TO_CHAR(pedHandle, 100);
+                    copsWithArmor.Add(pedHandle);
+                }
+                    
+                // Only add armor if they have vest to prevent them getting armor mid-fight
+                if (GET_CHAR_DRAWABLE_VARIATION(pedHandle, 1) == 4 && enableVests)
+                {
+                    ADD_ARMOUR_TO_CHAR(pedHandle, 100);
+                    copsWithArmor.Add(pedHandle);
+                }
+                else
+                    copsWithArmor.Add(pedHandle);
             }
-            // Not wanted if cop spawns with vest randomly
+            // Not wanted, if cop spawns with vest. Game gives them vest automatically somehow
             else
             {
                 if (GET_CHAR_DRAWABLE_VARIATION(pedHandle, 1) == 4 && enableVests)
@@ -148,6 +162,9 @@ namespace LibertyTweaks
                     ADD_ARMOUR_TO_CHAR(pedHandle, 100);
                     copsWithArmor.Add(pedHandle);
                 }
+                else
+                    // Add all cops to list regardless to prevent them getting armor mid-fight
+                    copsWithArmor.Add(pedHandle);
             }
         }
 

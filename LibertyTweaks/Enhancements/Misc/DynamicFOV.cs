@@ -3,6 +3,7 @@ using static IVSDKDotNet.Native.Natives;
 using CCL.GTAIV;
 using System;
 using IVSDKDotNet.Attributes;
+using LibertyTweaks.Enhancements.Combat;
 
 // Credits: catsmackaroo
 
@@ -12,7 +13,7 @@ namespace LibertyTweaks
 
     internal class DynamicFOV
     {
-        private static bool enableDynamicFov;
+        private static bool enable;
         private static float targetFOV = 1.1f;
         private static float currentFOV = 1.0f;
         private static readonly float lerpSpeed = 0.01f;
@@ -27,10 +28,12 @@ namespace LibertyTweaks
         public static float FOVInBoat;
         public static float FOVInHeli;
         public static float FOVInterior; 
+        public static float FOVKillcam; 
+        public static float FOVCinematic; 
 
         public static void Init(SettingsFile settings)
         {
-            enableDynamicFov = settings.GetBoolean("Dynamic Field of View", "Enable", true);
+            enable = settings.GetBoolean("Dynamic Field of View", "Enable", true);
 
             maxFOV = settings.GetFloat("Extensive Settings", "Maximum FOV Increase", 1.35f);
 
@@ -41,57 +44,54 @@ namespace LibertyTweaks
             FOVInBoat = settings.GetFloat("Extensive Settings", "In Boat", 1.11f);
             FOVInHeli = settings.GetFloat("Extensive Settings", "In Heli", 1.0f);
             FOVInterior = settings.GetFloat("Extensive Settings", "In Interior", 1.0f);
+            FOVKillcam = settings.GetFloat("Extensive Settings", "In Killcam", 0.9f);
+            FOVCinematic = settings.GetFloat("Extensive Settings", "Cinematic Cam", 0.6f);
             FOVOnFoot = settings.GetFloat("Extensive Settings", "On Foot", 1.0f);
             FOVOnFootGunEquipped = settings.GetFloat("Extensive Settings", "On Foot - With Gun", 1.025f);
 
-            if (enableDynamicFov)
+            if (enable)
                 Main.Log("script initialized...");
         }
 
         public static void Tick()
         {
+            if (!enable) return;
+
             IVCam cam = IVCamera.TheFinalCam;
-
             if (Main.PlayerPed == null || cam == null) return;
-
             int playerPedHandle = Main.PlayerPed.GetHandle();
             GET_CURRENT_CHAR_WEAPON(playerPedHandle, out int currentWeapon);
             uint currentWeapSlot = IVWeaponInfo.GetWeaponInfo((uint)currentWeapon).WeaponSlot;
 
-            if (enableDynamicFov)
-                ApplyDynamicFOV(playerPedHandle, cam, currentWeapon, currentWeapSlot);
+            ApplyDynamicFOV(playerPedHandle, cam, currentWeapon, currentWeapSlot);
         }
         private static void ApplyDynamicFOV(int playerPedHandle, IVCam cam, int currentWeapon, uint currentWeapSlot)
         {
             if (cam == null) return;
 
-            PlayerChecks combatChecker = new PlayerChecks();
-            bool isInOrNearCombat = combatChecker.IsPlayerInOrNearCombat();
             bool isInVehicle = IS_CHAR_IN_ANY_CAR(playerPedHandle);
+            GET_CINEMATIC_CAM(out int cinematicCam);
+            bool cutsc = HAS_CUTSCENE_FINISHED();
 
-            if (IVWeaponInfo.GetWeaponInfo((uint)currentWeapon).WeaponFlags.FirstPerson == true && NativeControls.IsGameKeyPressed(0, GameKey.Aim))
-            {
-
-                    
-            }
-
-            if (isInVehicle)
-            {
-                HandleVehicleFOV(playerPedHandle, isInOrNearCombat);
-            }
+            if (IVWeaponInfo.GetWeaponInfo((uint)currentWeapon).WeaponFlags.FirstPerson == true 
+                && NativeControls.IsGameKeyPressed(0, GameKey.Aim)
+                || cutsc == false)
+                HandleDefaultFOV();
+            else if (cinematicCam != 0)
+                HandleCinematicFOV();
+            else if (Killcam.enable == true && Killcam.cam.IsActive)
+                HandleKillcamFOV();
+            else if (isInVehicle)
+                HandleVehicleFOV(playerPedHandle, PlayerChecks.IsPlayerInOrNearCombat());
             else if (IS_INTERIOR_SCENE())
-            {
-                HandleInteriorFOV(isInOrNearCombat);
-            }
+                HandleInteriorFOV(PlayerChecks.IsPlayerInOrNearCombat());
             else
-            {
-                HandleOnFootFOV(isInOrNearCombat, currentWeapSlot);
-            }
+                HandleOnFootFOV(PlayerChecks.IsPlayerInOrNearCombat(), currentWeapSlot);
 
             currentFOV = Lerp(currentFOV, targetFOV, lerpSpeed);
             cam.FOV *= currentFOV;
         }
-
+        
         private static void HandleVehicleFOV(int playerPedHandle, bool isInOrNearCombat)
         {
             if (IS_CHAR_IN_ANY_HELI(playerPedHandle))
@@ -116,14 +116,24 @@ namespace LibertyTweaks
                 targetFOV = Math.Min(targetFOV, maxFOV);
             }
         }
-
-
         private static void HandleInteriorFOV(bool isInOrNearCombat)
         {
             if (isInOrNearCombat)
                 targetFOV = FOVInCombatInterior;
             else
                 targetFOV = FOVInterior;
+        }
+        private static void HandleCinematicFOV()
+        {
+            targetFOV = FOVCinematic;
+        }
+        private static void HandleKillcamFOV()
+        {
+            targetFOV = FOVKillcam;
+        }
+        private static void HandleDefaultFOV()
+        {
+            targetFOV = 1.0f;
         }
         private static void HandleOnFootFOV(bool isInOrNearCombat, uint currentWeapSlot)
         {
@@ -134,7 +144,6 @@ namespace LibertyTweaks
             else
                 targetFOV = FOVOnFootGunEquipped;
         }
-
         private static float Lerp(float start, float end, float amount)
         {
             return start + (end - start) * amount;

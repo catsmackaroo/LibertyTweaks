@@ -1,5 +1,7 @@
 ﻿using CCL.GTAIV;
 using IVSDKDotNet;
+using System;
+using System.Collections.Generic;
 using static IVSDKDotNet.Native.Natives;
 
 // Credit: catsmackaroo
@@ -9,7 +11,7 @@ namespace LibertyTweaks
     internal class CarFireBreakdown
     {
         private static bool enable;
-
+        private static readonly List<int> attachedVehicles = new List<int>();
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Vehicles Break on Fire", "Enable", true);
@@ -17,22 +19,31 @@ namespace LibertyTweaks
             if (enable)
                 Main.Log("script initialized...");
         }
-
         public static void Tick()
         {
             if (!enable)
                 return;
 
-            if (IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle()))
+            IVPool vehPool = IVPools.GetVehiclePool();
+            for (int i = 0; i < vehPool.Count; i++)
             {
-                GET_CAR_CHAR_IS_USING(Main.PlayerPed.GetHandle(), out int pVeh); 
+                UIntPtr ptr = vehPool.Get(i);
 
-                if (IS_CAR_ON_FIRE(pVeh))
+                if (ptr != UIntPtr.Zero)
                 {
-                    SET_CAR_ENGINE_ON(pVeh, false, false);
+                    if (ptr == IVPlayerInfo.FindThePlayerPed())
+                        continue;
+
+                    IVVehicle v = IVVehicle.FromUIntPtr(ptr);
+
+                    if (!attachedVehicles.Contains(v.GetHandle()) && IS_CAR_ON_FIRE(v.GetHandle()))
+                    {
+
+                        SET_CAR_ENGINE_ON(v.GetHandle(), false, false);
+                        attachedVehicles.Add(v.GetHandle());
+                    }
                 }
             }
-
         }
     }
 }

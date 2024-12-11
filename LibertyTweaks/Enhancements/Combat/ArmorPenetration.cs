@@ -9,7 +9,7 @@ using IVSDKDotNet.Enums;
 
 namespace LibertyTweaks
 {
-    internal class ArmorHurts
+    internal class ArmorPenetration
     {
         private static bool enable;
         public static int DamageMinimumPercent;
@@ -21,11 +21,11 @@ namespace LibertyTweaks
 
         public static void Init(SettingsFile settings)
         {
-            enable = settings.GetBoolean("Armor Still Hurts", "Enable", true);
-            DamageMinimumPercent = settings.GetInteger("Armor Still Hurts", "Health Damage Minimum Percent", 0);
-            DamageMaximumPercent = settings.GetInteger("Armor Still Hurts", "Health Damage Maximum Percent", 5);
-            ArmourThreshold1 = settings.GetInteger("Armor Still Hurts", "Armour Threshold Level 1", 33);
-            ArmourThreshold2 = settings.GetInteger("Armor Still Hurts", "Armour Threshold Level 2", 66);
+            enable = settings.GetBoolean("Armor Penetration", "Enable", true);
+            DamageMinimumPercent = settings.GetInteger("Armor Penetration", "Health Damage Minimum Percent", 0);
+            DamageMaximumPercent = settings.GetInteger("Armor Penetration", "Health Damage Maximum Percent", 5);
+            ArmourThreshold1 = settings.GetInteger("Armor Penetration", "Armour Threshold Level 1", 33);
+            ArmourThreshold2 = settings.GetInteger("Armor Penetration", "Armour Threshold Level 2", 66);
 
             string weaponsString = settings.GetValue("Extensive Settings", "Included Weapons", "");
             StrongWeapons.Clear();
@@ -50,7 +50,7 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            if (PlayerChecks.HasPlayerBeenDamagedArmor())
+            if (PlayerChecks.HasPlayerBeenDamagedArmor() )
             {
                 GET_CHAR_ARMOUR(Main.PlayerPed.GetHandle(), out uint pArmour);
 

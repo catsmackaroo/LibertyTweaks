@@ -37,8 +37,6 @@ namespace LibertyTweaks
         {
             if (!enable)
                 return;
-            PlayerChecks combatChecker = new PlayerChecks();
-            bool isInOrNearCombat = combatChecker.IsPlayerInOrNearCombat();
 
             GET_CHAR_HEALTH(Main.PlayerPed.GetHandle(), out uint playerHealth);
 
@@ -65,7 +63,7 @@ namespace LibertyTweaks
                 {
                     uint newHealth;
 
-                    if (!isInOrNearCombat && enableFullRegen && playerHealth <= 151)
+                    if (!PlayerChecks.IsPlayerInOrNearCombat() && enableFullRegen && playerHealth <= 151)
                     {
                         newHealth = playerHealth + (uint)regenHealthMinHeal;
                         newHealth = Math.Min(newHealth, 150);

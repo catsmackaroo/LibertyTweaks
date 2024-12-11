@@ -26,8 +26,6 @@ namespace LibertyTweaks
 
         public static void Tick()
         {
-            // TODO: figure out a fix for when peds drive off too soon
-
             if (!enable)
                 return;
 
@@ -35,46 +33,47 @@ namespace LibertyTweaks
             {
                 int pedHandle = kvp.Value;
 
-                if (IS_CHAR_DEAD(pedHandle))
+                // Skip dead or invalid pedestrians
+                if (IS_CHAR_DEAD(pedHandle) || !DOES_CHAR_EXIST(pedHandle))
                     continue;
 
-                if (IS_CHAR_IN_ANY_CAR(pedHandle))
-                {
-                    GET_CAR_CHAR_IS_USING(pedHandle, out int pedVehicle);
-                    GET_DRIVER_OF_CAR(pedVehicle, out int pedDriver);
-
-                    if (pedDriver == 0 || pedDriver == Main.PlayerPed.GetHandle() || IS_PED_A_MISSION_PED(pedDriver))
-                        continue;
-
-                    if (IS_CHAR_PLAYING_ANIM(pedHandle, "veh@std", "shock_left") || IS_CHAR_PLAYING_ANIM(pedHandle, "veh@bus", "shock_right") || IS_CHAR_PLAYING_ANIM(pedHandle, "veh@truck", "shock_left") || IS_CHAR_PLAYING_ANIM(pedHandle, "veh@low", "shock_left"))
-                        _TASK_STAND_STILL(pedHandle, 2000);
-
-                    if (!lockedVehicles.Contains(pedVehicle))
-                    {
-                        int rnd = Main.GenerateRandomNumber(0, 5);
-
-                        if (rnd != 3)
-                            LOCK_CAR_DOORS(pedVehicle, 7);
-                        else
-                            LOCK_CAR_DOORS(pedVehicle, 0);
-
-                        lockedVehicles.Add(pedVehicle);
-                    }
-
-                    if (!pedToVehicleMap.ContainsKey(pedHandle))
-                        pedToVehicleMap[pedHandle] = pedVehicle;
-                }
-                else
+                // Check if the pedestrian is in a vehicle
+                if (!IS_CHAR_IN_ANY_CAR(pedHandle))
                 {
                     if (pedToVehicleMap.ContainsKey(pedHandle))
                     {
                         int exitedVehicle = pedToVehicleMap[pedHandle];
-                        LOCK_CAR_DOORS(exitedVehicle, 0);
+                        LOCK_CAR_DOORS(exitedVehicle, 0); // Unlock the vehicle
                         lockedVehicles.Remove(exitedVehicle);
                         pedToVehicleMap.Remove(pedHandle);
                     }
+                    continue;
                 }
+
+                GET_CAR_CHAR_IS_USING(pedHandle, out int pedVehicle);
+
+                if (pedVehicle == 0 || !DOES_VEHICLE_EXIST(pedVehicle))
+                    continue;
+
+                GET_DRIVER_OF_CAR(pedVehicle, out int pedDriver);
+
+                if (pedDriver == 0 || pedDriver == Main.PlayerPed.GetHandle() || IS_PED_A_MISSION_PED(pedDriver))
+                    continue;
+
+                // Lock vehicle doors if not already locked
+                if (!lockedVehicles.Contains(pedVehicle))
+                {
+                    int rnd = Main.GenerateRandomNumber(0, 5);
+                    uint lockMode = (rnd != 3) ? 7u : 0u;
+
+                    LOCK_CAR_DOORS(pedVehicle, lockMode);
+                    lockedVehicles.Add(pedVehicle);
+                }
+
+                // Map pedestrian to vehicle
+                pedToVehicleMap[pedHandle] = pedVehicle;
             }
         }
+
     }
 }
