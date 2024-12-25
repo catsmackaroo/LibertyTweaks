@@ -18,6 +18,7 @@ namespace LibertyTweaks
         private static bool enableNoHeadshotNOoSE;
         private static bool enableNoRagdollNOoSE;
         public static bool enableVests;
+        public static int ragdollTime;
 
         private static readonly List<int> copsWithArmor = new List<int>();
 
@@ -33,6 +34,7 @@ namespace LibertyTweaks
             enableVests = settings.GetBoolean("Improved Police", "Armored Cops Have Vests", true);
             enableNoHeadshotNOoSE = settings.GetBoolean("Improved Police", "No Headshot NOoSE", true);
             enableNoRagdollNOoSE = settings.GetBoolean("Improved Police", "No Ragdoll NOoSE", true);
+            ragdollTime = settings.GetInteger("Improved Police", "NOoSE Ragdoll Time", 100);
             armoredCopsStars = settings.GetInteger("Improved Police", "Armored Cops Start At", 4);
 
             if (enable)
@@ -119,7 +121,7 @@ namespace LibertyTweaks
                     CheckDateTime = true;
                 }
 
-                if (DateTime.Now.Subtract(currentDateTime).TotalMilliseconds > 100.0)
+                if (DateTime.Now.Subtract(currentDateTime).TotalMilliseconds > ragdollTime)
                 {
                     CheckDateTime = false;
                     if (!HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 49) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 50) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 51) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 54) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 55))
