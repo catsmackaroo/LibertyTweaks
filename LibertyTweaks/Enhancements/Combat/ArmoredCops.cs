@@ -4,6 +4,7 @@ using static IVSDKDotNet.Native.Natives;
 using CCL.GTAIV;
 using IVSDKDotNet.Enums;
 using System.Diagnostics;
+using System;
 
 // Credits: catsmackaroo, ItsClonkAndre, GQComms
 
@@ -11,6 +12,8 @@ namespace LibertyTweaks
 {
     internal class ArmoredCops
     {
+        private static bool CheckDateTime;
+        private static DateTime currentDateTime;
         private static bool enable;
         private static bool enableNoHeadshotNOoSE;
         private static bool enableNoRagdollNOoSE;
@@ -108,8 +111,24 @@ namespace LibertyTweaks
             if (enableNoHeadshotNOoSE)
                 noosePed.PedFlags.NoHeadshots = headgearIndex != -1; // Enable if ped has headgear
 
-            if (enableNoRagdollNOoSE && !IS_CHAR_ON_FIRE(pedHandle))
-                noosePed.PreventRagdoll(true);
+            if (enableNoRagdollNOoSE && !IS_CHAR_ON_FIRE(pedHandle) && noosePed.GetHeightAboveGround() < 3 && IS_PED_RAGDOLL(pedHandle) && HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 57))
+            {
+                if (CheckDateTime == false)
+                {
+                    currentDateTime = DateTime.Now;
+                    CheckDateTime = true;
+                }
+
+                if (DateTime.Now.Subtract(currentDateTime).TotalMilliseconds > 100.0)
+                {
+                    CheckDateTime = false;
+                    if (!HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 49) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 50) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 51) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 54) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 55))
+                    {
+                        SWITCH_PED_TO_ANIMATED(pedHandle, false);
+                    }
+                    CLEAR_CHAR_LAST_WEAPON_DAMAGE(pedHandle);
+                }
+            }
         }
 
         // Determine if player is using sniper
