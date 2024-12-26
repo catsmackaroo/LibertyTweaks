@@ -19,6 +19,7 @@ namespace LibertyTweaks
         private static bool enableNoRagdollNOoSE;
         public static bool enableVests;
         public static int ragdollTime;
+        public static int ragdollTimeShotgun;
 
         private static readonly List<int> copsWithArmor = new List<int>();
 
@@ -121,7 +122,17 @@ namespace LibertyTweaks
                     CheckDateTime = true;
                 }
 
-                if (DateTime.Now.Subtract(currentDateTime).TotalMilliseconds > ragdollTime)
+                if (DateTime.Now.Subtract(currentDateTime).TotalMilliseconds > ragdollTime && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 10) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 11) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 22) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 26) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 30) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 31))
+                {
+                    CheckDateTime = false;
+                    if (!HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 49) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 50) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 51) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 54) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 55))
+                    {
+                        SWITCH_PED_TO_ANIMATED(pedHandle, false);
+                    }
+                    CLEAR_CHAR_LAST_WEAPON_DAMAGE(pedHandle);
+                }
+
+                else if (DateTime.Now.Subtract(currentDateTime).TotalMilliseconds > ragdollTimeShotgun)
                 {
                     CheckDateTime = false;
                     if (!HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 49) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 50) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 51) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 54) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 55))
