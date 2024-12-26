@@ -36,6 +36,7 @@ namespace LibertyTweaks
             enableNoHeadshotNOoSE = settings.GetBoolean("Improved Police", "No Headshot NOoSE", true);
             enableNoRagdollNOoSE = settings.GetBoolean("Improved Police", "No Ragdoll NOoSE", true);
             ragdollTime = settings.GetInteger("Improved Police", "NOoSE Ragdoll Time", 100);
+            ragdollTimeShotgun = settings.GetInteger("Improved Police", "NOoSE Shotgun Ragdoll Time", 250);
             armoredCopsStars = settings.GetInteger("Improved Police", "Armored Cops Start At", 4);
 
             if (enable)
