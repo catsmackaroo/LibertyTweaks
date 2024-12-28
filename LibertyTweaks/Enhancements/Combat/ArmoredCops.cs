@@ -12,8 +12,6 @@ namespace LibertyTweaks
 {
     internal class ArmoredCops
     {
-        private static bool CheckDateTime;
-        private static DateTime currentDateTime;
         private static bool enable;
         private static bool enableNoHeadshotNOoSE;
         private static bool enableNoRagdollNOoSE;
@@ -117,30 +115,24 @@ namespace LibertyTweaks
 
             if (enableNoRagdollNOoSE && !IS_CHAR_ON_FIRE(pedHandle) && noosePed.GetHeightAboveGround() < 3 && IS_PED_RAGDOLL(pedHandle) && HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 57))
             {
-                if (CheckDateTime == false)
+                if (!HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 10) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 11) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 22) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 26) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 30) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 31))
                 {
-                    currentDateTime = DateTime.Now;
-                    CheckDateTime = true;
+                    Main.TheDelayedCaller.Add(TimeSpan.FromMilliseconds(ragdollTime), "Main", () =>
+                    {
+                        if (!HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 49) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 50) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 51) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 54) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 55))
+                            SWITCH_PED_TO_ANIMATED(pedHandle, false);
+                        CLEAR_CHAR_LAST_WEAPON_DAMAGE(pedHandle);
+                    });
                 }
 
-                if (DateTime.Now.Subtract(currentDateTime).TotalMilliseconds > ragdollTime && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 10) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 11) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 22) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 26) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 30) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 31))
+                else
                 {
-                    CheckDateTime = false;
-                    if (!HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 49) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 50) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 51) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 54) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 55))
+                    Main.TheDelayedCaller.Add(TimeSpan.FromMilliseconds(ragdollTimeShotgun), "Main", () =>
                     {
-                        SWITCH_PED_TO_ANIMATED(pedHandle, false);
-                    }
-                    CLEAR_CHAR_LAST_WEAPON_DAMAGE(pedHandle);
-                }
-
-                else if (DateTime.Now.Subtract(currentDateTime).TotalMilliseconds > ragdollTimeShotgun)
-                {
-                    CheckDateTime = false;
-                    if (!HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 49) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 50) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 51) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 54) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 55))
-                    {
-                        SWITCH_PED_TO_ANIMATED(pedHandle, false);
-                    }
-                    CLEAR_CHAR_LAST_WEAPON_DAMAGE(pedHandle);
+                        if (!HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 49) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 50) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 51) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 54) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 55))
+                            SWITCH_PED_TO_ANIMATED(pedHandle, false);
+                        CLEAR_CHAR_LAST_WEAPON_DAMAGE(pedHandle);
+                    });
                 }
             }
         }
