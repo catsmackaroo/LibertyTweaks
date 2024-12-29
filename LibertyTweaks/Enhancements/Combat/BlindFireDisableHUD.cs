@@ -28,7 +28,7 @@ namespace LibertyTweaks
             {
                 if (isInBlindCover(Main.PlayerPed) && HudIsOn)
                     DISPLAY_HUD(false);
-                else if (!isInBlindCover(Main.PlayerPed) && !HudIsOn)
+                else if (!isInBlindCover(Main.PlayerPed) && HudIsOn)
                     DISPLAY_HUD(true);
             }
         }
