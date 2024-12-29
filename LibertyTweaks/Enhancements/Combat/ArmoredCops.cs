@@ -4,6 +4,7 @@ using static IVSDKDotNet.Native.Natives;
 using CCL.GTAIV;
 using IVSDKDotNet.Enums;
 using System.Diagnostics;
+using System;
 
 // Credits: catsmackaroo, ItsClonkAndre, GQComms
 
@@ -15,6 +16,8 @@ namespace LibertyTweaks
         private static bool enableNoHeadshotNOoSE;
         private static bool enableNoRagdollNOoSE;
         public static bool enableVests;
+        public static int ragdollTime;
+        public static int ragdollTimeShotgun;
 
         private static readonly List<int> copsWithArmor = new List<int>();
 
@@ -30,6 +33,8 @@ namespace LibertyTweaks
             enableVests = settings.GetBoolean("Improved Police", "Armored Cops Have Vests", true);
             enableNoHeadshotNOoSE = settings.GetBoolean("Improved Police", "No Headshot NOoSE", true);
             enableNoRagdollNOoSE = settings.GetBoolean("Improved Police", "No Ragdoll NOoSE", true);
+            ragdollTime = settings.GetInteger("Improved Police", "NOoSE Ragdoll Time", 100);
+            ragdollTimeShotgun = settings.GetInteger("Improved Police", "NOoSE Shotgun Ragdoll Time", 250);
             armoredCopsStars = settings.GetInteger("Improved Police", "Armored Cops Start At", 4);
 
             if (enable)
@@ -108,8 +113,28 @@ namespace LibertyTweaks
             if (enableNoHeadshotNOoSE)
                 noosePed.PedFlags.NoHeadshots = headgearIndex != -1; // Enable if ped has headgear
 
-            if (enableNoRagdollNOoSE && !IS_CHAR_ON_FIRE(pedHandle))
-                noosePed.PreventRagdoll(true);
+            if (enableNoRagdollNOoSE && !IS_CHAR_ON_FIRE(pedHandle) && noosePed.GetHeightAboveGround() < 3 && IS_PED_RAGDOLL(pedHandle) && HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 57))
+            {
+                if (!HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 10) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 11) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 22) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 26) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 30) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 31))
+                {
+                    Main.TheDelayedCaller.Add(TimeSpan.FromMilliseconds(ragdollTime), "Main", () =>
+                    {
+                        if (!HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 49) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 50) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 51) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 54) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 55))
+                            SWITCH_PED_TO_ANIMATED(pedHandle, false);
+                        CLEAR_CHAR_LAST_WEAPON_DAMAGE(pedHandle);
+                    });
+                }
+
+                else
+                {
+                    Main.TheDelayedCaller.Add(TimeSpan.FromMilliseconds(ragdollTimeShotgun), "Main", () =>
+                    {
+                        if (!HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 49) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 50) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 51) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 54) && !HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 55))
+                            SWITCH_PED_TO_ANIMATED(pedHandle, false);
+                        CLEAR_CHAR_LAST_WEAPON_DAMAGE(pedHandle);
+                    });
+                }
+            }
         }
 
         // Determine if player is using sniper
