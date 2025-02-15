@@ -1,4 +1,4 @@
-﻿using IVSDKDotNet;
+using IVSDKDotNet;
 using System.Collections.Generic;
 using static IVSDKDotNet.Native.Natives;
 using CCL.GTAIV;
