@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using static IVSDKDotNet.Native.Natives;
 
 namespace LibertyTweaks
@@ -40,5 +41,24 @@ namespace LibertyTweaks
                 });
             }
         }
+
+        public static float Clamp(float value, float min, float max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
+        }
+
+        public static float Lerp(float a, float b, float t)
+        {
+            t = Clamp(t, 0f, 1f); // Ensure t is clamped between 0 and 1
+            return a + (b - a) * t;
+        }
+
+        public static float[] ParseFloatArray(string input)
+        {
+            return input.Split(',').Select(float.Parse).ToArray();
+        }
+
     }
 }

@@ -15,6 +15,7 @@ namespace LibertyTweaks
     {
 
         public static bool enable;
+        public static bool canDispose = true;
         private static List<string> disableForWeapons;
         private static bool firstFrame = true;
 
@@ -118,7 +119,7 @@ namespace LibertyTweaks
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@44A", isPlayerDucking ? "reload_crouch" : "p_load");
 
 
-                if (currentReloadAnimTime.InRange(0.15f, 0.18f)) // Create old mag
+                if (currentReloadAnimTime.InRange(0.15f, 0.18f) && canDispose) // Create old mag
                 {
                     if (magObj1 == 0)
                     {
@@ -246,7 +247,7 @@ namespace LibertyTweaks
                 else if (isGoldUziReloading)
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@gold_uzi", isPlayerDucking ? "reload_crouch" : "p_load");
 
-                if (currentReloadAnimTime.InRange(0.13f, 0.15f)) // Create Old Mag Obj
+                if (currentReloadAnimTime.InRange(0.13f, 0.15f) && canDispose) // Create Old Mag Obj
                 {
                     if (magObj1 == 0 && !isP90Reloading && !isGoldUziReloading)
                     {
@@ -326,7 +327,7 @@ namespace LibertyTweaks
                 else if (lmgReloading)
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@m249", isPlayerDucking ? "reload_crouch" : "p_load");
 
-                if (currentReloadAnimTime.InRange(0.16f, 0.2f)) // Create Old Mag Obj
+                if (currentReloadAnimTime.InRange(0.16f, 0.2f)  && canDispose) // Create Old Mag Obj
                 {
                     if (magObj1 == 0 && !lmgReloading)
                     {
@@ -397,7 +398,7 @@ namespace LibertyTweaks
                 else if (isDsrReloading)
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@dsr1", isPlayerDucking ? "reload_crouch" : "p_load");
 
-                if (currentReloadAnimTime.InRange(0.16f, 0.2f)) // Create Old Mag Obj
+                if (currentReloadAnimTime.InRange(0.16f, 0.2f) && canDispose) // Create Old Mag Obj
                 {
                     if (magObj1 == 0 && !isDsrReloading)
                     {
@@ -516,32 +517,6 @@ namespace LibertyTweaks
             magObj1 = 0;
 
         }
-        //private static bool IsVehicleTooClose(float maxDistance = 2.0f)
-        //{
-        //    // Get the player's position
-        //    Vector3 playerPosition = Main.playerPos;
-
-        //    foreach (var kvp in PedHelper.VehHandles)
-        //    {
-        //        int vehHandle = kvp.Value;
-
-        //        IVVehicle closestVehicle = NativeWorld.GetVehicleInstanceFromHandle(vehHandle);
-
-        //        // Check if the vehicle is too close using Vector3.Distance
-        //        if (closestVehicle != null)
-        //        {
-        //            Vector3 vehiclePosition = closestVehicle.Matrix.Pos; // Assuming there's a method to get the vehicle's position
-        //            float distance = Vector3.Distance(playerPosition, vehiclePosition); // Calculate the distance between player and vehicle
-        //            IVGame.ShowSubtitleMessage(closestVehicle.Handling.Name);
-        //            // Check if the distance is within the allowed maxDistance
-        //            if (distance <= maxDistance)
-        //            {
-        //                return true; // Vehicle is too close
-        //            }
-        //        }
-        //    }
-        //    return false; // No vehicle nearby within the max distance
-        //}
         public static void Tick()
         {
             if (!enable)

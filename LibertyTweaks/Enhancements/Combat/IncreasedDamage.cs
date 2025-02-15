@@ -11,6 +11,8 @@ namespace LibertyTweaks
     internal class IncreasedDamage
     {
         private static bool enable;
+        private static bool disableAt25;
+        private static bool disableWithArmor;
         public static int DamageMinimumPercent = 0;
         public static int DamageMaximumPercent = 3;
 
@@ -23,6 +25,9 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Increased Damage", "Enable", true);
+            disableAt25 = settings.GetBoolean("Increased Damage", "Disable At 25% Health", true);
+            disableWithArmor = settings.GetBoolean("Increased Damage", "Disable With Armor", true);
+
             DamageMinimumPercent = settings.GetInteger("Increased Damage", "Damage Minimum Percent", 0);
             DamageMaximumPercent = settings.GetInteger("Increased Damage", "Damage Maximum Percent", 3);
 
@@ -34,7 +39,12 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            if (PlayerChecks.HasPlayerBeenDamagedHealth())
+            GET_CHAR_HEALTH(Main.PlayerPed.GetHandle(), out uint health);
+            GET_CHAR_ARMOUR(Main.PlayerPed.GetHandle(), out uint armor);
+            if ((disableAt25 && health <= 125) || (disableWithArmor && armor > 0))
+                return;
+
+            if (PlayerHelper.HasPlayerBeenDamagedHealth())
             {
                 if (Main.PlayerPed.RagdollStatus == 6)
                     return;
@@ -51,7 +61,7 @@ namespace LibertyTweaks
                 {
                     int damagePercentage = Main.GenerateRandomNumber(DamageMinimumPercent, DamageMaximumPercent);
                     float damageFraction = damagePercentage / 100f;
-                    float healthFactor = currentHealth / 200f; 
+                    float healthFactor = currentHealth / 200f;
 
                     damageFraction *= healthFactor;
 

@@ -1,0 +1,83 @@
+﻿using IVSDKDotNet;
+using static IVSDKDotNet.Native.Natives;
+using System;
+using System.Numerics;
+using IVSDKDotNet.Enums;
+using CCL.GTAIV;
+
+// Credits: ServalEd & catsmackaroo
+
+namespace LibertyTweaks
+{
+    internal class CarRollover
+    {
+        private static bool enable;
+        private static float BaseRollForce;
+        private static float amount;
+        private static float speedThreshold;
+        private static float RollForce;
+        private static bool CheckDateTime;
+        private static DateTime currentDateTime;
+
+        public static void Init(SettingsFile settings)
+        {
+            enable = settings.GetBoolean("Car Rollover", "Enable", true);
+            amount = settings.GetFloat("Car Rollover", "Amount", 0.2f);
+            speedThreshold = settings.GetFloat("Car Rollover", "Speed Threshold", 30f);
+
+            if (enable)
+                Main.Log("script initialized...");
+        }
+
+        public static void Tick()
+        {
+            if (!enable || IS_PAUSE_MENU_ACTIVE()) return;
+
+            if (!IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle())
+                || IS_PAUSE_MENU_ACTIVE()
+                || IS_CHAR_IN_ANY_BOAT(Main.PlayerPed.GetHandle())
+                || IS_CHAR_IN_ANY_HELI(Main.PlayerPed.GetHandle()))
+            {
+                return;
+            }
+
+            IVVehicle playerVehicle = IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle());
+
+            if (CheckDateTime == false)
+            {
+                currentDateTime = DateTime.Now;
+                CheckDateTime = true;
+            }
+
+            GET_CAR_SPEED(playerVehicle.GetHandle(), out float speed);
+
+            if (speed <= speedThreshold)
+                return;
+
+            if (DateTime.Now.Subtract(currentDateTime).TotalMilliseconds > 100.0)
+            {
+                CheckDateTime = false;
+
+                GET_CAR_MODEL(playerVehicle.GetHandle(), out var pValue);
+                GET_MODEL_DIMENSIONS(pValue, out var pMinVector, out var pMaxVector);
+
+                BaseRollForce = playerVehicle.GetSpeedVector(true).X * (amount / playerVehicle.Handling.TractionCurveMin);
+
+                GET_CAR_MODEL(playerVehicle.GetHandle(), out uint vehModel);
+                eWeather Wthr = NativeWorld.CurrentWeather;
+                if (Wthr == eWeather.WEATHER_RAINING || Wthr == eWeather.WEATHER_LIGHTNING)
+                    RollForce = BaseRollForce * 1.35f;
+                else if (Wthr == eWeather.WEATHER_DRIZZLE)
+                    RollForce = BaseRollForce * 1.3f;
+                else
+                    RollForce = BaseRollForce;
+
+                if (!IS_CAR_IN_AIR_PROPER(playerVehicle.GetHandle()) && PlayerHelper.IsPlayerSkidding())
+                {
+                    playerVehicle.ApplyForceRelative(new Vector3(RollForce, 0, 0), new Vector3(0, 0, pMaxVector.Z * 0.5f));
+                    playerVehicle.ApplyForceRelative(new Vector3(-RollForce, 0, 0), new Vector3(0, 0, pMaxVector.Z * -0.5f));
+                }
+            }
+        }
+    }
+}

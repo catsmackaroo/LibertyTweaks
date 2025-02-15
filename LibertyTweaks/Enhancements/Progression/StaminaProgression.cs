@@ -17,6 +17,9 @@ namespace LibertyTweaks
         private static double milesOnFoot;
         private static double milesOnFootInitial;
 
+        // Optimization Stuff
+        private static int tickCounter = 0;
+
         private static bool firstFrame = true;
         private static bool hasSaved;
 
@@ -35,7 +38,7 @@ namespace LibertyTweaks
             staminaLevel4 = Settings.GetInteger("Stamina Progression", "Level 4 Threshold", 20);
 
             if (enable)
-                Main.Log("Stamina progression script initialized...");
+                Main.Log("script initialized...");
         }
         public static void IngameStartup()
         {
@@ -46,6 +49,7 @@ namespace LibertyTweaks
         }
         public static void Tick()
         {
+            tickCounter++;
             if (!enable)
                 return;
 
@@ -53,6 +57,7 @@ namespace LibertyTweaks
                 InitializeFirstFrame();
 
             milesOnFoot = GET_INT_STAT(80) / 1610;
+            AlterStaminaLevel(activeStaminaLevel);
             if (HavePlayerStatsChanged())
                 StaminaLevelUp();
 
@@ -97,6 +102,7 @@ namespace LibertyTweaks
                 staminaLevel4 = 9999;
 
             milesOnFootInitial = GET_INT_STAT(80) / 1610;
+            StaminaLevelUp();
             savedStaminaLevel = Main.GetTheSaveGame().GetInteger("PlayerStaminaLevel");
             activeStaminaLevel = Main.GetTheSaveGame().GetInteger("PlayerStaminaLevel");
             firstFrame = false;
@@ -110,15 +116,15 @@ namespace LibertyTweaks
             switch (level)
             {
                 case 1:
-                    if (Main.PlayerPed.PlayerInfo.Stamina > 300)
+                    if (Main.PlayerPed.PlayerInfo.Stamina > 450 && Main.PlayerPed.GetSpeed() >= 1)
                     {
-                        Main.PlayerPed.PlayerInfo.Stamina = 300;
+                        Main.PlayerPed.PlayerInfo.Stamina = 450;
                         SET_CHAR_MOVE_ANIM_SPEED_MULTIPLIER(Main.PlayerPed.GetHandle(), 1.0f);
                     }
                     break;
 
                 case 2:
-                    if (Main.PlayerPed.PlayerInfo.Stamina > 500)
+                    if (Main.PlayerPed.PlayerInfo.Stamina > 550 && Main.PlayerPed.GetSpeed() >= 1)
                     {
                         Main.PlayerPed.PlayerInfo.Stamina = 500;
                         SET_CHAR_MOVE_ANIM_SPEED_MULTIPLIER(Main.PlayerPed.GetHandle(), 1.05f);
@@ -126,7 +132,7 @@ namespace LibertyTweaks
                     break;
 
                 case 3:
-                    if (Main.PlayerPed.PlayerInfo.Stamina > 600)
+                    if (Main.PlayerPed.PlayerInfo.Stamina > 600 && Main.PlayerPed.GetSpeed() >= 1)
                     {
                         Main.PlayerPed.PlayerInfo.Stamina = 600;
                         SET_CHAR_MOVE_ANIM_SPEED_MULTIPLIER(Main.PlayerPed.GetHandle(), 1.075f);
@@ -139,10 +145,10 @@ namespace LibertyTweaks
                     break;
 
                 default:
-                    if (Main.PlayerPed.PlayerInfo.Stamina > 200)
+                    if (Main.PlayerPed.PlayerInfo.Stamina > 350 && Main.PlayerPed.GetSpeed() >= 1)
                     {
                         SET_CHAR_MOVE_ANIM_SPEED_MULTIPLIER(Main.PlayerPed.GetHandle(), 1.0f);
-                        Main.PlayerPed.PlayerInfo.Stamina = 200;
+                        Main.PlayerPed.PlayerInfo.Stamina = 350;
                     }
                     break;
             }
@@ -155,7 +161,6 @@ namespace LibertyTweaks
                 (milesOnFoot >= staminaLevel2) ? 2 :
                 (milesOnFoot >= staminaLevel1) ? 1 : 0;
 
-            AlterStaminaLevel(activeStaminaLevel);
 
             if (activeStaminaLevel != savedStaminaLevel)
                 Notifications(activeStaminaLevel);
@@ -178,7 +183,7 @@ namespace LibertyTweaks
                 Main.Log("Saved PlayerStaminaLevel as activeStaminaLevel: " + activeStaminaLevel);
                 hasSaved = false;
             }
-        }
+        }   
         private static void Notifications(int level)
         {
             if (activeStaminaLevel == savedStaminaLevel)

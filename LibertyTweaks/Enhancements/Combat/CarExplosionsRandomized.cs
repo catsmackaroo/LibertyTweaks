@@ -33,12 +33,12 @@ namespace LibertyTweaks
 
                 if (ptr != UIntPtr.Zero)
                 {
-                    if (ptr == IVPlayerInfo.FindThePlayerPed())
-                        continue;
-
                     IVVehicle v = IVVehicle.FromUIntPtr(ptr);
+
                     UIntPtr pVuIntPtr = Main.PlayerPed.GetVehicle();
                     IVVehicle pV = IVVehicle.FromUIntPtr(pVuIntPtr);
+                    if (v == pV)
+                        attachedVehicles.Add(v.GetHandle());
 
                     if (!attachedVehicles.Contains(v.GetHandle()) && IS_CAR_ON_FIRE(v.GetHandle()))
                     {
@@ -52,9 +52,6 @@ namespace LibertyTweaks
 
                         // A more randomized car explosion system
                         int rndTimer = Main.GenerateRandomNumber(-999, 0);
-
-                        if (v == pV)
-                            rndTimer = Main.GenerateRandomNumber(-555, 0);
 
                         SET_PETROL_TANK_HEALTH(v.GetHandle(), rndTimer);
                         attachedVehicles.Add(v.GetHandle());

@@ -56,14 +56,12 @@ namespace LibertyTweaks
 
             if (IS_PLAYER_PLAYING(Main.PlayerIndex))
             {
-                // If the player has a valid weapon and hasn't holstered it yet
                 if (WeaponHelpers.GetWeaponType() != 0)
                 {
                     lastWeapon = WeaponHelpers.GetWeaponType(); // Initialize lastWeapon
                     GIVE_DELAYED_WEAPON_TO_CHAR(Main.PlayerPed.GetHandle(), 0, 1, true);
                 }
-                // Only go back to last weapon if player has last weapon still
-                else if (WeaponHelpers.GetWeaponInventory().Contains((IVSDKDotNet.Enums.eWeaponType)lastWeapon))
+                else if (WeaponHelpers.GetWeaponInventory(false).Contains((IVSDKDotNet.Enums.eWeaponType)lastWeapon))
                 {
                     // The player is restoring the last weapon
                     GIVE_DELAYED_WEAPON_TO_CHAR(Main.PlayerPed.GetHandle(), lastWeapon, 1, true);

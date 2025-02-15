@@ -22,10 +22,10 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Armor Penetration", "Enable", true);
-            DamageMinimumPercent = settings.GetInteger("Armor Penetration", "Health Damage Minimum Percent", 0);
-            DamageMaximumPercent = settings.GetInteger("Armor Penetration", "Health Damage Maximum Percent", 5);
-            ArmourThreshold1 = settings.GetInteger("Armor Penetration", "Armour Threshold Level 1", 33);
-            ArmourThreshold2 = settings.GetInteger("Armor Penetration", "Armour Threshold Level 2", 66);
+            DamageMinimumPercent = settings.GetInteger("Armor Penetration", "Damage Minimum Percent", 0);
+            DamageMaximumPercent = settings.GetInteger("Armor Penetration", "Damage Maximum Percent", 5);
+            ArmourThreshold1 = settings.GetInteger("Armor Penetration", "Armour Threshold 1", 33);
+            ArmourThreshold2 = settings.GetInteger("Armor Penetration", "Armour Threshold 2", 66);
 
             string weaponsString = settings.GetValue("Extensive Settings", "Included Weapons", "");
             StrongWeapons.Clear();
@@ -50,12 +50,17 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            if (PlayerChecks.HasPlayerBeenDamagedArmor() )
+            if (PlayerHelper.HasPlayerBeenDamagedArmor())
             {
                 GET_CHAR_ARMOUR(Main.PlayerPed.GetHandle(), out uint pArmour);
 
                 if (pArmour > ArmourThreshold2 || pArmour == 0)
+                {
+                    SET_CHAR_BULLETPROOF_VEST(Main.PlayerPed.GetHandle(), false);
                     return;
+                }
+
+                SET_CHAR_BULLETPROOF_VEST(Main.PlayerPed.GetHandle(), true);
 
                 GET_CHAR_HEALTH(Main.PlayerPed.GetHandle(), out uint currentHealth);
 

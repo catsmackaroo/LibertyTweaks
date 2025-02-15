@@ -31,9 +31,6 @@ namespace LibertyTweaks
 
                 if (ptr != UIntPtr.Zero)
                 {
-                    if (ptr == IVPlayerInfo.FindThePlayerPed())
-                        continue;
-
                     IVVehicle v = IVVehicle.FromUIntPtr(ptr);
 
                     if (!attachedVehicles.Contains(v.GetHandle()) && IS_CAR_ON_FIRE(v.GetHandle()))

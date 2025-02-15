@@ -1,4 +1,5 @@
-﻿using IVSDKDotNet;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using System;
 using static IVSDKDotNet.Native.Natives;
 
@@ -18,8 +19,8 @@ namespace LibertyTweaks
         {
             enable = settings.GetBoolean("Improved Police", "Lose Stars While Unseen", true);
 
-            minUnseenTimeToLoseStars = settings.GetInteger("Improved Police", "Lose Stars While Unseen Minimum Count", 60);
-            maxUnseenTimeToLoseStars = settings.GetInteger("Improved Police", "Lose Stars While Unseen Maximum Count", 120);
+            minUnseenTimeToLoseStars = settings.GetInteger("Improved Police", "Lose Stars Min Count", 60);
+            maxUnseenTimeToLoseStars = settings.GetInteger("Improved Police", "Lose Stars Max Count", 120);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -29,16 +30,14 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            if (Main.gxtEntries == true)
+            if (Main.gxtEntries == true && NativeGame.IsScriptRunning("wantedhelp"))
                 IVText.TheIVText.ReplaceTextOfTextLabel("WANTED3", "To gradually reduce your wanted level, stay out of sight. To completely lose it, escape the flashing zone.");
 
 
             if (IS_PAUSE_MENU_ACTIVE())
             {
                 lock (lockObject)
-                {
                     lastUnseenTime = DateTime.MinValue;
-                }
                 return;
             }
 

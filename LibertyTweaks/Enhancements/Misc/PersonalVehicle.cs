@@ -23,8 +23,8 @@ namespace LibertyTweaks
         public static bool enableImpound;
         public static bool enableAlwaysUnlocked;
 
-        // Keys 
-        public static Keys personalVehicleKey;
+        // Optimization Stuff
+        private static int tickCounter = 0;
 
         // Personal Vehicle
         private static NativeBlip vehBlip;
@@ -50,13 +50,13 @@ namespace LibertyTweaks
         private static IVVehicle checkVehicle;
         private static List<NativeBlip> serviceBlips = new List<NativeBlip>();
         private static readonly List<Vector3> serviceLocations = new List<Vector3>();
-        private static Vector3 northAlgonquinPNS = new Vector3(-335, 1531, 19);
-        private static Vector3 southAlgonquinPNS = new Vector3(-481, 350, 6);
-        private static Vector3 dukesPNS = new Vector3(1044, -332, 18);
-        private static Vector3 northAlderneyPNS = new Vector3(-1125, 1185, 16);
-        private static Vector3 southAlderneyPNS = new Vector3(-1308, 272, 10);
-        private static Vector3 stevieLocation = new Vector3(722, 1392, 14);
-        private static bool canBeTracked = false;
+        private static Vector3 northAlgonquinPNS;
+        private static Vector3 southAlgonquinPNS;
+        private static Vector3 dukesPNS;
+        private static Vector3 northAlderneyPNS;
+        private static Vector3 southAlderneyPNS;
+        private static Vector3 stevieLocation;
+        public static bool canBeTracked = false;
         private static bool canShowTrackerGuide = false;
         private static uint priceForTracking = 1000;
         private static Dictionary<Vector3, bool> messageShown = new Dictionary<Vector3, bool>();
@@ -97,13 +97,24 @@ namespace LibertyTweaks
         private static uint playerMoney;
 
         // Controller Support
-        private static uint padIndex = 0;
+        private static readonly uint padIndex = 0;
         private static ControllerButton controllerKey1;
         private static DateTime lastProcessTime = DateTime.MinValue;
         private static readonly TimeSpan delay = TimeSpan.FromMilliseconds(500);
-        #endregion
+        private static readonly List<Vector3> additionalServiceLocations = new List<Vector3>();
+        private static Vector3 ParseVector3(string value)
+        {
+            var parts = value.Split(',');
+            if (parts.Length == 3 &&
+                float.TryParse(parts[0], out float x) &&
+                float.TryParse(parts[1], out float y) &&
+                float.TryParse(parts[2], out float z))
+            {
+                return new Vector3(x, y, z);
+            }
+            return Vector3.Zero;
+        }
 
-        #region Initialization Methods
         public static void Init(Script instance, SettingsFile settings)
         {
             enable = settings.GetBoolean("Personal Vehicle", "Enable", true);
@@ -112,7 +123,28 @@ namespace LibertyTweaks
             enableAlwaysUnlocked = settings.GetBoolean("Personal Vehicle", "Service Always Unlocked", true);
             controllerKey1 = (ControllerButton)settings.GetInteger("Personal Vehicle", "Controller Key", (int)ControllerButton.BUTTON_A);
 
-            personalVehicleKey = settings.GetKey("Personal Vehicle", "Tracker Key", Keys.E);
+            northAlgonquinPNS = ParseVector3(settings.GetValue("Extensive Settings", "North Algonquin", "-335,1531,19"));
+            southAlgonquinPNS = ParseVector3(settings.GetValue("Extensive Settings", "South Algonquin", "-481,350,6"));
+            dukesPNS = ParseVector3(settings.GetValue("Extensive Settings", "Dukes", "1044,-332,18"));
+            northAlderneyPNS = ParseVector3(settings.GetValue("Extensive Settings", "North Alderney", "-1125,1185,16"));
+            southAlderneyPNS = ParseVector3(settings.GetValue("Extensive Settings", "South Alderney", "-1308,272,10"));
+            stevieLocation = ParseVector3(settings.GetValue("Extensive Settings", "Stevie", "722,1392,14"));
+
+            int additionalPNSCount = settings.GetInteger("Extensive Settings", "AdditionalCount", 0);
+            Main.Log($"Additional PNS Count: {additionalPNSCount}");
+            for (int i = 1; i <= additionalPNSCount; i++)
+            {
+                string key = $"Additionals{i}";
+                string value = settings.GetValue("Extensive Settings", key, "0,0,0");
+                Main.Log($"Reading Additional PNS {i}: {value}");
+                Vector3 additionalPNS = ParseVector3(value);
+                Main.Log($"Parsed Additional PNS {i}: {additionalPNS}");
+                if (additionalPNS != Vector3.Zero)
+                {
+                    additionalServiceLocations.Add(additionalPNS);
+                    Main.Log($"Added Additional PNS {i}: {additionalPNS}");
+                }
+            }
 
             if (enable)
             {
@@ -126,6 +158,7 @@ namespace LibertyTweaks
                 });
             }
         }
+
 
         public static void IngameStartup()
         {
@@ -176,6 +209,8 @@ namespace LibertyTweaks
         }
         public static void Tick()
         {
+            tickCounter++;
+
             if (!enable)
                 return;
 
@@ -185,40 +220,44 @@ namespace LibertyTweaks
             if (Main.gxtEntries && IS_THIS_HELP_MESSAGE_WITH_NUMBER_BEING_DISPLAYED("INT4_P2", 0))
                 IVText.TheIVText.ReplaceTextOfTextLabel("INT4_P3", "~S~Additionally, services around all Pay 'n' Sprays can add a tracker to your vehicle.");
 
-            CheckPlayerStats();
-            HandleTrackerService(serviceLocations);
+            if (tickCounter % 10 == 0)
+            {
+                CheckPlayerStats();
+                HandleTrackerService(serviceLocations);
 
+                if (HavePlayerStatsChanged())
+                {
+                    if (currentEpisode != 0)
+                        return;
+
+                    AddServiceLocations();
+                    UpdateMissionProgress();
+                }
+
+                // Controller support
+                if (IS_USING_CONTROLLER())
+                {
+                    bool controllerKeyPressed = NativeControls.IsControllerButtonPressed(padIndex, controllerKey1);
+
+                    if (controllerKeyPressed && DateTime.Now - lastProcessTime >= delay)
+                    {
+                        Process();
+                        lastProcessTime = DateTime.Now;
+                    }
+                }
+            }
+            
+            // Cleanup when starting new game
             if (missionsCompleted == 0 && !newGameCleanup)
             {
                 Cleanup();
                 newGameCleanup = true;
             }
 
-            if (HavePlayerStatsChanged())
-            {
-                if (currentEpisode != 0)
-                    return;
-
-                AddServiceLocations();
-                UpdateMissionProgress();
-            }
-
-            if (IS_USING_CONTROLLER())
-            {
-                bool controllerKeyPressed = NativeControls.IsControllerButtonPressed(padIndex, controllerKey1);
-
-                if (controllerKeyPressed && DateTime.Now - lastProcessTime >= delay)
-                {
-                    Process();
-                    lastProcessTime = DateTime.Now;
-                }
-            }
-
+            // Hospital & Mission Fail Teleports
             if (canTeleportPostDeathOrFail)
             {
-                GET_CHAR_HEALTH(Main.PlayerPed.GetHandle(), out uint pHealth);
-
-                if (pHealth == 200)
+                if (Main.PlayerHealth == 200)
                 {
                     Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(1), "Main", () =>
                     {
@@ -235,9 +274,16 @@ namespace LibertyTweaks
                 }
             }
 
-            if (savedVehicle != null)
+            if (savedVehicle != null && savedVehicle.GetHandle() != 0 && !IS_SCREEN_FADED_OUT())
             {
-                savedVehicle.SetAsMissionVehicle();
+                GET_CAR_DOOR_LOCK_STATUS(savedVehicle.GetHandle(), out uint lockValue);
+
+                if (!IS_CAR_A_MISSION_CAR(savedVehicle.GetHandle()) && !IS_SCREEN_FADING())
+                    savedVehicle.SetAsMissionVehicle();
+
+                if (lockValue != 1 && !isVehicleImpounded)
+                    LOCK_CAR_DOORS(savedVehicle.GetHandle(), 1);
+
                 HandleSaving();
                 HandleMissionBlipVisibility();
                 ManageVehicleBlip();
@@ -247,10 +293,10 @@ namespace LibertyTweaks
 
                 if (HasPlayerDiedOrFailMission())
                     canTeleportPostDeathOrFail = true;
-
-                if (!isVehicleImpounded)
-                    LOCK_CAR_DOORS(savedVehicle.GetHandle(), 1);
             }
+
+            // Reset tickCounter periodically to prevent overflow
+            if (tickCounter > 1000) tickCounter = 0;
         }
         private static void InitializeFirstFrame()
         {
@@ -266,17 +312,6 @@ namespace LibertyTweaks
             SpawnSavedVehicle();
             AddServiceLocations();
             firstFrame = false;
-        }
-        private static void CheckPlayerStats()
-        {
-            playerMoney = IVPlayerInfoExtensions.GetMoney(Main.PlayerPed.PlayerInfo);
-            totalFailedMissions = GET_INT_STAT(254);
-            totalArrests = GET_INT_STAT(419);
-            islandsUnlocked = GET_INT_STAT(363);
-            romanMissionProgress = GET_INT_STAT(3);
-            brucieMissionProgress = GET_INT_STAT(16);
-            missionsCompleted = GET_INT_STAT(253);
-            totalDeaths = GET_INT_STAT(261);
         }
         private static bool HavePlayerStatsChanged()
         {
@@ -294,18 +329,29 @@ namespace LibertyTweaks
         {
             return totalFailedMissionsInitial != totalFailedMissions || totalDeathsInitial != totalDeaths;
         }
-        private static void UpdateDeathsAndFails()
-        {
-            totalDeathsInitial = totalDeaths;
-            totalFailedMissionsInitial = totalFailedMissions;
-        }
         private static bool HasPlayerBeenBusted()
         {
             return totalArrestsInitial != totalArrests;
         }
+        private static void CheckPlayerStats()
+        {
+            playerMoney = IVPlayerInfoExtensions.GetMoney(Main.PlayerPed.PlayerInfo);
+            totalFailedMissions = GET_INT_STAT(254);
+            totalArrests = GET_INT_STAT(419);
+            islandsUnlocked = GET_INT_STAT(363);
+            romanMissionProgress = GET_INT_STAT(3);
+            brucieMissionProgress = GET_INT_STAT(16);
+            missionsCompleted = GET_INT_STAT(253);
+            totalDeaths = GET_INT_STAT(261);
+        }
         private static void UpdateArrests()
         {
             totalArrestsInitial = totalArrests;
+        }
+        private static void UpdateDeathsAndFails()
+        {
+            totalDeathsInitial = totalDeaths;
+            totalFailedMissionsInitial = totalFailedMissions;
         }
         private static void HandleMissionCompletion()
         {
@@ -328,10 +374,16 @@ namespace LibertyTweaks
         }
         private static void HandleVehicleStatus()
         {
-            GET_CAR_HEALTH(savedVehicle.GetHandle(), out uint health);
+            if (savedVehicle != null)
+            {
+                float health = savedVehicle.GetHealth();
 
-            if (IS_CAR_DEAD(savedVehicle.GetHandle()) || health <= 0)
-                Cleanup();
+                if (savedVehicle.IsDead() || health <= 0)
+                {
+                    Cleanup();
+                    return;
+                }
+            }
         }
         private static void HandleSaving()
         {
@@ -347,14 +399,11 @@ namespace LibertyTweaks
         }
         private static void HandleMissionBlipVisibility()
         {
-            if (IVTheScripts.IsPlayerOnAMission())
+            if (vehBlip != null)
             {
-                if (vehBlip != null)
+                if (IVTheScripts.IsPlayerOnAMission())
                     vehBlip.ShowOnlyWhenNear = true;
-            }
-            else
-            {
-                if (vehBlip != null)
+                else if (vehBlip.ShowOnlyWhenNear == true)
                     vehBlip.ShowOnlyWhenNear = false;
             }
         }
@@ -383,7 +432,7 @@ namespace LibertyTweaks
             CheckPlayerStats();
 
             serviceLocations.Clear();
-            
+
             if (enableAlwaysUnlocked || islandsUnlocked == 3)
             {
                 serviceLocations.Add(dukesPNS);
@@ -400,38 +449,35 @@ namespace LibertyTweaks
                     serviceLocations.Add(northAlgonquinPNS);
                     serviceLocations.Add(southAlgonquinPNS);
                 }
-
-                if (romanMissionProgress >= 33)
+                else if (romanMissionProgress >= 33)
                 {
                     serviceLocations.Add(dukesPNS);
                 }
-
-                
             }
+
             if (brucieMissionProgress == 100)
             {
                 serviceLocations.Add(stevieLocation);
             }
+
+            // Add additional PNS locations
+            serviceLocations.AddRange(additionalServiceLocations);
+
             Main.Log("Islands Unlocked: " + islandsUnlockedInitial.ToString() + " " + islandsUnlocked.ToString() +
                 "Roman Mission Progress: " + romanMissionProgressInitial.ToString() + " " + romanMissionProgress.ToString() +
                 "Brucie Mission Progress: " + brucieMissionProgressInitial.ToString() + " " + brucieMissionProgress.ToString() +
                 "Service Locations: " + serviceLocations.Count.ToString());
             ManageServiceLocationBlips();
-
         }
         private static void ManageServiceLocationBlips()
         {
             Main.Log("Entering ManageServiceBlips method...");
 
-            // Clean up every single existing blip
             if (serviceBlips != null && serviceBlips.Count > 0)
             {
                 foreach (var blip in serviceBlips)
                 {
-                    if (blip != null)
-                    {
-                        blip.Delete();
-                    }
+                    blip?.Delete();
                 }
                 serviceBlips.Clear();
             }
@@ -613,9 +659,9 @@ namespace LibertyTweaks
                         checkVehicle = IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle());
 
                         if (emergencyVehicles.Any(identifier => checkVehicle.Handling.Name.Contains(identifier)) || currentCarModel == 1911513875)
-                            priceForTracking = (uint)(checkVehicle.Handling.MonetaryValue * (1.0 / 2.0));
+                            priceForTracking = (uint)(checkVehicle.Handling.MonetaryValue * 0.25);
                         else
-                            priceForTracking = (uint)(checkVehicle.Handling.MonetaryValue * (1.0 / 6.0));
+                            priceForTracking = (uint)(checkVehicle.Handling.MonetaryValue * 0.25);
 
                         if (Vector3.Distance(Main.PlayerPed.Matrix.Pos, stevieLocation) < 5f)
                             priceForTracking = (uint)(priceForTracking * (1.0 / 2.0));
@@ -648,17 +694,18 @@ namespace LibertyTweaks
                             return;
                         }
 
-                        if (PlayerChecks.IsPlayerSeenByPolice())
+                        if (PlayerHelper.IsPlayerSeenByPolice())
                         {
                             IVGame.ShowSubtitleMessage("The police have sight of you.");
                             messageShown[location] = true;
                             return;
                         }
 
-                        
+                        // Round the price up to the nearest hundred
+                        priceForTracking = (uint)Math.Ceiling(priceForTracking / 100.0) * 100;
 
                         if (!IS_USING_CONTROLLER())
-                            IVGame.ShowSubtitleMessage("Press " + personalVehicleKey + " to add a tracker to this vehicle. " + "Price: $" + priceForTracking);
+                            IVGame.ShowSubtitleMessage("Press ~INPUT_PICKUP~ to add a tracker to this vehicle. " + "Price: $" + priceForTracking);
                         else
                             IVGame.ShowSubtitleMessage("Press " + controllerKey1 + " to add a tracker to this vehicle. " + "Price: $" + priceForTracking);
                         messageShown[location] = true;
@@ -695,7 +742,7 @@ namespace LibertyTweaks
                 {
                     vehBlip = savedVehicle.AttachBlip();
                     vehBlip.Icon = BlipIcon.Building_Garage;
-                    vehBlip.Name = "Personal Vehicle";
+                    vehBlip.Name = $"Personal Vehicle ({savedVehicle.Handling.Name})";
                     isBlipAttached = true;
                     Main.Log("Blip attached; player not in saved vehicle.");
                 }
@@ -715,10 +762,10 @@ namespace LibertyTweaks
             if (Vector3.Distance(Main.PlayerPed.Matrix.Pos, savedVehicle.Matrix.Pos) > 200f)
                 return;
 
-            if (isVehicleImpounded && Vector3.Distance(Main.PlayerPed.Matrix.Pos, savedVehicle.Matrix.Pos) < 10f && Main.PlayerWantedLevel < 4)
+            if (isVehicleImpounded && Vector3.Distance(Main.PlayerPed.Matrix.Pos, savedVehicle.Matrix.Pos) < 10f && Main.PlayerWantedLevel < 2)
             {
-                Main.Log("Player is near impounded car; giving 4 stars.");
-                ALTER_WANTED_LEVEL(Main.PlayerIndex, 4);
+                Main.Log("Player is near impounded car; giving stars.");
+                ALTER_WANTED_LEVEL(Main.PlayerIndex, 2);
                 APPLY_WANTED_LEVEL_CHANGE_NOW(Main.PlayerIndex);
                 isVehicleImpounded = false;
             }

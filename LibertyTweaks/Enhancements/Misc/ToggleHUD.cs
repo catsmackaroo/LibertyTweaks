@@ -12,7 +12,7 @@ namespace LibertyTweaks
         public static Keys key;
 
         // Controller Support
-        private static uint padIndex = 0;
+        private static readonly uint padIndex = 0;
         private static ControllerButton controllerKey1;
         private static ControllerButton controllerKey2;
         private static DateTime lastProcessTime = DateTime.MinValue;

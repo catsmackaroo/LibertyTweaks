@@ -30,7 +30,7 @@ namespace LibertyTweaks
 
         public static void Init(SettingsFile settings)
         {
-            enableAccuracyFirerate = settings.GetBoolean("Improved AI", "Increased Accuracy & Firerates", true);
+            enableAccuracyFirerate = settings.GetBoolean("Improved AI", "Accuracy & Firerates", true);
 
             defaultPedAccuracy = settings.GetInteger("Extensive Settings", "Default Accuracy", 40);
             defaultPedFirerate = settings.GetInteger("Extensive Settings", "Default Firerate", 40);

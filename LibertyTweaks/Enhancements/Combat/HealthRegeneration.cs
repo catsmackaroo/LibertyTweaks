@@ -56,14 +56,14 @@ namespace LibertyTweaks
                     lastRegenTime = DateTime.MinValue;
                 }
 
-                if (lastRegenTime == DateTime.MinValue || PlayerChecks.HasPlayerBeenDamagedHealth())
+                if (lastRegenTime == DateTime.MinValue || PlayerHelper.HasPlayerBeenDamagedHealth())
                     lastRegenTime = DateTime.UtcNow;
 
                 if (DateTime.UtcNow > lastRegenTime.AddSeconds(Main.GenerateRandomNumber(regenHealthMinTimer, regenHealthMaxTimer)))
                 {
                     uint newHealth;
 
-                    if (!PlayerChecks.IsPlayerInOrNearCombat() && enableFullRegen && playerHealth <= 151)
+                    if (!PlayerHelper.IsPlayerInOrNearCombat() && enableFullRegen && playerHealth < 150)
                     {
                         newHealth = playerHealth + (uint)regenHealthMinHeal;
                         newHealth = Math.Min(newHealth, 150);

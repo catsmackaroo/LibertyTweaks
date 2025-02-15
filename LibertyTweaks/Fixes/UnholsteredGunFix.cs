@@ -43,7 +43,7 @@ namespace LibertyTweaks
 
             if (!excludedWeapons.Contains(currentWeap))
             {
-                if (!IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle()) && PlayerChecks.IsPlayerSeenByPolice())
+                if (!IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle()) && PlayerHelper.IsPlayerSeenByPolice())
                 {
                     if (currentWantedLevel == 0 && !IS_INTERIOR_SCENE())
                         Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(2), "Main", () =>

@@ -29,10 +29,6 @@ public class TeleportationScript
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    // Skip lines starting with ';' (comments)
-                    if (line.StartsWith(";"))
-                        continue;
-
                     string[] parts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                     if (parts.Length >= 4)
                     {

@@ -23,7 +23,7 @@ namespace LibertyTweaks
         {
             enableLowHealthExhaustion = settings.GetBoolean("Low Health Exhaustion", "Enable", true);
             enableSprintFix = settings.GetBoolean("Fixes", "Sprint Fix", true);
-            disableInCombat = settings.GetBoolean("Fixes", "Sprint Fix Disabled In Combat", true);
+            disableInCombat = settings.GetBoolean("Fixes", "Sprint Fix Not In Combat", true);
 
             if (enableLowHealthExhaustion)
                 Main.Log("Low Health Exhaustion script initialized...");
@@ -76,8 +76,7 @@ namespace LibertyTweaks
                 DISABLE_PLAYER_SPRINT(0, true);
                 return;
             }
-
-            if (isUsingController || alwaysSprintSetting == 0 || PlayerChecks.IsPlayerInOrNearCombat() && disableInCombat == true)
+            if (isUsingController || alwaysSprintSetting == 0 || PlayerHelper.IsPlayerInOrNearCombat() && disableInCombat == true)
             {
                 DISABLE_PLAYER_SPRINT(0, false);
                 return;
@@ -103,6 +102,9 @@ namespace LibertyTweaks
 
         public static void Process()
         {
+            if (IS_USING_CONTROLLER())
+                return;
+
             if (enableLowHealthExhaustion)
             {
                 sprintCooldownTimer = isPlayerHealthLow ? 0 : SprintCooldownTime;

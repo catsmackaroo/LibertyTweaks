@@ -1,6 +1,7 @@
 ﻿using CCL.GTAIV;
 using IVSDKDotNet;
 using System;
+using System.Windows.Forms;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
@@ -24,15 +25,13 @@ namespace LibertyTweaks
             if (!enable) return;
 
             int currentWeapon = WeaponHelpers.GetWeaponType();
-            // If player has sniper equipped
             if (currentWeapon == (int)IVSDKDotNet.Enums.eWeaponType.WEAPON_M40A1
                 || currentWeapon == (int)IVSDKDotNet.Enums.eWeaponType.WEAPON_SNIPERRIFLE
                 || currentWeapon == (int)IVSDKDotNet.Enums.eWeaponType.WEAPON_EPISODIC_15)
             {
-                // If player has sniper equipped
                 if (NativeControls.IsGameKeyPressed(0, GameKey.Aim) || NativeControls.IsGameKeyPressed(0, GameKey.Attack))
                 {
-                    if (NativeControls.IsGameKeyPressed(0, GameKey.Jump))
+                    if (NativeControls.IsGameKeyPressed(0, GameKey.LookBehind))
                     {
                         if (DateTime.Now - lastToggleTime > toggleCooldown)
                         {
@@ -54,5 +53,6 @@ namespace LibertyTweaks
                 }
             }
         }
+
     }
 }
