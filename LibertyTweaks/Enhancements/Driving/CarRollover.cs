@@ -1,9 +1,9 @@
-﻿using IVSDKDotNet;
-using static IVSDKDotNet.Native.Natives;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
+using IVSDKDotNet.Enums;
 using System;
 using System.Numerics;
-using IVSDKDotNet.Enums;
-using CCL.GTAIV;
+using static IVSDKDotNet.Native.Natives;
 
 // Credits: ServalEd & catsmackaroo
 
@@ -41,29 +41,27 @@ namespace LibertyTweaks
                 return;
             }
 
-            IVVehicle playerVehicle = IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle());
-
             if (CheckDateTime == false)
             {
                 currentDateTime = DateTime.Now;
                 CheckDateTime = true;
             }
 
-            GET_CAR_SPEED(playerVehicle.GetHandle(), out float speed);
+            GET_CAR_SPEED(Main.PlayerVehicle.GetHandle(), out float speed);
 
             if (speed <= speedThreshold)
                 return;
 
-            if (DateTime.Now.Subtract(currentDateTime).TotalMilliseconds > 100.0)
+            if (DateTime.Now.Subtract(currentDateTime).TotalMilliseconds > 75)
             {
                 CheckDateTime = false;
 
-                GET_CAR_MODEL(playerVehicle.GetHandle(), out var pValue);
+                GET_CAR_MODEL(Main.PlayerVehicle.GetHandle(), out var pValue);
                 GET_MODEL_DIMENSIONS(pValue, out var pMinVector, out var pMaxVector);
 
-                BaseRollForce = playerVehicle.GetSpeedVector(true).X * (amount / playerVehicle.Handling.TractionCurveMin);
+                BaseRollForce = Main.PlayerVehicle.GetSpeedVector(true).X * (amount / Main.PlayerVehicle.Handling.TractionCurveMin);
 
-                GET_CAR_MODEL(playerVehicle.GetHandle(), out uint vehModel);
+                GET_CAR_MODEL(Main.PlayerVehicle.GetHandle(), out uint vehModel);
                 eWeather Wthr = NativeWorld.CurrentWeather;
                 if (Wthr == eWeather.WEATHER_RAINING || Wthr == eWeather.WEATHER_LIGHTNING)
                     RollForce = BaseRollForce * 1.35f;
@@ -72,10 +70,16 @@ namespace LibertyTweaks
                 else
                     RollForce = BaseRollForce;
 
-                if (!IS_CAR_IN_AIR_PROPER(playerVehicle.GetHandle()) && PlayerHelper.IsPlayerSkidding())
+                float sideSpeed = Main.PlayerVehicle.GetSpeedVector(true).X;
+                float frontSpeed = Main.PlayerVehicle.GetSpeedVector(true).Y;
+
+                if (!IS_CAR_IN_AIR_PROPER(Main.PlayerVehicle.GetHandle())
+                    && PlayerHelper.IsPlayerSkidding()
+                    && Math.Abs(frontSpeed) <= speedThreshold + 10
+                    && Math.Abs(sideSpeed) >= speedThreshold)
                 {
-                    playerVehicle.ApplyForceRelative(new Vector3(RollForce, 0, 0), new Vector3(0, 0, pMaxVector.Z * 0.5f));
-                    playerVehicle.ApplyForceRelative(new Vector3(-RollForce, 0, 0), new Vector3(0, 0, pMaxVector.Z * -0.5f));
+                    Main.PlayerVehicle.ApplyForceRelative(new Vector3(RollForce, 0, 0), new Vector3(0, 0, pMaxVector.Z * 0.5f));
+                    Main.PlayerVehicle.ApplyForceRelative(new Vector3(-RollForce, 0, 0), new Vector3(0, 0, pMaxVector.Z * -0.5f));
                 }
             }
         }

@@ -1,9 +1,9 @@
-﻿using IVSDKDotNet;
-using static IVSDKDotNet.Native.Natives;
-using CCL.GTAIV;
-using System;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using IVSDKDotNet.Attributes;
 using LibertyTweaks.Enhancements.Combat;
+using System;
+using static IVSDKDotNet.Native.Natives;
 
 namespace LibertyTweaks
 {
@@ -13,7 +13,8 @@ namespace LibertyTweaks
         private static bool enable;
         private static float targetFOV = 1.1f;
         private static float currentFOV = 1.0f;
-        private static readonly float lerpSpeed = 0.005f;
+        private static float lerpSpeed = 0.005f;
+        private static readonly float defaultLerpSpeed = lerpSpeed;
 
         public static float MaxFOV { get; private set; }
         public static float MinFOV { get; private set; }
@@ -34,6 +35,8 @@ namespace LibertyTweaks
         public static float FOVKillcam { get; private set; }
         public static float FOVBlindfire { get; private set; }
         public static float FOVCinematic { get; private set; }
+        public static bool FOVDriveBy { get; private set; }
+        public static float FOVDriveByMultiplier { get; private set; }
 
         public static void Init(SettingsFile settings)
         {
@@ -59,6 +62,10 @@ namespace LibertyTweaks
             FOVCinematic = settings.GetFloat("Extensive Settings", "Cinematic Cam", 0.6f);
             FOVOnFoot = settings.GetFloat("Extensive Settings", "On Foot", 1.0f);
             FOVOnFootGunEquipped = settings.GetFloat("Extensive Settings", "On Foot - With Gun", 1.025f);
+
+            FOVDriveBy = settings.GetBoolean("Extensive Settings", "Driveby Decrease", true);
+            FOVDriveByMultiplier = settings.GetFloat("Extensive Settings", "Driveby Multiplier", 0.1f);
+
 
             if (enable)
                 Main.Log("script initialized...");
@@ -89,7 +96,7 @@ namespace LibertyTweaks
             bool cutsc = HAS_CUTSCENE_FINISHED();
 
             if (IVWeaponInfo.GetWeaponInfo((uint)currentWeapon).WeaponFlags.FirstPerson == true
-                && NativeControls.IsGameKeyPressed(0, GameKey.Aim)
+                && PlayerHelper.IsAiming()
                 || cutsc == false)
                 HandleDefaultFOV();
             else if (cinematicCam != 0)
@@ -103,7 +110,7 @@ namespace LibertyTweaks
             else
                 HandleOnFootFOV(PlayerHelper.IsPlayerInOrNearCombat(), currentWeapSlot);
 
-            currentFOV = Lerp(currentFOV, targetFOV, lerpSpeed);
+            currentFOV = CommonHelpers.Lerp(currentFOV, targetFOV, lerpSpeed);
             cam.FOV *= currentFOV;
         }
         private static void HandleVehicleFOV(int playerPedHandle, bool isInOrNearCombat)
@@ -117,12 +124,12 @@ namespace LibertyTweaks
                 GET_CAR_CHAR_IS_USING(playerPedHandle, out int vehicleHandle);
                 if (vehicleHandle == 0) return;
 
-                var vehicleIV = NativeWorld.GetVehicleInstanceFromHandle(vehicleHandle);
+                var vehicle = NativeWorld.GetVehicleInstanceFromHandle(vehicleHandle);
                 GET_CHAR_HEIGHT_ABOVE_GROUND(playerPedHandle, out float height);
-                float totalSpeed = PlayerHelper.GetTotalSpeedVehicle(vehicleIV);
+                var totalSpeed = PlayerHelper.GetTotalSpeedVehicle(vehicle);
+                var rev = vehicle.EngineRevs;
+                var isCarInAir = IS_CAR_IN_AIR_PROPER(vehicleHandle);
 
-                float rev = vehicleIV.EngineRevs;
-                bool isCarInAir = IS_CAR_IN_AIR_PROPER(vehicleHandle);
                 if (isCarInAir && height > 0.6)
                 {
                     float heightFactor = Math.Min(height * 0.75f, 10);
@@ -137,38 +144,43 @@ namespace LibertyTweaks
                 }
                 else if (isInOrNearCombat)
                 {
-                    targetFOV = FOVInCombatInCar + totalSpeed / 150.0f + rev * FOVInCarRev;
+                    targetFOV = FOVInCombatInCar + totalSpeed / 175.0f + rev * FOVInCarRev;
                     targetFOV = CommonHelpers.Clamp(targetFOV, MinFOV, FOVInCombatInCarMax);
                 }
                 else
                 {
-                    targetFOV = FOVInCar + totalSpeed / 200.0f + rev * FOVInCarRev;
+                    targetFOV = FOVInCar + totalSpeed / 225.0f + rev * FOVInCarRev;
                     targetFOV = CommonHelpers.Clamp(targetFOV, MinFOV, MaxFOV);
                 }
+
+                if (Main.PlayerPed.PlayerInfo.CanDoDriveby == 1
+                    && NativeControls.IsGameKeyPressed(0, GameKey.Aim) && FOVDriveBy
+                    && WeaponHelpers.IsHoldingGun())
+                {
+                    targetFOV *= FOVDriveByMultiplier;
+                    lerpSpeed = 0.05f;
+                    targetFOV = CommonHelpers.Clamp(targetFOV, MinFOV, MaxFOV);
+                }
+                else
+                    lerpSpeed = defaultLerpSpeed;
             }
         }
-
-
         private static void HandleInteriorFOV(bool isInOrNearCombat)
         {
             targetFOV = isInOrNearCombat ? FOVInCombatInterior : FOVInterior;
         }
-
         private static void HandleCinematicFOV()
         {
             targetFOV = FOVCinematic;
         }
-
         private static void HandleKillcamFOV()
         {
             targetFOV = FOVKillcam;
         }
-
         private static void HandleDefaultFOV()
         {
             targetFOV = 1.0f;
         }
-
         private static void HandleOnFootFOV(bool isInOrNearCombat, uint currentWeapSlot)
         {
             if (isInOrNearCombat)
@@ -178,7 +190,5 @@ namespace LibertyTweaks
             else
                 targetFOV = FOVOnFootGunEquipped;
         }
-
-        private static float Lerp(float start, float end, float amount) => start + (end - start) * amount;
     }
 }

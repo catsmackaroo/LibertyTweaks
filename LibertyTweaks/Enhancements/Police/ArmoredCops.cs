@@ -1,10 +1,9 @@
+using CCL.GTAIV;
 using IVSDKDotNet;
+using IVSDKDotNet.Enums;
+using System;
 using System.Collections.Generic;
 using static IVSDKDotNet.Native.Natives;
-using CCL.GTAIV;
-using IVSDKDotNet.Enums;
-using System.Diagnostics;
-using System;
 
 // Credits: catsmackaroo, ItsClonkAndre, GQComms, ServalEd
 
@@ -49,11 +48,11 @@ namespace LibertyTweaks
 
         public static void LoadFiles()
         {
-            if (enableVests)
-            {
-                IVCDStream.AddImage("IVSDKDotNet/scripts/LibertyTweaks/ArmoredCopFiles/armoredCops.img", 1, -1);
-                Main.Log("loaded armoredCops.img...");
-            }
+            if (!enableVests)
+                return;
+
+            IVCDStream.AddImage("IVSDKDotNet/scripts/LibertyTweaks/ArmoredCopFiles/armoredCops.img", 1, -1);
+            Main.Log("loaded armoredCops.img...");
         }
 
         public static void Tick()
@@ -117,11 +116,11 @@ namespace LibertyTweaks
 
             if (enableNoRagdollNOoSE && !IS_CHAR_ON_FIRE(pedHandle) && noosePed.GetHeightAboveGround() < 3 && IS_PED_RAGDOLL(pedHandle) && HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 57))
             {
-                HandleRagdollBehavior(pedHandle, noosePed);
+                HandleRagdollBehavior(pedHandle);
             }
         }
 
-        private static void HandleRagdollBehavior(int pedHandle, IVPed noosePed)
+        private static void HandleRagdollBehavior(int pedHandle)
         {
             int delay = HasBeenDamagedByWeapons(pedHandle, nonRagdollWeapons) ? ragdollTimeShotgun : ragdollTime;
 

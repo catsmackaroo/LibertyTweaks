@@ -1,11 +1,12 @@
-﻿using IVSDKDotNet;
-using static IVSDKDotNet.Native.Natives;
-using CCL.GTAIV;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using System;
+using System.Collections.Generic;
 using System.Numerics;
-using IVSDKDotNet.Enums;
-using LibertyTweaks.Enhancements.Driving;
-using DocumentFormat.OpenXml.Drawing;
+using static IVSDKDotNet.Native.Natives;
+
+// credits: catsmackaroo
+// wheel 0 = front left, 1 = rear left, 2 = front right, 3 = rear right
 
 namespace LibertyTweaks
 {
@@ -20,25 +21,61 @@ namespace LibertyTweaks
 
         private const int MinorCrashThreshold = 15;
         private const int TireBurstThreshold = 10;
-        private const int HarshCrashThreshold = 20;
-        private const int AllWheelsDetachThreshold = 1;
+        private const int WheelDetachThreshold = 40;
+        private const int EngineCutOffThreshold = 40;
+
+        private static List<int> excludedVehicleIDs;
+        private static List<string> excludedVehicleModelsList;
+        private static bool firstFrame = true;
 
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Improved Car Crashes", "Enable", true);
             enableDoors = settings.GetBoolean("Improved Car Crashes", "Doors Can Open", true);
             enableDetachables = settings.GetBoolean("Improved Car Crashes", "General Detachables", true);
-            enableTireBursts = settings.GetBoolean("Improved Car Crashes", "Tire Can Burst", true);
+            enableTireBursts = settings.GetBoolean("Improved Car Crashes", "Tires Can Burst", true);
             enableWheelDetach = settings.GetBoolean("Improved Car Crashes", "Wheels Can Detach", true);
             enableEngineCutoff = settings.GetBoolean("Improved Car Crashes", "Engine Can Break", true);
 
+            excludedVehicleModelsList = new List<string>();
+            string vehicleModels = settings.GetValue("Improved Car Crashes", "Excluded Vehicles", "");
+            if (!string.IsNullOrWhiteSpace(vehicleModels))
+                if (!string.IsNullOrWhiteSpace(vehicleModels))
+                    excludedVehicleModelsList.AddRange(vehicleModels.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+
             if (enable)
-                Main.Log("Improved Crashes script initialized...");
+                Main.Log("script initialized...");
+        }
+        private static int ConvertStringToID(string modelName)
+        {
+            var num = RAGE.AtStringHash(modelName);
+            IVModelInfo.GetModelInfo(num, out var index);
+            return index;
+        }
+        public static void IngameStartup()
+        {
+            if (!enable)
+                return;
+
+            firstFrame = true;
         }
 
         public static void Tick()
         {
             if (!enable) return;
+
+            if (firstFrame)
+            {
+                excludedVehicleIDs = new List<int>();
+                foreach (var modelName in excludedVehicleModelsList)
+                    excludedVehicleIDs.Add(ConvertStringToID(modelName.Trim()));
+                Main.Log("Excluded vehicles: " + string.Join(", ", excludedVehicleModelsList) + " with IDs: " + string.Join(", ", excludedVehicleIDs));
+
+                if (excludedVehicleIDs.Contains(0))
+                    Main.Log("An ID of 0 was found. Either the model can't be loaded, or an error occurred. Ensure no typos are in the .ini. The model may not have loaded if it's an episode specific one.");
+
+                firstFrame = false;
+            }
 
             if (!IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle())
                 || IS_PAUSE_MENU_ACTIVE()
@@ -50,39 +87,18 @@ namespace LibertyTweaks
 
             IVVehicle vehicleIV = IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle());
 
+            if (excludedVehicleIDs.Contains(vehicleIV.ModelIndex))
+                return;
+
+            if (WeaponHelpers.HasCarBeenDamagedByAnyWeapon(vehicleIV))
+            {
+                CLEAR_CAR_LAST_WEAPON_DAMAGE(vehicleIV.GetHandle());
+                return;
+            }
+
             if (Main.CarCrashLevel > 0)
-            {
                 HandleCarCrashes(vehicleIV);
-            }
-        }
-        private static void HandleMinorCrashes(int rnd, IVVehicle vehicleIV, uint randomPart)
-        {
-            if (rnd <= MinorCrashThreshold && vehicleIV.DoorCount != 0 && enableDoors)
-            {
-                OpenAndBreakCarDoor(vehicleIV);
-            }
 
-            if (rnd <= MinorCrashThreshold && randomPart != 0 && enableDetachables)
-            {
-                IVPhInstGta.FromUIntPtr(vehicleIV.InstGta).DetachFragmentGroup(randomPart);
-            }
-
-            if (rnd <= TireBurstThreshold && vehicleIV.WheelCount != 0 && enableTireBursts)
-            {
-                BurstRandomTire(vehicleIV, rnd);
-            }
-        }
-        private static void HandleHarshCrashes(int rnd, IVVehicle vehicleIV)
-        {
-            if (enableEngineCutoff)
-            {
-                CutOffEngine(vehicleIV);
-            }
-
-            if (enableWheelDetach)
-            {
-                DetachWheels(rnd, vehicleIV);
-            }
         }
         private static void HandleCarCrashes(IVVehicle vehicleIV)
         {
@@ -103,6 +119,26 @@ namespace LibertyTweaks
                 HandleHarshCrashes(rnd, vehicleIV);
             }
         }
+        private static void HandleMinorCrashes(int rnd, IVVehicle vehicleIV, uint randomPart)
+        {
+            if (rnd <= MinorCrashThreshold && vehicleIV.DoorCount != 0 && enableDoors)
+                OpenAndBreakCarDoor(vehicleIV);
+
+            if (rnd <= MinorCrashThreshold && randomPart != 0 && enableDetachables)
+                IVPhInstGta.FromUIntPtr(vehicleIV.InstGta).DetachFragmentGroup(randomPart);
+
+            if (rnd <= TireBurstThreshold && vehicleIV.WheelCount != 0 && enableTireBursts)
+                BurstRandomTire(vehicleIV, rnd);
+        }
+        private static void HandleHarshCrashes(int rnd, IVVehicle vehicleIV)
+        {
+            if (enableEngineCutoff)
+                CutOffEngine(rnd, vehicleIV);
+
+            if (enableWheelDetach)
+                DetachWheels(rnd, vehicleIV);
+        }
+
         private static uint GenerateUniqueRandomPart(IVVehicle vehicleIV, bool only2wheels)
         {
             uint randomPart = (uint)Main.GenerateRandomNumber(1, 30);
@@ -112,9 +148,7 @@ namespace LibertyTweaks
             ushort vehwheelgroup2 = vehWheel2.GroupID;
 
             if (randomPart == vehwheelgroup1 || randomPart == vehwheelgroup2)
-            {
                 randomPart = (uint)Main.GenerateRandomNumber(1, 30);
-            }
 
             if (!only2wheels)
             {
@@ -124,9 +158,7 @@ namespace LibertyTweaks
                 ushort vehwheelgroup4 = vehWheel4.GroupID;
 
                 if (randomPart == vehwheelgroup3 || randomPart == vehwheelgroup4)
-                {
                     randomPart = (uint)Main.GenerateRandomNumber(1, 30);
-                }
             }
 
             return randomPart;
@@ -146,51 +178,75 @@ namespace LibertyTweaks
             {
                 IVVehicleWheel vehWheel = vehicleIV.Wheels[Main.GenerateRandomNumber(0, 3)];
                 if (vehWheel != null && vehWheel.TireHealth != 0)
-                {
                     vehWheel.TireHealth = 0;
-                }
             }
             else if (rnd >= 6)
-            {
                 BURST_CAR_TYRE(vehicleIV.GetHandle(), (uint)Main.GenerateRandomNumber(0, 3));
-            }
         }
-        private static void CutOffEngine(IVVehicle vehicleIV)
+        private static void CutOffEngine(int rnd, IVVehicle vehicleIV)
         {
-            vehicleIV.EngineHealth = 0;
-            vehicleIV.Health = 0;
-            vehicleIV.PetrolTankHealth = 0;
-            SET_CAR_ENGINE_ON(vehicleIV.GetHandle(), false, false);
+            if (rnd <= EngineCutOffThreshold)
+            {
+                vehicleIV.EngineHealth = 0;
+                vehicleIV.Health = 0;
+                vehicleIV.PetrolTankHealth = 0;
+                SET_CAR_ENGINE_ON(vehicleIV.GetHandle(), false, false);
+            }
         }
         private static void DetachWheels(int rnd, IVVehicle vehicleIV)
         {
-            ushort vehwheelgroup1 = vehicleIV.Wheels[0].GroupID;
-            ushort vehwheelgroup2 = vehicleIV.Wheels[1].GroupID;
-            ushort vehwheelgroup4 = vehicleIV.WheelCount > 2 ? vehicleIV.Wheels[3].GroupID : (ushort)0;
+            ushort vehwheelgroup0 = vehicleIV.Wheels[0].GroupID;
+            ushort vehwheelgroup1 = vehicleIV.Wheels[1].GroupID;
+            ushort vehwheelgroup2 = vehicleIV.WheelCount > 2 ? vehicleIV.Wheels[2].GroupID : (ushort)0;
+            ushort vehwheelgroup3 = vehicleIV.WheelCount > 2 ? vehicleIV.Wheels[3].GroupID : (ushort)0;
 
-            ushort minGroup = Math.Min(vehwheelgroup1, vehwheelgroup4 != 0 ? vehwheelgroup4 : vehwheelgroup2);
-            ushort maxGroup = Math.Max(vehwheelgroup1, vehwheelgroup4 != 0 ? vehwheelgroup4 : vehwheelgroup2);
+            var (backDeformation, frontDeformation) = GetDeformation(vehicleIV);
 
-            DetachRandomWheel(vehicleIV, minGroup, maxGroup);
+            ushort minGroup, maxGroup;
 
-            if (rnd <= HarshCrashThreshold)
+            if (frontDeformation)
             {
-                DetachRandomWheel(vehicleIV, minGroup, maxGroup);
+                minGroup = vehwheelgroup0;
+                maxGroup = vehwheelgroup2;
             }
-
-            if (rnd <= HarshCrashThreshold / 2)
+            else if (backDeformation)
             {
-                DetachRandomWheel(vehicleIV, minGroup, maxGroup);
+                minGroup = vehwheelgroup1;
+                maxGroup = vehwheelgroup3;
             }
+            else
+                return;
 
-            if (rnd <= AllWheelsDetachThreshold)
-            {
-                DetachRandomWheel(vehicleIV, minGroup, maxGroup);
-            }
+            if (rnd <= WheelDetachThreshold)
+                DetachWheel(vehicleIV, minGroup, maxGroup);
+
+            if (rnd <= WheelDetachThreshold / 2)
+                DetachWheel(vehicleIV, minGroup, maxGroup);
         }
-        private static void DetachRandomWheel(IVVehicle vehicleIV, ushort minGroup, ushort maxGroup)
+
+        private static void DetachWheel(IVVehicle vehicleIV, ushort minGroup, ushort maxGroup)
         {
             IVPhInstGta.FromUIntPtr(vehicleIV.InstGta).DetachFragmentGroup((uint)Main.GenerateRandomNumber(minGroup, maxGroup));
+            SET_CAR_ENGINE_ON(vehicleIV.GetHandle(), false, false);
         }
+
+
+        private static (bool backDeformation, bool frontDeformation) GetDeformation(IVVehicle vehicleIV)
+        {
+            if (vehicleIV != null)
+            {
+                GET_CAR_MODEL(vehicleIV.GetHandle(), out uint model);
+                GET_MODEL_DIMENSIONS(model, out Vector3 min, out Vector3 max);
+                GET_CAR_DEFORMATION_AT_POS(vehicleIV.GetHandle(), min, out Vector3 backdeformation);
+                GET_CAR_DEFORMATION_AT_POS(vehicleIV.GetHandle(), max, out Vector3 frontdeformation);
+
+                bool isBackDeformed = backdeformation != Vector3.Zero;
+                bool isFrontDeformed = frontdeformation != Vector3.Zero;
+
+                return (isBackDeformed, isFrontDeformed);
+            }
+            return (false, false);
+        }
+
     }
 }

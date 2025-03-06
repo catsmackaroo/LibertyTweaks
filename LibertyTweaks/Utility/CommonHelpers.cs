@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using static IVSDKDotNet.Native.Natives;
 
 namespace LibertyTweaks
@@ -22,7 +23,6 @@ namespace LibertyTweaks
 
             return false;
         }
-
         public static void HandleScreenFade(uint duration, bool playerControl, Action onFadeComplete)
         {
             DO_SCREEN_FADE_OUT(duration);
@@ -41,7 +41,6 @@ namespace LibertyTweaks
                 });
             }
         }
-
         public static float Clamp(float value, float min, float max)
         {
             if (value < min) return min;
@@ -51,10 +50,17 @@ namespace LibertyTweaks
 
         public static float Lerp(float a, float b, float t)
         {
-            t = Clamp(t, 0f, 1f); // Ensure t is clamped between 0 and 1
+            t = Clamp(t, 0f, 1f);
             return a + (b - a) * t;
         }
-
+        public static Vector3 LerpVector(Vector3 a, Vector3 b, float t)
+        {
+            return new Vector3(
+                Lerp(a.X, b.X, t),
+                Lerp(a.Y, b.Y, t),
+                Lerp(a.Z, b.Z, t)
+            );
+        }
         public static float[] ParseFloatArray(string input)
         {
             return input.Split(',').Select(float.Parse).ToArray();

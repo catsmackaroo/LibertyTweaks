@@ -1,29 +1,32 @@
-﻿using IVSDKDotNet;
-using static IVSDKDotNet.Native.Natives;
-using CCL.GTAIV;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using System;
 using System.Numerics;
+using static IVSDKDotNet.Native.Natives;
 
 namespace LibertyTweaks
 {
     internal class CameraShake
     {
         private static bool enable;
+        private static float shakeMultiplier;
         private static readonly Random random = new Random();
         private static Vector3 lastShakeOffset = Vector3.Zero;
 
-        private const float MaxCarSpeed = 20f;      
-        private const float BaseShakeFactor = 0.02f; 
-        private const float MinEngineRev = 0.6f;     
-        private const float RpmPowerExponent = 4f;   
-        private const float MaxShakeIntensity = 0.05f; 
-        private const float DistanceFactorSpeed = 5f;
-        private const float DistanceFactorRpm = 4f;  
-        private const float LerpFactor = 0.1f; 
+        private const float MaxCarSpeed = 40f;
+        private const float BaseShakeFactor = 0.05f;
+        private const float MinEngineRev = 0.7f;
+        private const float RpmPowerExponent = 4f;
+        private const float MaxShakeIntensity = 0.05f;
+        private const float DistanceFactorSpeed = 7f;
+        private const float DistanceFactorRpm = 4f;
+        private const float LerpFactor = 0.1f;
+        private const float HelicopterLerpFactor = 0.005f;
 
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Vehicle Camera Adjustments", "Speed Shake", true);
+            shakeMultiplier = settings.GetFloat("Vehicle Camera Adjustments", "Speed Shake Multiplier", 1.0f);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -46,8 +49,6 @@ namespace LibertyTweaks
 
         private static void HandleCarCamShake(int vehicle, IVVehicle vehicleIV, NativeCamera cam)
         {
-            if (IS_CAR_IN_AIR_PROPER(vehicle)) return;
-
             GET_CAR_SPEED(vehicle, out float speed);
             float rev = vehicleIV.EngineRevs;
             float driveForce = vehicleIV.Handling.DriveForce;
@@ -55,13 +56,29 @@ namespace LibertyTweaks
             GET_CAR_COORDINATES(vehicle, out Vector3 carPos);
             float distance = Vector3.Distance(carPos, cam.Position);
 
+            if (IS_CHAR_IN_ANY_HELI(Main.PlayerPed.GetHandle()))
+            {
+                distance *= 0.2f;
+            }
+
             float speedIntensity = CalculateSpeedIntensity(speed, distance);
             float rpmIntensity = CalculateRpmIntensity(rev, distance);
 
             float combinedIntensity = (speedIntensity + rpmIntensity) / 2 * driveForce * 4f;
             combinedIntensity = Math.Min(combinedIntensity, MaxShakeIntensity);
 
-            ApplyCameraShake(combinedIntensity, cam, LerpFactor);
+            combinedIntensity *= shakeMultiplier;
+
+            float lerpFactor = LerpFactor;
+            if (IS_CHAR_IN_ANY_HELI(Main.PlayerPed.GetHandle()))
+            {
+                combinedIntensity *= 10;
+                lerpFactor = HelicopterLerpFactor;
+            }
+            else
+                lerpFactor = LerpFactor;
+
+            ApplyCameraShake(combinedIntensity, cam, lerpFactor);
         }
 
         private static float CalculateSpeedIntensity(float speed, float distance)
@@ -84,7 +101,7 @@ namespace LibertyTweaks
             Vector3 targetShakeOffset = new Vector3(
                 (float)(random.NextDouble() * 2 - 1) * intensity,  // left-right
                 (float)(random.NextDouble() * 2 - 1) * intensity,  // up-down
-                (float)Vector3.Zero.Z 
+                (float)(random.NextDouble() * 2 - 1) * intensity
             );
 
             lastShakeOffset = Vector3.Lerp(lastShakeOffset, targetShakeOffset, lerpFactor);

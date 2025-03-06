@@ -1,10 +1,9 @@
-﻿using IVSDKDotNet;
-using static IVSDKDotNet.Native.Natives;
-using System;
-using CCL.GTAIV;
-using System.Numerics;
-using System.Collections.Generic;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using IVSDKDotNet.Enums;
+using System;
+using System.Collections.Generic;
+using static IVSDKDotNet.Native.Natives;
 
 namespace LibertyTweaks
 {
@@ -20,6 +19,48 @@ namespace LibertyTweaks
         Thrown = 13
     }
 
+    public enum VanillaGuns
+    {
+        WEAPON_GRENADE,
+        WEAPON_MOLOTOV,
+        WEAPON_ROCKET,
+        WEAPON_PISTOL,
+        WEAPON_DEAGLE,
+        WEAPON_SHOTGUN,
+        WEAPON_BARETTA,
+        WEAPON_MICRO_UZI,
+        WEAPON_MP5,
+        WEAPON_AK47,
+        WEAPON_M4,
+        WEAPON_SNIPERRIFLE,
+        WEAPON_M40A1,
+        WEAPON_RLAUNCHER,
+        WEAPON_MINIGUN,
+        WEAPON_EPISODIC_1,
+        WEAPON_EPISODIC_2,
+        WEAPON_EPISODIC_3,
+        WEAPON_EPISODIC_4,
+        WEAPON_EPISODIC_5,
+        WEAPON_EPISODIC_6,
+        WEAPON_EPISODIC_7,
+        WEAPON_EPISODIC_8,
+        WEAPON_EPISODIC_9,
+        WEAPON_EPISODIC_10,
+        WEAPON_EPISODIC_11,
+        WEAPON_EPISODIC_12,
+        WEAPON_EPISODIC_13,
+        WEAPON_EPISODIC_14,
+        WEAPON_EPISODIC_15,
+        WEAPON_EPISODIC_16,
+        WEAPON_EPISODIC_17,
+        WEAPON_EPISODIC_18,
+        WEAPON_EPISODIC_19,
+        WEAPON_EPISODIC_20,
+        WEAPON_EPISODIC_21,
+        WEAPON_EPISODIC_22,
+        WEAPON_EPISODIC_23,
+        WEAPON_EPISODIC_24,
+    }
     public class WeaponHelpers
     {
         public static bool IsHandgunReloading() => Main.PlayerPed.GetAnimationController().IsPlaying("gun@handgun", IS_CHAR_DUCKING(Main.PlayerPed.GetHandle()) ? "reload_crouch" : "reload");
@@ -75,6 +116,20 @@ namespace LibertyTweaks
             return null;
         }
 
+
+        // If using this method, call "CLEAR_CAR_LAST_WEAPON_DAMAGE()" after to reset. 
+        // Can't get it to work in one method for some reason
+        public static bool HasCarBeenDamagedByAnyWeapon(IVVehicle vehicleIV)
+        {
+            foreach (eWeaponType weapon in Enum.GetValues(typeof(VanillaGuns)))
+            {
+                if (HAS_CAR_BEEN_DAMAGED_BY_WEAPON(vehicleIV.GetHandle(), (int)weapon))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         public static int GetWeaponType()
         {
             GET_CURRENT_CHAR_WEAPON(Main.PlayerPed.GetHandle(), out int pWeapon);
@@ -85,7 +140,7 @@ namespace LibertyTweaks
             return IVWeaponInfo.GetWeaponInfo((uint)GetWeaponType());
         }
 
-        public static WeaponGroup GetWeaponGroup() 
+        public static WeaponGroup GetWeaponGroup()
         {
             return (WeaponGroup)GetWeaponInfo().Group;
         }
@@ -110,9 +165,7 @@ namespace LibertyTweaks
                     melee.Add(weapon);
 
                 if (HAS_CHAR_GOT_WEAPON(Main.PlayerPed.GetHandle(), (int)weapon) && !melee.Contains(weapon))
-                {
                     inventory.Add(weapon);
-                }
             }
 
             return inventory;
@@ -120,6 +173,7 @@ namespace LibertyTweaks
 
         public static void PrintWeaponInventory()
         {
+            // Example to use WeaponInventory 
             // Get the player's weapon inventory
             List<eWeaponType> inventory = GetWeaponInventory(true);
 
@@ -155,7 +209,7 @@ namespace LibertyTweaks
             GET_AMMO_IN_CLIP(Main.PlayerPed.GetHandle(), currentWeapon, out int clipAmmo);
             GET_MAX_AMMO_IN_CLIP(Main.PlayerPed.GetHandle(), currentWeapon, out int clipAmmoMax);
 
-            if (clipAmmo < clipAmmoMax 
+            if (clipAmmo < clipAmmoMax
                 && clipAmmo > 0)
                 return true;
             else
@@ -208,7 +262,7 @@ namespace LibertyTweaks
             int nextIndex = (currentIndex + 1) % inventory.Count;
 
             eWeaponType nextWeapon = inventory[nextIndex];
-            
+
             return (int)nextWeapon;
         }
         public static int GetPreviousWeaponAsInt()
@@ -220,12 +274,10 @@ namespace LibertyTweaks
             int currentWeapon = GetWeaponType();
             int currentIndex = inventory.FindIndex(weapon => (int)weapon == currentWeapon);
             int previousIndex = (currentIndex - 1 + inventory.Count) % inventory.Count;
-            
+
             eWeaponType previousWeapon = inventory[previousIndex];
 
             return (int)previousWeapon;
         }
-
-
     }
 }

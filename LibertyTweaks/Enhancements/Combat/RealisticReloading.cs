@@ -47,17 +47,24 @@ namespace LibertyTweaks
                 if (!isReloadingStarted)
                 {
                     isReloadingStarted = true;
+
+                    // Fast reload for empty weapons always
+                    GET_AMMO_IN_CLIP(Main.PlayerPed.GetHandle(), WeaponHelpers.GetWeaponType(), out int ammoInClip);
+                    if (ammoInClip == 0)
+                    {
+                        var animGroup = WeaponHelpers.GetReloadingAnimGroup();
+                        FastReloadAndDispose(animGroup);
+                    }
+
+                    // Fast reload when shift is held
                     if (WeaponHelpers.CanReload())
                     {
                         var animGroup = WeaponHelpers.GetReloadingAnimGroup();
+
                         if (NativeControls.IsGameKeyPressed(0, GameKey.Sprint))
-                        {
                             FastReloadAndDispose(animGroup);
-                        }
                         else
-                        {
                             Reset(animGroup);
-                        }
                     }
                 }
             }
@@ -69,7 +76,7 @@ namespace LibertyTweaks
 
         private static void FastReloadAndDispose(string animGroup)
         {
-            if (enableWeaponMagazineInteraction) 
+            if (enableWeaponMagazineInteraction)
                 WeaponMagazines.canDispose = true;
 
             if (enableQuickReloadMechanic)
@@ -82,10 +89,11 @@ namespace LibertyTweaks
                     SET_CHAR_ANIM_SPEED(Main.PlayerPed.GetHandle(), animGroup, "p_load", 1.5f);
                 }
             }
-            
+
             var currentWeapon = WeaponHelpers.GetWeaponType();
             if (ExcludedWeapons.Contains(currentWeapon))
                 return;
+
             SET_AMMO_IN_CLIP(Main.PlayerPed.GetHandle(), currentWeapon, 0);
         }
 
@@ -95,13 +103,9 @@ namespace LibertyTweaks
                 WeaponMagazines.canDispose = false;
 
             if (PlayerHelper.isPlayerDucking)
-            {
                 SET_CHAR_ANIM_SPEED(Main.PlayerPed.GetHandle(), animGroup, "reload_crouch", 1.0f);
-            }
             else
-            {
                 SET_CHAR_ANIM_SPEED(Main.PlayerPed.GetHandle(), animGroup, "reload", 1.0f);
-            }
         }
     }
 }

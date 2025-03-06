@@ -1,9 +1,7 @@
-﻿using CCL.GTAIV;
-using IVSDKDotNet;
-using IVSDKDotNet.Native;
-using System;
-using System.Numerics;
+﻿using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
+
+// Credits: ItsClonkAndre
 
 namespace LibertyTweaks
 {
@@ -35,12 +33,12 @@ namespace LibertyTweaks
             if (firstFrame)
             {
                 int missionsComplete = GET_INT_STAT(253);
-                
+
                 // Check if player has beaten the first mission
                 // Simply to avoid a bug
                 if (missionsComplete > 0)
                 {
-                    DO_SCREEN_FADE_IN(10000);
+                    DO_SCREEN_FADE_IN(12000);
                 }
                 firstFrame = false;
             }

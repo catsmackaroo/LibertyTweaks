@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using IVSDKDotNet;
+﻿using IVSDKDotNet;
+using System.Collections.Generic;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
@@ -30,7 +30,7 @@ namespace LibertyTweaks
 
         public static void Init(SettingsFile settings)
         {
-            enableAccuracyFirerate = settings.GetBoolean("Improved AI", "Accuracy & Firerates", true);
+            enableAccuracyFirerate = settings.GetBoolean("Improved AI", "Increased Accuracy & Firerate", true);
 
             defaultPedAccuracy = settings.GetInteger("Extensive Settings", "Default Accuracy", 40);
             defaultPedFirerate = settings.GetInteger("Extensive Settings", "Default Firerate", 40);

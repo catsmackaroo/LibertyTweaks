@@ -1,10 +1,7 @@
-﻿using IVSDKDotNet;
-using static IVSDKDotNet.Native.Natives;
-using System;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using System.Windows.Forms;
-using CCL.GTAIV;
-
-// Credits: catsmackaroo
+using static IVSDKDotNet.Native.Natives;
 
 namespace LibertyTweaks
 {
@@ -12,24 +9,28 @@ namespace LibertyTweaks
     {
         private const int SprintCooldownTime = 30;
         private static int sprintCooldownTimer;
-        private static bool enableSprintFix;
-        private static bool enableLowHealthExhaustion;
+        public static bool enableSprintFix;
+        public static bool enableLowHealthExhaustion;
         private static bool disableInCombat;
         private static bool isPlayerHealthLow;
 
-        private static bool IsCapsLockActive() => Control.IsKeyLocked(Keys.Capital);
+        public static bool IsSprintEnabled { get; private set; } = true;
+
+        public static bool IsCapsLockActive() => Control.IsKeyLocked(Keys.Capital);
 
         public static void Init(SettingsFile settings)
         {
             enableLowHealthExhaustion = settings.GetBoolean("Low Health Exhaustion", "Enable", true);
             enableSprintFix = settings.GetBoolean("Fixes", "Sprint Fix", true);
-            disableInCombat = settings.GetBoolean("Fixes", "Sprint Fix Not In Combat", true);
+            disableInCombat = settings.GetBoolean("Fixes", "Sprint Fix Disabled In Combat", true);
 
             if (enableLowHealthExhaustion)
                 Main.Log("Low Health Exhaustion script initialized...");
 
-            if (enableSprintFix)
-                Main.Log("Sprint Fix script initialized...");
+            if (enableSprintFix && disableInCombat)
+                Main.Log("Sprint Fix script initialized, disabled in combat...");
+            else if (enableSprintFix && !disableInCombat)
+                Main.Log("Sprint Fix script initialized, enabled in combat...");
         }
 
         public static void Tick()
@@ -47,22 +48,13 @@ namespace LibertyTweaks
 
             if (enableSprintFix)
             {
-                if (playerHealth < 126)
-                {
-                    isPlayerHealthLow = true;
-                }
-                else
-                {
-                    isPlayerHealthLow = false;
-                }
+                isPlayerHealthLow = playerHealth < 126;
             }
 
             if (!enableSprintFix)
             {
-                if (playerHealth < 126)
-                    DISABLE_PLAYER_SPRINT(0, true);
-                else
-                    DISABLE_PLAYER_SPRINT(0, false);
+                IsSprintEnabled = playerHealth >= 126;
+                DISABLE_PLAYER_SPRINT(0, !IsSprintEnabled);
             }
         }
 
@@ -73,11 +65,13 @@ namespace LibertyTweaks
 
             if (isPlayerHealthLow && enableLowHealthExhaustion)
             {
+                IsSprintEnabled = false;
                 DISABLE_PLAYER_SPRINT(0, true);
                 return;
             }
-            if (isUsingController || alwaysSprintSetting == 0 || PlayerHelper.IsPlayerInOrNearCombat() && disableInCombat == true)
+            if (isUsingController || alwaysSprintSetting == 0 || (PlayerHelper.IsPlayerInOrNearCombat() && disableInCombat))
             {
+                IsSprintEnabled = true;
                 DISABLE_PLAYER_SPRINT(0, false);
                 return;
             }
@@ -86,16 +80,19 @@ namespace LibertyTweaks
             {
                 if (sprintCooldownTimer == 0)
                 {
+                    IsSprintEnabled = false;
                     DISABLE_PLAYER_SPRINT(0, true);
                 }
                 else
                 {
                     sprintCooldownTimer--;
+                    IsSprintEnabled = true;
                     DISABLE_PLAYER_SPRINT(0, false);
                 }
             }
             else
             {
+                IsSprintEnabled = true;
                 DISABLE_PLAYER_SPRINT(0, false);
             }
         }

@@ -1,11 +1,8 @@
 ﻿using CCL.GTAIV;
-
 using IVSDKDotNet;
-using IVSDKDotNet.Enums;
-using System;
 using static IVSDKDotNet.Native.Natives;
 
-// Credits: AssaultKifle47, ItsClonkAndre
+// Credits: catsmackaroo
 
 namespace LibertyTweaks
 {
@@ -23,6 +20,9 @@ namespace LibertyTweaks
             if (enable)
                 Main.Log("script initialized...");
 
+            if (enable && enableRun)
+                Main.Log("Both 'Jog With Phone' & 'Run With Phone' enabled. It's recommended to use one or the other to avoid possible issues. Default: Jog With Phone");
+
             if (enableRun)
                 moveStateMax = 3.0f;
             else if (enable)
@@ -31,7 +31,7 @@ namespace LibertyTweaks
 
         public static void Tick()
         {
-            if (!enable)
+            if (!enable && !enableRun)
                 return;
 
             if (IS_PED_RAGDOLL(Main.PlayerPed.GetHandle())

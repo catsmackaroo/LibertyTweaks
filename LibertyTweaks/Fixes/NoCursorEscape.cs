@@ -1,6 +1,5 @@
-﻿using System.Windows.Forms;
-
-using IVSDKDotNet;
+﻿using IVSDKDotNet;
+using System.Windows.Forms;
 
 // Credits: ItsClonkAndre
 

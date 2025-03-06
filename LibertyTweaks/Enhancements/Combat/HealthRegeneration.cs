@@ -10,7 +10,11 @@ namespace LibertyTweaks
     internal class HealthRegeneration
     {
         private static bool enable;
-        private static bool enableFullRegen;
+        private static bool enableOutOfCombatRegen;
+
+        private static uint combatHealthRegenTo = 126;
+        private static uint outOfCombatHealthRegenTo = 150;
+
         private static DateTime lastRegenTime = DateTime.MinValue;
         private static uint lastKnownHealth = 0;
         private static readonly object lockObject = new object();
@@ -22,7 +26,10 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Health Regeneration", "Enable", true);
-            enableFullRegen = settings.GetBoolean("Health Regeneration", "Half Health Regen", true);
+            enableOutOfCombatRegen = settings.GetBoolean("Health Regeneration", "Out of Combat Health Regen", true);
+
+            combatHealthRegenTo = (uint)settings.GetInteger("Health Regeneration", "Combat Health Regen To", 126);
+            outOfCombatHealthRegenTo = (uint)settings.GetInteger("Health Regeneration", "Out of Combat Health Regen To", 150);
 
             regenHealthMinTimer = settings.GetInteger("Health Regeneration", "Regen Timer Minimum", 30);
             regenHealthMaxTimer = settings.GetInteger("Health Regeneration", "Regen Timer Maximum", 60);
@@ -63,18 +70,18 @@ namespace LibertyTweaks
                 {
                     uint newHealth;
 
-                    if (!PlayerHelper.IsPlayerInOrNearCombat() && enableFullRegen && playerHealth < 150)
+                    if (!PlayerHelper.IsPlayerInOrNearCombat() && enableOutOfCombatRegen && playerHealth < outOfCombatHealthRegenTo)
                     {
                         newHealth = playerHealth + (uint)regenHealthMinHeal;
-                        newHealth = Math.Min(newHealth, 150);
+                        newHealth = Math.Min(newHealth, outOfCombatHealthRegenTo);
                         SET_CHAR_HEALTH(Main.PlayerPed.GetHandle(), newHealth);
                         Main.Log($"Player health regenerated to {newHealth}");
                         lastRegenTime = DateTime.UtcNow;
                     }
-                    else if (playerHealth <= 126)
+                    else if (playerHealth <= combatHealthRegenTo)
                     {
                         newHealth = (uint)(playerHealth + Main.GenerateRandomNumber(regenHealthMinHeal, regenHealthMaxHeal));
-                        newHealth = Math.Min(newHealth, 126);
+                        newHealth = Math.Min(newHealth, combatHealthRegenTo);
                         SET_CHAR_HEALTH(Main.PlayerPed.GetHandle(), newHealth);
                         Main.Log($"Player health regenerated to {newHealth}");
                         lastRegenTime = DateTime.UtcNow;

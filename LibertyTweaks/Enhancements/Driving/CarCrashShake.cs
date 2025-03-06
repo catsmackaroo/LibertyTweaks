@@ -1,7 +1,7 @@
-﻿using IVSDKDotNet;
-using static IVSDKDotNet.Native.Natives;
-using CCL.GTAIV;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using System;
+using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
 
@@ -41,6 +41,12 @@ namespace LibertyTweaks
             if (!IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle()))
                 return;
 
+            if (WeaponHelpers.HasCarBeenDamagedByAnyWeapon(IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle())))
+            {
+                CLEAR_CAR_LAST_WEAPON_DAMAGE(IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle()).GetHandle());
+                return;
+            }
+
             HandleCrashShake(cam, Main.CarCrashDamageAmountNormalized);
         }
 
@@ -54,14 +60,14 @@ namespace LibertyTweaks
 
             if (crashShakeTimer > 0f)
             {
-                float shakeAmount = 0.1f; 
+                float shakeAmount = 0.1f;
 
                 if (crashShakeIntensity >= HighIntensityThreshold)
-                    shakeAmount = 0.3f; 
+                    shakeAmount = 0.3f;
                 else if (crashShakeIntensity >= MediumIntensityThreshold)
-                    shakeAmount = 0.2f; 
+                    shakeAmount = 0.2f;
                 else if (crashShakeIntensity >= LowIntensityThreshold)
-                    shakeAmount = 0.1f; 
+                    shakeAmount = 0.1f;
 
                 CameraShake.ApplyCameraShake(crashShakeIntensity, cam, shakeAmount);
                 crashShakeIntensity = CommonHelpers.Lerp(crashShakeIntensity, 0f, CrashShakeDecayRate * NativeGame.FrameTime);

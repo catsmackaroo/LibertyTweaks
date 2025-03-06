@@ -1,10 +1,10 @@
-﻿using IVSDKDotNet;
-using static IVSDKDotNet.Native.Natives;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
+using IVSDKDotNet.Enums;
 using System;
 using System.Numerics;
-using IVSDKDotNet.Enums;
-using CCL.GTAIV;
 using System.Windows.Forms;
+using static IVSDKDotNet.Native.Natives;
 
 // Credits: ServalEd & catsmackaroo
 
@@ -13,6 +13,7 @@ namespace LibertyTweaks
     internal class ShoulderSwap
     {
         private static bool enable;
+        private static bool enableResetWhenNotAiming;
         public static Keys key;
 
         // Controller Support
@@ -27,6 +28,8 @@ namespace LibertyTweaks
         public static void Init(SettingsFile settings)
         {
             enable = settings.GetBoolean("Shoulder Swap", "Enable", true);
+            enableResetWhenNotAiming = settings.GetBoolean("Shoulder Swap", "Reset When Not Aiming", false);
+
             key = settings.GetKey("Shoulder Swap", "Key", Keys.B);
             controllerKey1 = (ControllerButton)settings.GetInteger("Shoulder Swap", "Controller Key", (int)ControllerButton.BUTTON_BUMPER_LEFT);
 
@@ -72,9 +75,7 @@ namespace LibertyTweaks
             NativeCamera cam = NativeCamera.GetGameCam();
             if (cam == null) return;
 
-            if (WeaponHelpers.IsHoldingGun() 
-                && (NativeControls.IsGameKeyPressed(0, GameKey.Aim) || NativeControls.IsGameKeyPressed(0, GameKey.Attack)) 
-                || IS_USING_CONTROLLER() && PlayerHelper.IsAiming() || WeaponHelpers.IsReloading())
+            if (PlayerHelper.IsAiming())
             {
                 if (IsSwapped == true)
                 {
@@ -103,7 +104,8 @@ namespace LibertyTweaks
             }
             else
             {
-                IsSwapped = false;
+                if (enableResetWhenNotAiming)
+                    IsSwapped = false;
 
                 if (obj1 != 0 && IsSwapped == false)
                 {

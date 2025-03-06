@@ -1,10 +1,10 @@
-﻿using System;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
+using IVSDKDotNet.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using CCL.GTAIV;
-using IVSDKDotNet;
-using IVSDKDotNet.Enums;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: ClonkAndre
@@ -119,7 +119,7 @@ namespace LibertyTweaks
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@44A", isPlayerDucking ? "reload_crouch" : "p_load");
 
 
-                if (currentReloadAnimTime.InRange(0.15f, 0.18f) && canDispose) // Create old mag
+                if (currentReloadAnimTime.InRange(0.15f, 0.18f)) // Create old mag
                 {
                     if (magObj1 == 0)
                     {
@@ -130,8 +130,10 @@ namespace LibertyTweaks
                 }
                 else if (currentReloadAnimTime.InRange(0.22f, 0.28f)) // Throw away old mag
                 {
-                    if (magObj1 != 0)
+                    if (magObj1 != 0 && canDispose)
                         DETACH_OBJECT(magObj1, true);
+                    else if (magObj1 != 0 && !canDispose)
+                        DELETE_OBJECT(ref magObj1);
                 }
                 else if (currentReloadAnimTime.InRange(0.3422542f, 0.5062909f)) // Create new mag
                 {
@@ -247,7 +249,7 @@ namespace LibertyTweaks
                 else if (isGoldUziReloading)
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@gold_uzi", isPlayerDucking ? "reload_crouch" : "p_load");
 
-                if (currentReloadAnimTime.InRange(0.13f, 0.15f) && canDispose) // Create Old Mag Obj
+                if (currentReloadAnimTime.InRange(0.13f, 0.15f)) // Create Old Mag Obj
                 {
                     if (magObj1 == 0 && !isP90Reloading && !isGoldUziReloading)
                     {
@@ -270,8 +272,10 @@ namespace LibertyTweaks
                 }
                 else if (currentReloadAnimTime.InRange(0.16f, 0.27f)) // Detach Old Mag Obj
                 {
-                    if (magObj1 != 0)
+                    if (magObj1 != 0 && canDispose)
                         DETACH_OBJECT(magObj1, true);
+                    if (magObj1 != 0 && !canDispose)
+                        DELETE_OBJECT(ref magObj1);
                 }
                 else if (currentReloadAnimTime.InRange(0.27f, 0.3f)) // Create New Mag Obj
                 {
@@ -327,7 +331,7 @@ namespace LibertyTweaks
                 else if (lmgReloading)
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@m249", isPlayerDucking ? "reload_crouch" : "p_load");
 
-                if (currentReloadAnimTime.InRange(0.16f, 0.2f)  && canDispose) // Create Old Mag Obj
+                if (currentReloadAnimTime.InRange(0.16f, 0.2f)) // Create Old Mag Obj
                 {
                     if (magObj1 == 0 && !lmgReloading)
                     {
@@ -344,8 +348,10 @@ namespace LibertyTweaks
                 }
                 else if (currentReloadAnimTime.InRange(0.21f, 0.3f)) // Detach Old Mag Obj
                 {
-                    if (magObj1 != 0)
+                    if (magObj1 != 0  && canDispose)
                         DETACH_OBJECT(magObj1, true);
+                    if (magObj1 != 0 && !canDispose)
+                        DELETE_OBJECT(ref magObj1);
                 }
                 else if (currentReloadAnimTime.InRange(0.3f, 0.5f)) // Create New Mag Obj
                 {
@@ -360,7 +366,7 @@ namespace LibertyTweaks
                         CREATE_OBJECT(GET_HASH_KEY("amb_m249_magazine"), Main.PlayerPed.Matrix.Pos + new Vector3(0f, 0f, 20f), out magObj2, true);
                         MARK_OBJECT_AS_NO_LONGER_NEEDED(magObj2);
                         ATTACH_OBJECT_TO_PED(magObj2, Main.PlayerPed.GetHandle(), (uint)eBone.BONE_LEFT_HAND, 0.11f, -0.04f, 0.06f, -6.6f, 8.7f, 5.6f, 0);
-                    }   
+                    }
                 }
                 else if (currentReloadAnimTime.InRange(0.5f, 1.0f)) // Destroy New Mag Obj
                 {
@@ -398,7 +404,7 @@ namespace LibertyTweaks
                 else if (isDsrReloading)
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@dsr1", isPlayerDucking ? "reload_crouch" : "p_load");
 
-                if (currentReloadAnimTime.InRange(0.16f, 0.2f) && canDispose) // Create Old Mag Obj
+                if (currentReloadAnimTime.InRange(0.16f, 0.2f)) // Create Old Mag Obj
                 {
                     if (magObj1 == 0 && !isDsrReloading)
                     {
@@ -415,8 +421,10 @@ namespace LibertyTweaks
                 }
                 else if (currentReloadAnimTime.InRange(0.2f, 0.3f)) // Detach Old Mag Obj
                 {
-                    if (magObj1 != 0)
+                    if (magObj1 != 0 && canDispose)
                         DETACH_OBJECT(magObj1, true);
+                    else if (magObj1 != 0 && !canDispose)
+                        DELETE_OBJECT(ref magObj1);
                 }
                 else if (currentReloadAnimTime.InRange(0.3f, 0.5f)) // Create New Mag Obj
                 {
@@ -456,12 +464,12 @@ namespace LibertyTweaks
 
             bool isRPGReloading = animController.IsPlaying("gun@rocket", isPlayerDucking ? "reload_crouch" : "reload");
             bool isGLauncherReloading = animController.IsPlaying("gun@grnde_launch", isPlayerDucking ? "reload_crouch" : "reload");
-            
+
             if (isRPGReloading || isGLauncherReloading)
             {
                 isAnyGunReloadingAnimPlaying = true;
 
-                if (isRPGReloading) 
+                if (isRPGReloading)
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@rocket", isPlayerDucking ? "reload_crouch" : "reload");
                 else if (isGLauncherReloading)
                     currentReloadAnimTime = animController.GetCurrentAnimationTime("gun@grnde_launch", isPlayerDucking ? "reload_crouch" : "reload");
@@ -529,10 +537,10 @@ namespace LibertyTweaks
             // Gets episode
             uint ep = GET_CURRENT_EPISODE();
 
-            if (ep == (uint)Episode.TBoGT) 
-                if (!IS_MODEL_IN_CDIMAGE(GET_HASH_KEY("amb_dsr1_magazine")) 
-                    || !IS_MODEL_IN_CDIMAGE(GET_HASH_KEY("amb_uzi_magazine")) 
-                    || !IS_MODEL_IN_CDIMAGE(GET_HASH_KEY("amb_p90_magazine")) 
+            if (ep == (uint)Episode.TBoGT)
+                if (!IS_MODEL_IN_CDIMAGE(GET_HASH_KEY("amb_dsr1_magazine"))
+                    || !IS_MODEL_IN_CDIMAGE(GET_HASH_KEY("amb_uzi_magazine"))
+                    || !IS_MODEL_IN_CDIMAGE(GET_HASH_KEY("amb_p90_magazine"))
                     || !IS_MODEL_IN_CDIMAGE(GET_HASH_KEY("amb_m249_magazine")))
                     return;
 

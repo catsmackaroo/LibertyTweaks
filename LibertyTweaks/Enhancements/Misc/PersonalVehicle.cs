@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Windows.Forms;
-using CCL.GTAIV;
-using IVSDKDotNet;
-using static IVSDKDotNet.Native.Natives;
+﻿using CCL.GTAIV;
 using DocumentFormat.OpenXml;
+using IVSDKDotNet;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
 
@@ -246,7 +245,7 @@ namespace LibertyTweaks
                     }
                 }
             }
-            
+
             // Cleanup when starting new game
             if (missionsCompleted == 0 && !newGameCleanup)
             {
@@ -274,7 +273,10 @@ namespace LibertyTweaks
                 }
             }
 
-            if (savedVehicle != null && savedVehicle.GetHandle() != 0 && !IS_SCREEN_FADED_OUT())
+            if (savedVehicle == null || savedVehicle.GetHandle() == 0)
+                return;
+
+            try
             {
                 GET_CAR_DOOR_LOCK_STATUS(savedVehicle.GetHandle(), out uint lockValue);
 
@@ -293,10 +295,14 @@ namespace LibertyTweaks
 
                 if (HasPlayerDiedOrFailMission())
                     canTeleportPostDeathOrFail = true;
-            }
 
-            // Reset tickCounter periodically to prevent overflow
-            if (tickCounter > 1000) tickCounter = 0;
+                if (tickCounter > 1000) tickCounter = 0;
+            }
+            catch (Exception ex)
+            {
+                Main.LogError($"Error in Tick method: {ex.Message}");
+                Cleanup();
+            }
         }
         private static void InitializeFirstFrame()
         {
@@ -374,17 +380,24 @@ namespace LibertyTweaks
         }
         private static void HandleVehicleStatus()
         {
-            if (savedVehicle != null)
-            {
-                float health = savedVehicle.GetHealth();
+            if (savedVehicle == null || savedVehicle.GetHandle() == 0)
+                return;
 
-                if (savedVehicle.IsDead() || health <= 0)
+            try
+            {
+                if (savedVehicle.IsDead() || savedVehicle.GetHealth() <= 0)
                 {
                     Cleanup();
                     return;
                 }
             }
+            catch (Exception ex)
+            {
+                Main.LogError($"Error in HandleVehicleStatus: {ex.Message}");
+                Cleanup();
+            }
         }
+
         private static void HandleSaving()
         {
             if (GET_IS_DISPLAYINGSAVEMESSAGE() && !hasSaved)
@@ -570,7 +583,7 @@ namespace LibertyTweaks
                         SET_CAR_ENGINE_ON(savedVehicle.GetHandle(), false, false);
                         CLOSE_ALL_CAR_DOORS(savedVehicle.GetHandle());
 
-                        return; 
+                        return;
                     }
                 }
 
@@ -659,9 +672,9 @@ namespace LibertyTweaks
                         checkVehicle = IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle());
 
                         if (emergencyVehicles.Any(identifier => checkVehicle.Handling.Name.Contains(identifier)) || currentCarModel == 1911513875)
-                            priceForTracking = (uint)(checkVehicle.Handling.MonetaryValue * 0.25);
+                            priceForTracking = (uint)(checkVehicle.Handling.MonetaryValue * 0.50);
                         else
-                            priceForTracking = (uint)(checkVehicle.Handling.MonetaryValue * 0.25);
+                            priceForTracking = (uint)(checkVehicle.Handling.MonetaryValue * 0.40);
 
                         if (Vector3.Distance(Main.PlayerPed.Matrix.Pos, stevieLocation) < 5f)
                             priceForTracking = (uint)(priceForTracking * (1.0 / 2.0));
@@ -803,53 +816,53 @@ namespace LibertyTweaks
 
                 var (nearestImpoundLocation, nearestIndex) = FindNearestLocation(Main.PlayerPed.Matrix.Pos, policeStations);
 
-                    savedVehicle.Teleport(nearestImpoundLocation, false, true);
-                    SET_CAR_ON_GROUND_PROPERLY(savedVehicle.GetHandle());
-                    LOCK_CAR_DOORS(savedVehicle.GetHandle(), 7);
-                    SET_CAR_ENGINE_ON(savedVehicle.GetHandle(), false, false);
-                    CLOSE_ALL_CAR_DOORS(savedVehicle.GetHandle());
+                savedVehicle.Teleport(nearestImpoundLocation, false, true);
+                SET_CAR_ON_GROUND_PROPERLY(savedVehicle.GetHandle());
+                LOCK_CAR_DOORS(savedVehicle.GetHandle(), 7);
+                SET_CAR_ENGINE_ON(savedVehicle.GetHandle(), false, false);
+                CLOSE_ALL_CAR_DOORS(savedVehicle.GetHandle());
 
-                    string impoundMessage;
-                    switch (nearestIndex)
-                    {
-                        case 0:
-                            impoundMessage = "Your tracked vehicle has been impounded at the Francis International Airport Police Station.";
-                            SET_CAR_HEADING(savedVehicle.GetHandle(), 268);
-                            break;
-                        case 1:
-                            impoundMessage = "Your tracked vehicle has been impounded at the East Holland Police Station.";
-                            SET_CAR_HEADING(savedVehicle.GetHandle(), 89);
-                            break;
-                        case 2:
-                            impoundMessage = "Your tracked vehicle has been impounded at the Leftwood Police Station.";
-                            SET_CAR_HEADING(savedVehicle.GetHandle(), 268);
-                            break;
-                        case 3:
-                            impoundMessage = "Your tracked vehicle has been impounded at the Acter Industrial Park Police Station.";
-                            SET_CAR_HEADING(savedVehicle.GetHandle(), 268);
-                            break;
-                        case 4:
-                            impoundMessage = "Your tracked vehicle has been impounded at the Northern Gardens Police Station.";
-                            SET_CAR_HEADING(savedVehicle.GetHandle(), 359);
-                            break;
-                        case 5:
-                            impoundMessage = "Your tracked vehicle has been impounded at the South Slopes Police Station.";
-                            SET_CAR_HEADING(savedVehicle.GetHandle(), 180);
-                            break;
-                        case 6:
-                            impoundMessage = "Your tracked vehicle has been impounded at the Westminster Police Station.";
-                            SET_CAR_HEADING(savedVehicle.GetHandle(), 180);
-                            break;
-                        case 7:
-                            impoundMessage = "Your tracked vehicle has been impounded at the Suffolk Police Station.";
-                            SET_CAR_HEADING(savedVehicle.GetHandle(), 358);
-                            break;
-                        default:
-                            impoundMessage = "Your tracked vehicle has been impounded.";
-                            break;
-                    }
-                    IVText.TheIVText.ReplaceTextOfTextLabel("PLACEHOLDER_1", impoundMessage);
-                    PRINT_HELP("PLACEHOLDER_1");
+                string impoundMessage;
+                switch (nearestIndex)
+                {
+                    case 0:
+                        impoundMessage = "Your tracked vehicle has been impounded at the Francis International Airport Police Station.";
+                        SET_CAR_HEADING(savedVehicle.GetHandle(), 268);
+                        break;
+                    case 1:
+                        impoundMessage = "Your tracked vehicle has been impounded at the East Holland Police Station.";
+                        SET_CAR_HEADING(savedVehicle.GetHandle(), 89);
+                        break;
+                    case 2:
+                        impoundMessage = "Your tracked vehicle has been impounded at the Leftwood Police Station.";
+                        SET_CAR_HEADING(savedVehicle.GetHandle(), 268);
+                        break;
+                    case 3:
+                        impoundMessage = "Your tracked vehicle has been impounded at the Acter Industrial Park Police Station.";
+                        SET_CAR_HEADING(savedVehicle.GetHandle(), 268);
+                        break;
+                    case 4:
+                        impoundMessage = "Your tracked vehicle has been impounded at the Northern Gardens Police Station.";
+                        SET_CAR_HEADING(savedVehicle.GetHandle(), 359);
+                        break;
+                    case 5:
+                        impoundMessage = "Your tracked vehicle has been impounded at the South Slopes Police Station.";
+                        SET_CAR_HEADING(savedVehicle.GetHandle(), 180);
+                        break;
+                    case 6:
+                        impoundMessage = "Your tracked vehicle has been impounded at the Westminster Police Station.";
+                        SET_CAR_HEADING(savedVehicle.GetHandle(), 180);
+                        break;
+                    case 7:
+                        impoundMessage = "Your tracked vehicle has been impounded at the Suffolk Police Station.";
+                        SET_CAR_HEADING(savedVehicle.GetHandle(), 358);
+                        break;
+                    default:
+                        impoundMessage = "Your tracked vehicle has been impounded.";
+                        break;
+                }
+                IVText.TheIVText.ReplaceTextOfTextLabel("PLACEHOLDER_1", impoundMessage);
+                PRINT_HELP("PLACEHOLDER_1");
 
                 isVehicleImpounded = true;
             }

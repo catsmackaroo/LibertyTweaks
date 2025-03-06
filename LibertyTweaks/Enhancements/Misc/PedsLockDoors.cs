@@ -1,11 +1,8 @@
-﻿using IVSDKDotNet;
-using System;
-using static IVSDKDotNet.Native.Natives;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using System.Collections.Generic;
 using System.Numerics;
-using CCL.GTAIV;
-using IVSDKDotNet.Enums;
-using DocumentFormat.OpenXml.Wordprocessing;
+using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
 

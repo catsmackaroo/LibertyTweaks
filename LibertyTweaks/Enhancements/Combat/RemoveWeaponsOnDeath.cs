@@ -3,7 +3,6 @@ using IVSDKDotNet;
 using IVSDKDotNet.Enums;
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: ClonkAndre & catsmackaroo
@@ -91,7 +90,6 @@ namespace LibertyTweaks
             hadParachute = HAS_CHAR_GOT_WEAPON(Main.PlayerPed.GetHandle(), (int)eWeaponType.WEAPON_EPISODIC_21);
 
             REMOVE_ALL_CHAR_WEAPONS(Main.PlayerPed.GetHandle());
-            SET_CURRENT_CHAR_WEAPON(Main.PlayerPed.GetHandle(), (int)eWeaponType.WEAPON_UNARMED, true);
 
             if (hadBat)
                 GIVE_WEAPON_TO_CHAR(Main.PlayerPed.GetHandle(), (int)eWeaponType.WEAPON_BASEBALLBAT, 1, true);
@@ -103,6 +101,7 @@ namespace LibertyTweaks
             hadBat = false;
             hadKnife = false;
             hadParachute = false;
+            SET_CURRENT_CHAR_WEAPON(Main.PlayerPed.GetHandle(), (int)eWeaponType.WEAPON_UNARMED, true);
         }
 
         private static void ShowBribeNotification()

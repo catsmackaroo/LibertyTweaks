@@ -1,8 +1,8 @@
-﻿using IVSDKDotNet;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using System;
-using static IVSDKDotNet.Native.Natives;
 using System.Collections.Generic;
-using CCL.GTAIV;
+using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
 

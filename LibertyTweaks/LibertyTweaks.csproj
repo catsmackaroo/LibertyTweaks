@@ -61,6 +61,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dependencies\IVSDKDotNetWrapper.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -84,11 +85,13 @@
     <Compile Include="Enhancements\Combat\IncreasedDamage.cs" />
     <Compile Include="Enhancements\Combat\Killcam.cs" />
     <Compile Include="Enhancements\Combat\QuickSwitching.cs" />
-    <Compile Include="Enhancements\Combat\RunAndGun.cs" />
+    <Compile Include="Enhancements\Combat\RandomizedPedRagdoll.cs" />
     <Compile Include="Enhancements\Combat\ShoulderSwap.cs" />
+    <Compile Include="Enhancements\Combat\Sniper Adjustments\SmoothSniperZoom.cs" />
     <Compile Include="Enhancements\Combat\Sniper Adjustments\SniperMovement.cs" />
     <Compile Include="Enhancements\Combat\Sniper Adjustments\SniperScopeToggle.cs" />
-    <Compile Include="Enhancements\Driving\CameraRotation.cs" />
+    <Compile Include="Enhancements\Driving\CameraDynamicHeight.cs" />
+    <Compile Include="Enhancements\Driving\CameraTilt.cs" />
     <Compile Include="Enhancements\Driving\CameraShake.cs" />
     <Compile Include="Enhancements\Driving\CarCrashShake.cs" />
     <Compile Include="Enhancements\Driving\CarRollover.cs" />
@@ -109,11 +112,13 @@
     <Compile Include="Fixes\AllowCopsAllMissions.cs" />
     <Compile Include="Fixes\DisableCrosshairWithNoHUD.cs" />
     <Compile Include="Fixes\DisableHUDOnBlindfire.cs" />
+    <Compile Include="Fixes\DisableHUDOnCinematic.cs" />
     <Compile Include="Fixes\DrivebyInPolice.cs" />
     <Compile Include="Fixes\NooseCruiserWithNoose.cs" />
     <Compile Include="Fixes\NoShootWithPhone.cs" />
     <Compile Include="Fixes\NoWantedInVigilante.cs" />
     <Compile Include="Fixes\RunWithPhone.cs" />
+    <Compile Include="Fixes\SprintInInteriors.cs" />
     <Compile Include="Fixes\TimeSkipFix.cs" />
     <Compile Include="Utility\CopyLocationToClipboard.cs" />
     <Compile Include="Utility\PedHelper.cs" />

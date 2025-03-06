@@ -1,8 +1,8 @@
-﻿using IVSDKDotNet;
-using System.Windows.Forms;
-using CCL.GTAIV;
-using static IVSDKDotNet.Native.Natives;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using System;
+using System.Windows.Forms;
+using static IVSDKDotNet.Native.Natives;
 
 namespace LibertyTweaks
 {
@@ -39,9 +39,11 @@ namespace LibertyTweaks
         {
             if (!enable) return;
 
+            if (!IS_PLAYER_PLAYING(Main.PlayerIndex)) return;
+
             if (IS_USING_CONTROLLER())
             {
-                bool bothKeysPressed = NativeControls.IsControllerButtonPressed(padIndex, controllerKey1) 
+                bool bothKeysPressed = NativeControls.IsControllerButtonPressed(padIndex, controllerKey1)
                                     && NativeControls.IsControllerButtonPressed(padIndex, controllerKey2);
 
                 if (bothKeysPressed && DateTime.Now - lastProcessTime >= delay)
@@ -55,6 +57,8 @@ namespace LibertyTweaks
         {
             if (!enable) return;
 
+            if (!IS_PLAYER_PLAYING(Main.PlayerIndex)) return;
+
             // Ensure the original value is saved so the player's radar settings are respected
             uint currentRadarMode = IVMenuManager.RadarMode;
             if (currentRadarMode == radarOn || currentRadarMode == radarBlipsOnly)
@@ -63,15 +67,25 @@ namespace LibertyTweaks
             // Toggle radar stuff
             if (IVMenuManager.RadarMode == radarOn || IVMenuManager.RadarMode == radarBlipsOnly)
             {
-                IVMenuManager.RadarMode = radarOff;
-                IVMenuManager.HudOn = false;
-                IVGame.ShowSubtitleMessage("", 0);
+                DisableHud();
             }
             else
             {
-                IVMenuManager.RadarMode = originalRadarMode;
-                IVMenuManager.HudOn = true;
+                EnableHud();
             }
+        }
+
+        private static void DisableHud()
+        {
+            IVMenuManager.RadarMode = radarOff;
+            IVMenuManager.HudOn = false;
+            IVGame.ShowSubtitleMessage("", 0);
+        }
+
+        private static void EnableHud()
+        {
+            IVMenuManager.RadarMode = originalRadarMode;
+            IVMenuManager.HudOn = true;
         }
     }
 }

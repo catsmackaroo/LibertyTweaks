@@ -1,20 +1,19 @@
-﻿using System;
-using System.Windows.Forms;
-using System.Runtime.CompilerServices;
+﻿using CCL.GTAIV;
 using IVSDKDotNet;
-using System.Reflection;
-using System.Collections.Generic;
-using static IVSDKDotNet.Native.Natives;
 using LibertyTweaks.Enhancements.Combat;
-using System.Numerics;
 using LibertyTweaks.Enhancements.Driving;
-using CCL.GTAIV;
+using System;
+using System.Numerics;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Windows.Forms;
+using static IVSDKDotNet.Native.Natives;
 namespace LibertyTweaks
 {
     public class Main : Script
     {
         #region Variables
-        private static readonly Random rnd = new Random(); 
+        private static readonly Random rnd = new Random();
         public static bool verboseLogging;
         public static bool gxtEntries;
         public static bool debugMode;
@@ -24,7 +23,7 @@ namespace LibertyTweaks
         public static DelayedCalling TheDelayedCaller;
 
         private double lastFixedTickTime = 0;
-        private const double fixedTickInterval = 0.5; 
+        private const double fixedTickInterval = 0.5;
 
         public static IVPed PlayerPed { get; private set; }
         public static IVVehicle PlayerVehicle { get; private set; }
@@ -33,9 +32,7 @@ namespace LibertyTweaks
         public static float CarCrashDamageAmountNormalized { get; private set; }
         public static int PlayerWantedLevel { get; private set; }
         public static float PlayerHealth { get; private set; }
-        public static Vector3 PlayerPos {  get; private set; }
-        public static List<UIntPtr> Peds { get; private set; } = new List<UIntPtr>();
-
+        public static Vector3 PlayerPos { get; private set; }
         #endregion
 
         #region Functions
@@ -78,7 +75,6 @@ namespace LibertyTweaks
                 TheDelayedCaller = null;
             }
         }
-
         private void Main_GameLoad(object sender, EventArgs e)
         {
             if (WeaponMagazines.enable == true)
@@ -92,8 +88,7 @@ namespace LibertyTweaks
 
         private void Main_GameLoadPriority(object sender, EventArgs e)
         {
-            if (ArmoredCops.enableVests == true)
-                ArmoredCops.LoadFiles();
+            ArmoredCops.LoadFiles();
         }
         #endregion
 
@@ -103,7 +98,7 @@ namespace LibertyTweaks
             PersonalVehicle.IngameStartup();
             LoadingFadeIn.IngameStartup();
             WeaponMagazines.IngameStartup();
-
+            ImprovedCrashes.IngameStartup();
             // 1.7 Stuff
             //Killcam.IngameStartup();
         }
@@ -158,7 +153,7 @@ namespace LibertyTweaks
             DynamicMovement.Init(Settings);
             AllowCopsAllMissions.Init(Settings);
             CameraShake.Init(Settings);
-            CameraRotation.Init(Settings);
+            CameraTilt.Init(Settings);
             HighRPMShaking.Init(Settings);
             ImprovedCrashes.Init(Settings);
             DrivebyInPolice.Init(Settings);
@@ -173,6 +168,10 @@ namespace LibertyTweaks
             PNSOverhaul.Init(Settings);
             RunWithPhone.Init(Settings);
             TimeSkipFix.Init(Settings);
+            SprintInInteriors.Init(Settings);
+            DisableHUDOnCinematic.Init(Settings);
+            CameraDynamicHeight.Init(Settings);
+            SmoothSniperZoom.Init(Settings);
 
             // 1.7 Stuff
             //Killcam.Init(Settings);
@@ -183,13 +182,18 @@ namespace LibertyTweaks
             //DynamicCrosshair.Init(Settings);
             //RandomPedCarColors.Init(Settings);
             //ImprovedRolling.Init(Settings);
+            //Hydraulics.Init(Settings);
+            //Hydraulics.Init(Settings);
+            //RandomizedPedRagdoll.Init(Settings);
         }
 
         private void Main_ProcessCamera(object sender, EventArgs e)
         {
             DynamicFOV.Tick();
             CameraShake.Tick();
-            CameraRotation.Tick();
+            CameraTilt.Tick();
+            CameraDynamicHeight.Tick();
+            SmoothSniperZoom.Tick();
         }
 
         private void Main_ProcessAutomobile(UIntPtr vehPtr)
@@ -204,23 +208,17 @@ namespace LibertyTweaks
             PlayerPos = PlayerPed.Matrix.Pos;
             PlayerIndex = (int)GET_PLAYER_ID();
             PlayerHealth = PlayerPed.Health;
+            STORE_WANTED_LEVEL(PlayerIndex, out uint playerWantedLevel);
+            PlayerWantedLevel = (int)playerWantedLevel;
+
+
             PedHelper.GrabAllPeds();
             PedHelper.GrabAllVehicles();
 
-            if (CarCrashLevel != 0)
-                CarCrashLevel = 0;
-
-            if (CarCrashDamageAmountNormalized != 0)
-                CarCrashDamageAmountNormalized = 0;
-
             PlayerVehicle = IS_CHAR_IN_ANY_CAR(PlayerPed.GetHandle()) ? IVVehicle.FromUIntPtr(PlayerPed.GetVehicle()) : null;
-
             var (_, damageLevel, normalizedDamage) = PlayerHelper.GetVehicleDamage();
             CarCrashLevel = damageLevel;
             CarCrashDamageAmountNormalized = normalizedDamage;
-
-            STORE_WANTED_LEVEL(PlayerIndex, out uint playerWantedLevel);
-            PlayerWantedLevel = (int)playerWantedLevel;
 
             GET_GAME_TIMER(out uint gameTimer);
             gameTimer = (uint)(gameTimer / 1000.0);
@@ -240,7 +238,6 @@ namespace LibertyTweaks
             ImprovedAI.Tick();
             WeaponMagazines.Tick();
             SniperMovement.Tick();
-            SniperScopeToggle.Tick();
             MoreCombatLines.Tick();
             SearchBody.Tick();
             ArmoredCops.Tick();
@@ -279,7 +276,10 @@ namespace LibertyTweaks
             PNSOverhaul.Tick();
             RunWithPhone.Tick();
             TimeSkipFix.Tick();
-            //ImprovedRolling.Tick();
+            SprintInInteriors.Tick();
+            DisableHUDOnCinematic.Tick();
+            CameraDynamicHeight.Tick();
+            SmoothSniperZoom.Tick();
         }
 
         private void FixedTickFeatures()
@@ -296,12 +296,17 @@ namespace LibertyTweaks
 
         private void UnreleasedFeatures()
         {
+            // 1.6 - More gameplay focused
             Killcam.Tick();
             QuickSwitching.Tick();
             WarpToShore.Tick();
             DisableSprintWithHeavyWeapons.Tick();
-            RunAndGun.Tick();
+            ImprovedRolling.Tick();
             RandomPedCarColors.Tick();
+            RandomizedPedRagdoll.Tick();
+
+            // 1.7 - World focused
+            Hydraulics.Tick();
         }
         private void Main_KeyDown(object sender, KeyEventArgs e)
         {
@@ -323,11 +328,14 @@ namespace LibertyTweaks
             if (e.KeyCode == HolsterWeapons.key)
                 HolsterWeapons.Process();
 
-            if (NativeControls.IsGameKeyPressed(0, GameKey.Sprint))
+            if (e.KeyCode == Keys.LShiftKey)
                 DynamicMovement.Process();
-            
+
             if (NativeControls.IsGameKeyPressed(0, GameKey.Action) && PersonalVehicle.canBeTracked)
                 PersonalVehicle.Process();
+
+            if (e.KeyCode == SniperScopeToggle.key)
+                SniperScopeToggle.Process();
         }
         public static void Log(string message, [CallerFilePath] string filePath = "")
         {

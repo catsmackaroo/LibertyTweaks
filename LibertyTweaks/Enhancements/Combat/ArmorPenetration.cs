@@ -1,9 +1,9 @@
-﻿using IVSDKDotNet;
-using static IVSDKDotNet.Native.Natives;
-using CCL.GTAIV;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
+using IVSDKDotNet.Enums;
 using System;
 using System.Collections.Generic;
-using IVSDKDotNet.Enums;
+using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
 
@@ -50,37 +50,46 @@ namespace LibertyTweaks
             if (!enable)
                 return;
 
-            if (PlayerHelper.HasPlayerBeenDamagedArmor())
+            foreach (var kvp in PedHelper.PedHandles)
             {
-                GET_CHAR_ARMOUR(Main.PlayerPed.GetHandle(), out uint pArmour);
+                int pedHandle = kvp.Value;
+                HandlePen(pedHandle);
+            }
 
-                if (pArmour > ArmourThreshold2 || pArmour == 0)
+            HandlePen(Main.PlayerPed.GetHandle());
+        }
+        private static void HandlePen(int handle)
+        {
+            GET_CHAR_ARMOUR(handle, out uint pArmour);
+
+            if (pArmour > ArmourThreshold2 || pArmour == 0)
+                return;
+
+            GET_CHAR_HEALTH(handle, out uint currentHealth);
+            if (currentHealth <= 100)
+                return;
+
+            foreach (eWeaponType weaponType in StrongWeapons)
+            {
+                if (HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(handle, (int)weaponType))
                 {
-                    SET_CHAR_BULLETPROOF_VEST(Main.PlayerPed.GetHandle(), false);
-                    return;
-                }
+                    int damagePercentage = Main.GenerateRandomNumber(DamageMinimumPercent, DamageMaximumPercent);
 
-                SET_CHAR_BULLETPROOF_VEST(Main.PlayerPed.GetHandle(), true);
+                    if (pArmour < ArmourThreshold1)
+                        damageFraction = damagePercentage / 50f;
+                    else if (pArmour < ArmourThreshold2)
+                        damageFraction = damagePercentage / 100f;
 
-                GET_CHAR_HEALTH(Main.PlayerPed.GetHandle(), out uint currentHealth);
+                    long reducedHealth = (long)(currentHealth * (1 - damageFraction));
 
-                foreach (eWeaponType weaponType in StrongWeapons)
-                {
-                    if (HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(Main.PlayerPed.GetHandle(), (int)weaponType))
-                    {
-                        int damagePercentage = Main.GenerateRandomNumber(DamageMinimumPercent, DamageMaximumPercent);
+                    reducedHealth = Math.Max(reducedHealth, 100);
 
-                        if (pArmour < ArmourThreshold1)
-                            damageFraction = damagePercentage / 50f;
-                        else if (pArmour < ArmourThreshold2)
-                            damageFraction = damagePercentage / 100f;
-
-                        long reducedHealth = (long)(currentHealth - (currentHealth * damageFraction));
-
-                        SET_CHAR_HEALTH(Main.PlayerPed.GetHandle(), (uint)reducedHealth);
-                    }
+                    SET_CHAR_HEALTH(handle, (uint)reducedHealth);
+                    CLEAR_CHAR_LAST_WEAPON_DAMAGE(handle);
                 }
             }
         }
+
+
     }
 }

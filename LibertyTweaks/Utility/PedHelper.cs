@@ -10,7 +10,7 @@ namespace LibertyTweaks
     {
         public static Dictionary<UIntPtr, int> PedHandles { get; private set; } = new Dictionary<UIntPtr, int>();
         public static Dictionary<UIntPtr, int> VehHandles { get; private set; } = new Dictionary<UIntPtr, int>();
-        
+
         public static void GrabAllPeds()
         {
             PedHandles.Clear();

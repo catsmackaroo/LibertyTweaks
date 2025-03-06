@@ -1,8 +1,5 @@
 ﻿using CCL.GTAIV;
 using IVSDKDotNet;
-using IVSDKDotNet.Native;
-using System;
-using System.Security.Policy;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo

@@ -1,19 +1,14 @@
-﻿using CCL.GTAIV;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using IVSDKDotNet;
+﻿using IVSDKDotNet;
 using IVSDKDotNet.Enums;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Windows.Forms;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
 
 namespace LibertyTweaks
 {
-    
+
     internal class WeaponProgression
     {
         private static bool enable;
@@ -146,8 +141,8 @@ namespace LibertyTweaks
             1.0f, // 3
             1.15f // 4 // added
         };
-        
-        
+
+
         public static void Init(SettingsFile Settings)
         {
             enable = Settings.GetBoolean("Weapon Progression", "Enable", true);
@@ -276,7 +271,7 @@ namespace LibertyTweaks
 
             return inventoryCountChanged || inventoryContentChanged;
         }
-        
+
         private static double GetTotalKillsForSlot(int slot)
         {
             return slotStats[slot].Sum(stat => GET_INT_STAT(stat)); // Fetch and sum kills dynamically
@@ -362,7 +357,7 @@ namespace LibertyTweaks
             if (baseMaxAmmoCache.ContainsKey(weaponID))
                 return baseMaxAmmoCache[weaponID];
 
-            float baseMaxAmmo = IVWeaponInfo.GetWeaponInfo((uint)weaponID).MaxAmmo; 
+            float baseMaxAmmo = IVWeaponInfo.GetWeaponInfo((uint)weaponID).MaxAmmo;
             baseMaxAmmoCache[weaponID] = baseMaxAmmo;
 
             return baseMaxAmmo;
@@ -479,8 +474,9 @@ namespace LibertyTweaks
                     Main.GetTheSaveGame().SetInteger($"Slot{slot}WeaponLevel", activeWeaponLevels[slot]);
                     savedWeaponLevels[slot] = activeWeaponLevels[slot];
                 }
-                Main.GetTheSaveGame().Save();
-                Main.Log($"Saved WeaponLevels as " + activeWeaponLevels.ToList().ToString());
+                Main.GetTheSaveGame().Save(); 
+                Main.Log($"Saved WeaponLevels as {string.Join(", ", activeWeaponLevels)}");
+
                 hasSaved = false;
             }
         }

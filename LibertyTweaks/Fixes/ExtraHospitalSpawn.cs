@@ -1,7 +1,7 @@
-﻿using IVSDKDotNet;
-using static IVSDKDotNet.Native.Natives;
-using CCL.GTAIV;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using IVSDKDotNet.Native;
+using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
 

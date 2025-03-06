@@ -1,6 +1,6 @@
 ﻿using IVSDKDotNet;
-using static IVSDKDotNet.Native.Natives;
 using IVSDKDotNet.Native;
+using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
 
