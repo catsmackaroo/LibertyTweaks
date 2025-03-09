@@ -115,8 +115,6 @@ namespace LibertyTweaks
             if (IsGLauncherReloading()) return "gun@grnde_launch";
             return null;
         }
-
-
         // If using this method, call "CLEAR_CAR_LAST_WEAPON_DAMAGE()" after to reset. 
         // Can't get it to work in one method for some reason
         public static bool HasCarBeenDamagedByAnyWeapon(IVVehicle vehicleIV)
@@ -130,21 +128,27 @@ namespace LibertyTweaks
             }
             return false;
         }
-        public static int GetWeaponType()
+        public static int GetCurrentWeaponType()
         {
             GET_CURRENT_CHAR_WEAPON(Main.PlayerPed.GetHandle(), out int pWeapon);
             return pWeapon;
         }
-        public static IVWeaponInfo GetWeaponInfo()
+        public static IVWeaponInfo GetCurrentWeaponInfo()
         {
-            return IVWeaponInfo.GetWeaponInfo((uint)GetWeaponType());
+            return IVWeaponInfo.GetWeaponInfo((uint)GetCurrentWeaponType());
         }
-
-        public static WeaponGroup GetWeaponGroup()
+        public static WeaponGroup GetCurrentWeaponGroup()
         {
-            return (WeaponGroup)GetWeaponInfo().Group;
+            return (WeaponGroup)GetCurrentWeaponInfo().Group;
         }
-
+        public static bool IsTryingToDriveBy()
+        {
+            if (IsHoldingGun() && NativeControls.IsGameKeyPressed(0, GameKey.Aim)
+                || IsHoldingGun() && NativeControls.IsGameKeyPressed(0, GameKey.Attack))
+                return true;
+            else
+                return false;
+        }
         public static List<eWeaponType> GetWeaponInventory(bool IncludeMelee)
         {
             List<eWeaponType> inventory = new List<eWeaponType>();
@@ -170,7 +174,6 @@ namespace LibertyTweaks
 
             return inventory;
         }
-
         public static void PrintWeaponInventory()
         {
             // Example to use WeaponInventory 
@@ -205,7 +208,6 @@ namespace LibertyTweaks
         public static bool CanReload()
         {
             GET_CURRENT_CHAR_WEAPON(Main.PlayerPed.GetHandle(), out int currentWeapon);
-            GET_AMMO_IN_CHAR_WEAPON(Main.PlayerPed.GetHandle(), currentWeapon, out int weaponAmmo);
             GET_AMMO_IN_CLIP(Main.PlayerPed.GetHandle(), currentWeapon, out int clipAmmo);
             GET_MAX_AMMO_IN_CLIP(Main.PlayerPed.GetHandle(), currentWeapon, out int clipAmmoMax);
 
@@ -217,14 +219,14 @@ namespace LibertyTweaks
         }
         public static bool IsHoldingGun()
         {
-            if (GetWeaponInfo().WeaponFlags.Gun == true)
+            if (GetCurrentWeaponInfo().WeaponFlags.Gun == true)
                 return true;
             else
                 return false;
         }
         public static eWeaponType GetNextAvailableWeapon()
         {
-            eWeaponType currentWeapon = (eWeaponType)GetWeaponType();
+            eWeaponType currentWeapon = (eWeaponType)GetCurrentWeaponType();
             List<eWeaponType> inventory = GetWeaponInventory(false);
 
             if (inventory.Count == 0)
@@ -238,7 +240,7 @@ namespace LibertyTweaks
         }
         public static eWeaponType GetPreviousAvailableWeapon()
         {
-            eWeaponType currentWeapon = (eWeaponType)GetWeaponType();
+            eWeaponType currentWeapon = (eWeaponType)GetCurrentWeaponType();
             List<eWeaponType> inventory = GetWeaponInventory(false);
 
             if (inventory.Count == 0)
@@ -249,7 +251,6 @@ namespace LibertyTweaks
             int previousIndex = (currentIndex - 1 + inventory.Count) % inventory.Count;
             return inventory[previousIndex];
         }
-
         public static int GetNextWeaponAsInt()
         {
             List<eWeaponType> inventory = GetWeaponInventory(false);
@@ -257,7 +258,7 @@ namespace LibertyTweaks
             if (inventory.Count == 0)
                 return 0;
 
-            int currentWeapon = GetWeaponType();
+            int currentWeapon = GetCurrentWeaponType();
             int currentIndex = inventory.FindIndex(weapon => (int)weapon == currentWeapon);
             int nextIndex = (currentIndex + 1) % inventory.Count;
 
@@ -271,13 +272,184 @@ namespace LibertyTweaks
             if (inventory.Count == 0)
                 return 0;
 
-            int currentWeapon = GetWeaponType();
+            int currentWeapon = GetCurrentWeaponType();
             int currentIndex = inventory.FindIndex(weapon => (int)weapon == currentWeapon);
             int previousIndex = (currentIndex - 1 + inventory.Count) % inventory.Count;
 
             eWeaponType previousWeapon = inventory[previousIndex];
 
             return (int)previousWeapon;
+        }
+        public static bool IsPlayerBlindfiring()
+        {
+            if (!IS_PED_IN_COVER(Main.PlayerPed.GetHandle()))
+                return false;
+
+            string[] animGroups = new string[]
+            {
+                "cover_l_high_corner", "cover_l_low_corner", "cover_r_high_corner", "cover_r_low_corner"
+            };
+
+            string[] animNames = new string[]
+            {
+                "pistol_blindfire", "rifle_blindfire", "ak47_blindfire", "rocket_blindfire", "shotgun_blindfire"
+            };
+
+            foreach (var group in animGroups)
+            {
+                foreach (var name in animNames)
+                {
+                    if (IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), group, name))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public static bool IsPlayerHolstering()
+        {
+            string[] animations = new string[]
+            {
+                "gun@handgun|holster", "gun@handgun|holster_2_aim", "gun@handgun|holster_crouch",
+                "gun@deagle|holster", "gun@deagle|holster_2_aim", "gun@deagle|holster_crouch",
+                "gun@uzi|holster", "gun@uzi|holster_2_aim", "gun@uzi|holster_crouch",
+                "gun@mp5k|holster", "gun@mp5k|holster_2_aim", "gun@mp5k|holster_crouch",
+                "gun@sawnoff|holster", "gun@sawnoff|holster_2_aim", "gun@sawnoff|holster_crouch",
+                "gun@shotgun|holster", "gun@shotgun|holster_2_aim", "gun@shotgun|holster_crouch",
+                "gun@baretta|holster", "gun@baretta|holster_2_aim", "gun@baretta|holster_crouch",
+                "gun@cz75|holster", "gun@cz75|holster_2_aim", "gun@cz75|holster_crouch",
+                "gun@grnde_launch|holster", "gun@grnde_launch|holster_2_aim", "gun@grnde_launch|holster_crouch",
+                "gun@p90|holster", "gun@p90|holster_2_aim", "gun@p90|holster_crouch",
+                "gun@gold_uzi|holster", "gun@gold_uzi|holster_2_aim", "gun@gold_uzi|holster_crouch",
+                "gun@aa12|holster", "gun@aa12|holster_2_aim", "gun@aa12|holster_crouch",
+                "gun@44a|holster", "gun@44a|holster_2_aim", "gun@44a|holster_crouch",
+                "gun@ak47|holster", "gun@ak47|holster_2_aim", "gun@ak47|holster_crouch", "gun@ak47|holster_up", "gun@ak47|holster_down",
+                "gun@test_gun|holster", "gun@test_gun|holster_2_aim", "gun@test_gun|holster_crouch", "gun@test_gun|holster_up", "gun@test_gun|holster_down",
+                "gun@m249|holster", "gun@m249|holster_2_aim", "gun@m249|holster_crouch", "gun@m249|holster_up", "gun@m249|holster_down",
+                "gun@rifle|holster", "gun@rifle|holster_2_aim", "gun@rifle|holster_crouch", "gun@rifle|holster_alt", "gun@rifle|holster_crouch_alt",
+                "gun@dsr1|holster", "gun@dsr1|holster_2_aim", "gun@dsr1|holster_crouch", "gun@dsr1|holster_alt", "gun@dsr1|holster_crouch_alt"
+            };
+
+            foreach (var anim in animations)
+            {
+                var parts = anim.Split('|');
+                if (IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), parts[0], parts[1]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        public static bool IsPlayerAboutToDriveby()
+        {
+            string[] animations = new string[]
+            {
+        "veh@drivebylow|ds_aim_in", "veh@drivebylow|ds_aim_loop", "veh@drivebylow|ds_aim_out",
+        "veh@drivebystd|ds_aim_in", "veh@drivebystd|ds_aim_loop", "veh@drivebystd|ds_aim_out",
+        "veh@drivebytruck|ds_aim_in", "veh@drivebytruck|ds_aim_loop", "veh@drivebytruck|ds_aim_out",
+        "veh@drivebyvan|ds_aim_in", "veh@drivebyvan|ds_aim_loop", "veh@drivebyvan|ds_aim_out"
+            };
+
+            foreach (var anim in animations)
+            {
+                var parts = anim.Split('|');
+                if (IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), parts[0], parts[1]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        public static (string animGroup, string animName) GetCurrentPlayerWeaponAnim()
+        {
+            string[] animGroups = new string[]
+            {
+        "veh@drivebylow", "veh@drivebystd", "veh@drivebytruck", "veh@drivebyvan",
+        "gun@handgun", "gun@deagle", "gun@uzi", "gun@mp5k", "gun@sawnoff", "gun@shotgun",
+        "gun@baretta", "gun@cz75", "gun@grnde_launch", "gun@p90", "gun@gold_uzi",
+        "gun@aa12", "gun@44a", "gun@ak47", "gun@test_gun", "gun@m249", "gun@rifle",
+        "gun@dsr1", "cover_l_high_corner", "cover_l_low_corner", "cover_r_high_corner", "cover_r_low_corner",
+        "jump_std", "jump_rifle"
+            };
+
+            string[] animNames = new string[]
+            {
+        "ds_aim_in", "ds_aim_loop", "ds_aim_out", "fire", "fire_crouch", "holster", "holster_2_aim", "holster_crouch",
+        "unholster", "unholster_crouch", "fire_up", "fire_down", "fire_alt", "fire_crouch_alt", "holster_up", "holster_down",
+        "unholster_up", "unholster_down", "unholster_alt", "unholster_crouch_alt", "pistol_blindfire", "rifle_blindfire",
+        "ak47_blindfire", "rocket_blindfire", "shotgun_blindfire", "jump_inair_l", "jump_inair_r"
+            };
+
+            foreach (var group in animGroups)
+            {
+                foreach (var name in animNames)
+                {
+                    if (IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), group, name))
+                    {
+                        return (group, name);
+                    }
+                }
+            }
+
+            return (null, null);
+        }
+        public static bool IsPlayerUnHolstering()
+        {
+            string[] animations = new string[]
+            {
+                "gun@handgun|unholster", "gun@handgun|unholster_crouch",
+                "gun@deagle|unholster", "gun@deagle|unholster_crouch",
+                "gun@uzi|unholster", "gun@uzi|unholster_crouch",
+                "gun@mp5k|unholster", "gun@mp5k|unholster_crouch",
+                "gun@sawnoff|unholster", "gun@sawnoff|unholster_crouch",
+                "gun@shotgun|unholster", "gun@shotgun|unholster_crouch",
+                "gun@baretta|unholster", "gun@baretta|unholster_crouch",
+                "gun@cz75|unholster", "gun@cz75|unholster_crouch",
+                "gun@grnde_launch|unholster", "gun@grnde_launch|unholster_crouch",
+                "gun@p90|unholster", "gun@p90|unholster_crouch",
+                "gun@gold_uzi|unholster", "gun@gold_uzi|unholster_crouch",
+                "gun@aa12|unholster", "gun@aa12|unholster_crouch",
+                "gun@44a|unholster", "gun@44a|unholster_crouch",
+                "gun@ak47|unholster", "gun@ak47|unholster_crouch", "gun@ak47|unholster_up", "gun@ak47|unholster_down",
+                "gun@test_gun|unholster", "gun@test_gun|unholster_crouch", "gun@test_gun|unholster_up", "gun@test_gun|unholster_down",
+                "gun@m249|unholster", "gun@m249|unholster_crouch", "gun@m249|unholster_up", "gun@m249|unholster_down",
+                "gun@rifle|unholster", "gun@rifle|unholster_crouch", "gun@rifle|unholster_alt", "gun@rifle|unholster_crouch_alt",
+                "gun@dsr1|unholster", "gun@dsr1|unholster_crouch", "gun@dsr1|unholster_alt", "gun@dsr1|unholster_crouch_alt"
+            };
+
+            foreach (var anim in animations)
+            {
+                var parts = anim.Split('|');
+                if (IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), parts[0], parts[1]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        public static bool IsTwoHandedGun(int weapon)
+        {
+            if (weapon == 0) return false;
+
+            if (IVWeaponInfo.GetWeaponInfo((uint)weapon).WeaponFlags.TwoHanded)
+                return true;
+            else
+                return false;
+        }
+        public static bool IsHeavyGun(int weapon)
+        {
+            if (weapon == 0) return false;
+
+            if (IVWeaponInfo.GetWeaponInfo((uint)weapon).WeaponFlags.Heavy)
+                return true;
+            else
+                return false;
         }
     }
 }
