@@ -1,8 +1,6 @@
 ﻿using CCL.GTAIV;
 using IVSDKDotNet;
 using IVSDKDotNet.Attributes;
-using IVSDKDotNet.Enums;
-using System.Windows.Forms;
 using static IVSDKDotNet.Native.Natives;
 
 namespace LibertyTweaks
@@ -27,18 +25,22 @@ namespace LibertyTweaks
         public static int staminaLevel3;
         public static int staminaLevel2;
         public static int staminaLevel1;
-
-        public static void Init(SettingsFile Settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile Settings, string section)
         {
-            enable = Settings.GetBoolean("Stamina Progression", "Enable", true);
-            enableTLADnerf = Settings.GetBoolean("Stamina Progression", "Limit on TLAD", true);
-            staminaLevel1 = Settings.GetInteger("Stamina Progression", "Level 1 Threshold", 3);
-            staminaLevel2 = Settings.GetInteger("Stamina Progression", "Level 2 Threshold", 8);
-            staminaLevel3 = Settings.GetInteger("Stamina Progression", "Level 3 Threshold", 15);
-            staminaLevel4 = Settings.GetInteger("Stamina Progression", "Level 4 Threshold", 20);
+            StaminaProgression.section = section;
+            enable = Settings.GetBoolean(section, "Stamina Progression", false);
+            enableTLADnerf = Settings.GetBoolean(section, "Stamina Progression - TLAD Limitations", false);
+            staminaLevel1 = Settings.GetInteger(section, "Stamina Progression - Level 1 Threshold", 3);
+            staminaLevel2 = Settings.GetInteger(section, "Stamina Progression - Level 2 Threshold", 8);
+            staminaLevel3 = Settings.GetInteger(section, "Stamina Progression - Level 3 Threshold", 15);
+            staminaLevel4 = Settings.GetInteger(section, "Stamina Progression - Level 4 Threshold", 20);
 
             if (enable)
+            {
                 Main.Log("script initialized...");
+                Main.Log($"Miles On Foot thresholds for each level: {staminaLevel1}, {staminaLevel2}, {staminaLevel3}, {staminaLevel4}");
+            }
         }
         public static void IngameStartup()
         {
@@ -119,7 +121,6 @@ namespace LibertyTweaks
                     if (Main.PlayerPed.PlayerInfo.Stamina > 450 && Main.PlayerPed.GetSpeed() >= 1)
                     {
                         Main.PlayerPed.PlayerInfo.Stamina = 450;
-                        SET_CHAR_MOVE_ANIM_SPEED_MULTIPLIER(Main.PlayerPed.GetHandle(), 1.0f);
                     }
                     break;
 
@@ -127,7 +128,6 @@ namespace LibertyTweaks
                     if (Main.PlayerPed.PlayerInfo.Stamina > 550 && Main.PlayerPed.GetSpeed() >= 1)
                     {
                         Main.PlayerPed.PlayerInfo.Stamina = 500;
-                        SET_CHAR_MOVE_ANIM_SPEED_MULTIPLIER(Main.PlayerPed.GetHandle(), 1.05f);
                     }
                     break;
 
@@ -135,19 +135,16 @@ namespace LibertyTweaks
                     if (Main.PlayerPed.PlayerInfo.Stamina > 600 && Main.PlayerPed.GetSpeed() >= 1)
                     {
                         Main.PlayerPed.PlayerInfo.Stamina = 600;
-                        SET_CHAR_MOVE_ANIM_SPEED_MULTIPLIER(Main.PlayerPed.GetHandle(), 1.075f);
                     }
                     break;
 
                 case 4:
                     Main.PlayerPed.PlayerInfo.Stamina = 999;
-                    SET_CHAR_MOVE_ANIM_SPEED_MULTIPLIER(Main.PlayerPed.GetHandle(), 1.1f);
                     break;
 
                 default:
                     if (Main.PlayerPed.PlayerInfo.Stamina > 350 && Main.PlayerPed.GetSpeed() >= 1)
                     {
-                        SET_CHAR_MOVE_ANIM_SPEED_MULTIPLIER(Main.PlayerPed.GetHandle(), 1.0f);
                         Main.PlayerPed.PlayerInfo.Stamina = 350;
                     }
                     break;
@@ -183,7 +180,7 @@ namespace LibertyTweaks
                 Main.Log("Saved PlayerStaminaLevel as activeStaminaLevel: " + activeStaminaLevel);
                 hasSaved = false;
             }
-        }   
+        }
         private static void Notifications(int level)
         {
             if (activeStaminaLevel == savedStaminaLevel)

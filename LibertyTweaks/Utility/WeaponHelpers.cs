@@ -1,8 +1,10 @@
 ﻿using CCL.GTAIV;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static IVSDKDotNet.Native.Natives;
 
 namespace LibertyTweaks
@@ -18,7 +20,6 @@ namespace LibertyTweaks
         Heavy = 12,
         Thrown = 13
     }
-
     public enum VanillaGuns
     {
         WEAPON_GRENADE,
@@ -63,6 +64,36 @@ namespace LibertyTweaks
     }
     public class WeaponHelpers
     {
+        private static List<string> addonAnimGroups = new List<string>();
+        public static void InitAddonAnims(SettingsFile settings)
+        {
+            string[] animGroups = settings.GetValue("Addon Animations", "Addon Anim Groups", "").Split(',');
+
+            addonAnimGroups.Clear();
+            addonAnimGroups.AddRange(animGroups);
+
+            foreach (var group in addonAnimGroups)
+            {
+                if (!string.IsNullOrWhiteSpace(group))
+                {
+                    Main.Log($"Registering {group} to addon anim groups.");
+                }
+            }
+        }
+        public static bool IsAddonWeaponReloading()
+        {
+            bool isPlayerDucking = IS_CHAR_DUCKING(Main.PlayerPed.GetHandle());
+
+            foreach (var group in addonAnimGroups)
+            {
+                if (Main.PlayerPed.GetAnimationController().IsPlaying(group, isPlayerDucking ? "reload_crouch" : "reload"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
         public static bool IsHandgunReloading() => Main.PlayerPed.GetAnimationController().IsPlaying("gun@handgun", IS_CHAR_DUCKING(Main.PlayerPed.GetHandle()) ? "reload_crouch" : "reload");
         public static bool IsDeagleReloading() => Main.PlayerPed.GetAnimationController().IsPlaying("gun@deagle", IS_CHAR_DUCKING(Main.PlayerPed.GetHandle()) ? "reload_crouch" : "reload");
         public static bool IsCzReloading() => Main.PlayerPed.GetAnimationController().IsPlaying("gun@cz75", IS_CHAR_DUCKING(Main.PlayerPed.GetHandle()) ? "reload_crouch" : "reload");
@@ -89,7 +120,7 @@ namespace LibertyTweaks
                    IsBarettaReloading() || IsShotgunReloading() || IsAA12Reloading() || IsStreetReloading() ||
                    IsSawnReloading() || IsUziReloading() || IsMp5Reloading() || IsP90Reloading() ||
                    IsGoldUziReloading() || IsAk47Reloading() || IsLmgReloading() || IsRifleReloading() ||
-                   IsRifle2Reloading() || IsDsrReloading() || IsRPGReloading() || IsGLauncherReloading();
+                   IsRifle2Reloading() || IsDsrReloading() || IsRPGReloading() || IsGLauncherReloading() || IsAddonWeaponReloading();
         }
         public static string GetReloadingAnimGroup()
         {
@@ -115,6 +146,69 @@ namespace LibertyTweaks
             if (IsGLauncherReloading()) return "gun@grnde_launch";
             return null;
         }
+        public static float GetShotgunReloadAnimTime()
+        {
+            var animController = Main.PlayerPed.GetAnimationController();
+            bool isPlayerDucking = IS_CHAR_DUCKING(Main.PlayerPed.GetHandle());
+
+            if (IsBarettaReloading())
+                return animController.GetCurrentAnimationTime("gun@baretta", isPlayerDucking ? "reload_crouch" : "reload");
+            else if (IsShotgunReloading())
+                return animController.GetCurrentAnimationTime("gun@shotgun", isPlayerDucking ? "reload_crouch" : "reload");
+            else if (IsAA12Reloading())
+                return animController.GetCurrentAnimationTime("gun@aa12", isPlayerDucking ? "reload_crouch" : "reload");
+            else if (IsStreetReloading())
+                return animController.GetCurrentAnimationTime("gun@test_gun", isPlayerDucking ? "reload_crouch" : "reload");
+            else if (IsSawnReloading())
+                return animController.GetCurrentAnimationTime("gun@sawnoff", isPlayerDucking ? "reload_crouch" : "reload");
+
+            return 0.0f;
+        }
+        public static bool IsPlayerAiming()
+        {
+            string[] predefinedAnimations = new string[]
+            {
+                "gun@handgun|fire", "gun@handgun|fire_crouch",
+                "gun@deagle|fire", "gun@deagle|fire_crouch",
+                "gun@uzi|fire", "gun@uzi|fire_crouch",
+                "gun@mp5k|fire", "gun@mp5k|fire_crouch",
+                "gun@sawnoff|fire", "gun@sawnoff|fire_crouch",
+                "gun@shotgun|fire", "gun@shotgun|fire_crouch",
+                "gun@baretta|fire", "gun@baretta|fire_crouch",
+                "gun@cz75|fire", "gun@cz75|fire_crouch",
+                "gun@grnde_launch|fire", "gun@grnde_launch|fire_crouch",
+                "gun@p90|fire", "gun@p90|fire_crouch",
+                "gun@gold_uzi|fire", "gun@gold_uzi|fire_crouch",
+                "gun@aa12|fire", "gun@aa12|fire_crouch",
+                "gun@44a|fire", "gun@44a|fire_crouch",
+                "gun@ak47|fire", "gun@ak47|fire_crouch", "gun@ak47|fire_up", "gun@ak47|fire_down",
+                "gun@test_gun|fire", "gun@test_gun|fire_crouch", "gun@test_gun|fire_up", "gun@test_gun|fire_down",
+                "gun@m249|fire", "gun@m249|fire_crouch", "gun@m249|fire_up", "gun@m249|fire_down",
+                "gun@rifle|fire", "gun@rifle|fire_crouch", "gun@rifle|fire_alt", "gun@rifle|fire_crouch_alt",
+                "gun@dsr1|fire", "gun@dsr1|fire_crouch", "gun@dsr1|fire_alt", "gun@dsr1|fire_crouch_alt",
+                "gun@rocket|fire", "gun@rocket|fire_crouch"
+            };
+
+            // Combine predefined animations with addon animations
+            List<string> combinedAnimations = new List<string>(predefinedAnimations);
+            foreach (var group in addonAnimGroups)
+            {
+                combinedAnimations.Add($"{group}|fire");
+                combinedAnimations.Add($"{group}|fire_crouch");
+            }
+
+            foreach (var anim in combinedAnimations)
+            {
+                var parts = anim.Split('|');
+                if (IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), parts[0], parts[1]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         // If using this method, call "CLEAR_CAR_LAST_WEAPON_DAMAGE()" after to reset. 
         // Can't get it to work in one method for some reason
         public static bool HasCarBeenDamagedByAnyWeapon(IVVehicle vehicleIV)
@@ -143,11 +237,18 @@ namespace LibertyTweaks
         }
         public static bool IsTryingToDriveBy()
         {
-            if (IsHoldingGun() && NativeControls.IsGameKeyPressed(0, GameKey.Aim)
+            if (IS_USING_CONTROLLER() && IsDrivebying()) return true;
+
+            if (!IS_USING_CONTROLLER())
+            {
+                if (IsHoldingGun() && NativeControls.IsGameKeyPressed(0, GameKey.Aim)
                 || IsHoldingGun() && NativeControls.IsGameKeyPressed(0, GameKey.Attack))
-                return true;
-            else
-                return false;
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
         public static List<eWeaponType> GetWeaponInventory(bool IncludeMelee)
         {
@@ -269,6 +370,7 @@ namespace LibertyTweaks
         public static int GetPreviousWeaponAsInt()
         {
             List<eWeaponType> inventory = GetWeaponInventory(false);
+
             if (inventory.Count == 0)
                 return 0;
 
@@ -287,12 +389,15 @@ namespace LibertyTweaks
 
             string[] animGroups = new string[]
             {
-                "cover_l_high_corner", "cover_l_low_corner", "cover_r_high_corner", "cover_r_low_corner"
+                "cover_l_high_centre", "cover_l_high_corner", "cover_r_high_corner", "cover_r_high_centre",
+                "cover_l_low_centre", "cover_l_low_corner", "cover_r_low_corner", "cover_r_low_centre"
+
             };
 
             string[] animNames = new string[]
             {
-                "pistol_blindfire", "rifle_blindfire", "ak47_blindfire", "rocket_blindfire", "shotgun_blindfire"
+                "pistol_blindfire", "rifle_blindfire", "ak47_blindfire", 
+                "rocket_blindfire", "shotgun_blindfire", "uzi_blindfire"
             };
 
             foreach (var group in animGroups)
@@ -308,9 +413,68 @@ namespace LibertyTweaks
 
             return false;
         }
+        public static (string animGroup, string animName) GetCurrentPlayerWeaponAnim()
+        {
+            string[] predefinedAnimGroups = new string[]
+            {
+                "veh@drivebylow", "veh@drivebystd", "veh@drivebytruck", "veh@drivebyvan",
+                "gun@handgun", "gun@deagle", "gun@uzi", "gun@mp5k", "gun@sawnoff", "gun@shotgun",
+                "gun@baretta", "gun@cz75", "gun@grnde_launch", "gun@p90", "gun@gold_uzi",
+                "gun@aa12", "gun@44a", "gun@ak47", "gun@test_gun", "gun@m249", "gun@rifle",
+                "gun@dsr1", "cover_l_high_corner", "cover_l_low_corner", "cover_r_high_corner", "cover_r_low_corner",
+                "jump_std", "jump_rifle"
+            };
 
+            // Combines vanilla anim groups with addon ones
+            string[] animGroups = new string[predefinedAnimGroups.Length + addonAnimGroups.Count];
+            predefinedAnimGroups.CopyTo(animGroups, 0);
+            addonAnimGroups.ToArray().CopyTo(animGroups, predefinedAnimGroups.Length);
+
+            string[] animNames = new string[]
+            {
+                "ds_aim_in", "ds_aim_loop", "ds_aim_out", "fire", "fire_crouch", "holster", "holster_2_aim", "holster_crouch",
+                "unholster", "unholster_crouch", "fire_up", "fire_down", "fire_alt", "fire_crouch_alt", "holster_up", "holster_down",
+                "unholster_up", "unholster_down", "unholster_alt", "unholster_crouch_alt", "pistol_blindfire", "rifle_blindfire",
+                "ak47_blindfire", "rocket_blindfire", "shotgun_blindfire", "jump_inair_l", "jump_inair_r", "reload", "reload_crouch",
+            };
+
+            foreach (var group in animGroups)
+            {
+                foreach (var name in animNames)
+                {
+                    if (IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), group, name))
+                    {
+                        return (group, name);
+                    }
+                }
+            }
+
+            return (null, null);
+        }
+        public static bool IsDrivebying()
+        {
+            string[] animations = new string[]
+            {
+        "veh@drivebylow|ds_aim_in", "veh@drivebylow|ds_aim_loop", "veh@drivebylow|ds_aim_out",
+        "veh@drivebystd|ds_aim_in", "veh@drivebystd|ds_aim_loop", "veh@drivebystd|ds_aim_out",
+        "veh@drivebytruck|ds_aim_in", "veh@drivebytruck|ds_aim_loop", "veh@drivebytruck|ds_aim_out",
+        "veh@drivebyvan|ds_aim_in", "veh@drivebyvan|ds_aim_loop", "veh@drivebyvan|ds_aim_out"
+            };
+
+            foreach (var anim in animations)
+            {
+                var parts = anim.Split('|');
+                if (IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), parts[0], parts[1]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
         public static bool IsPlayerHolstering()
         {
+            // add addon weapons if ever using this 
             string[] animations = new string[]
             {
                 "gun@handgun|holster", "gun@handgun|holster_2_aim", "gun@handgun|holster_crouch",
@@ -344,62 +508,9 @@ namespace LibertyTweaks
 
             return false;
         }
-        public static bool IsPlayerAboutToDriveby()
-        {
-            string[] animations = new string[]
-            {
-        "veh@drivebylow|ds_aim_in", "veh@drivebylow|ds_aim_loop", "veh@drivebylow|ds_aim_out",
-        "veh@drivebystd|ds_aim_in", "veh@drivebystd|ds_aim_loop", "veh@drivebystd|ds_aim_out",
-        "veh@drivebytruck|ds_aim_in", "veh@drivebytruck|ds_aim_loop", "veh@drivebytruck|ds_aim_out",
-        "veh@drivebyvan|ds_aim_in", "veh@drivebyvan|ds_aim_loop", "veh@drivebyvan|ds_aim_out"
-            };
-
-            foreach (var anim in animations)
-            {
-                var parts = anim.Split('|');
-                if (IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), parts[0], parts[1]))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-        public static (string animGroup, string animName) GetCurrentPlayerWeaponAnim()
-        {
-            string[] animGroups = new string[]
-            {
-        "veh@drivebylow", "veh@drivebystd", "veh@drivebytruck", "veh@drivebyvan",
-        "gun@handgun", "gun@deagle", "gun@uzi", "gun@mp5k", "gun@sawnoff", "gun@shotgun",
-        "gun@baretta", "gun@cz75", "gun@grnde_launch", "gun@p90", "gun@gold_uzi",
-        "gun@aa12", "gun@44a", "gun@ak47", "gun@test_gun", "gun@m249", "gun@rifle",
-        "gun@dsr1", "cover_l_high_corner", "cover_l_low_corner", "cover_r_high_corner", "cover_r_low_corner",
-        "jump_std", "jump_rifle"
-            };
-
-            string[] animNames = new string[]
-            {
-        "ds_aim_in", "ds_aim_loop", "ds_aim_out", "fire", "fire_crouch", "holster", "holster_2_aim", "holster_crouch",
-        "unholster", "unholster_crouch", "fire_up", "fire_down", "fire_alt", "fire_crouch_alt", "holster_up", "holster_down",
-        "unholster_up", "unholster_down", "unholster_alt", "unholster_crouch_alt", "pistol_blindfire", "rifle_blindfire",
-        "ak47_blindfire", "rocket_blindfire", "shotgun_blindfire", "jump_inair_l", "jump_inair_r"
-            };
-
-            foreach (var group in animGroups)
-            {
-                foreach (var name in animNames)
-                {
-                    if (IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), group, name))
-                    {
-                        return (group, name);
-                    }
-                }
-            }
-
-            return (null, null);
-        }
         public static bool IsPlayerUnHolstering()
         {
+            // add addon weapons if ever using this 
             string[] animations = new string[]
             {
                 "gun@handgun|unholster", "gun@handgun|unholster_crouch",

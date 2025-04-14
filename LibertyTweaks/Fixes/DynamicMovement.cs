@@ -17,20 +17,22 @@ namespace LibertyTweaks
         public static bool IsSprintEnabled { get; private set; } = true;
 
         public static bool IsCapsLockActive() => Control.IsKeyLocked(Keys.Capital);
+        public static string section { get; private set; }
 
-        public static void Init(SettingsFile settings)
+        public static void Init(SettingsFile settings, string section)
         {
-            enableLowHealthExhaustion = settings.GetBoolean("Low Health Exhaustion", "Enable", true);
-            enableSprintFix = settings.GetBoolean("Fixes", "Sprint Fix", true);
-            disableInCombat = settings.GetBoolean("Fixes", "Sprint Fix Disabled In Combat", true);
+            DynamicMovement.section = section;
+            enableLowHealthExhaustion = settings.GetBoolean(section, "Disable Sprint With Low Health", false);
+            enableSprintFix = settings.GetBoolean(section, "Dynamic Sprint With Keyboard", false);
+            disableInCombat = settings.GetBoolean(section, "Dynamic Sprint Disabled in Combat", false);
 
             if (enableLowHealthExhaustion)
-                Main.Log("Low Health Exhaustion script initialized...");
+                Main.Log("Disable Sprint With Low Health script initialized...");
 
             if (enableSprintFix && disableInCombat)
-                Main.Log("Sprint Fix script initialized, disabled in combat...");
+                Main.Log("Dynamic Sprint Enabled. Disabled in combat.");
             else if (enableSprintFix && !disableInCombat)
-                Main.Log("Sprint Fix script initialized, enabled in combat...");
+                Main.Log("Dynamic Sprint Enabled. Enabled in combat.");
         }
 
         public static void Tick()

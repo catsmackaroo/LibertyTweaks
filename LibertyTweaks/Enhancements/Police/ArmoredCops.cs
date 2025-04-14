@@ -11,11 +11,10 @@ namespace LibertyTweaks
 {
     internal class ArmoredCops
     {
-        private static bool enable;
         private static bool enableArmored;
         private static bool enableNoHeadshotNOoSE;
-        private static bool enableNoRagdollNOoSE;
-        public static bool enableVests;
+        private static bool enableLessRagdollNOoSE;
+        public static bool loadVests;
         public static int ragdollTime;
         public static int ragdollTimeShotgun;
 
@@ -31,24 +30,32 @@ namespace LibertyTweaks
         private static readonly int[] nonRagdollWeapons = { 10, 11, 22, 26, 30, 31 };
         private static readonly int[] nonRagdollShotgunWeapons = { 49, 50, 51, 54, 55 };
 
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Improved Police", "Enable", true);
-            enableArmored = settings.GetBoolean("Improved Police", "Armored Cops", true);
-            enableVests = settings.GetBoolean("Improved Police", "Armored Cops Vests", true);
-            armoredCopsStars = settings.GetInteger("Improved Police", "Armored Cops Start", 4);
-            enableNoHeadshotNOoSE = settings.GetBoolean("Improved Police", "No Headshot NOoSE", true);
-            enableNoRagdollNOoSE = settings.GetBoolean("Improved Police", "No Ragdoll NOoSE", true);
-            ragdollTime = settings.GetInteger("Improved Police", "NOoSE Ragdoll Time", 100);
-            ragdollTimeShotgun = settings.GetInteger("Improved Police", "NOoSE Shotgun Time", 250);
+            ArmoredCops.section = section;
+            enableArmored = settings.GetBoolean(section, "Armored Cops", false);
+            loadVests = settings.GetBoolean(section, "Armored Cops - Load Vests", false);
+            armoredCopsStars = settings.GetInteger(section, "Armored Cops - Start At Star", 4);
+            enableNoHeadshotNOoSE = settings.GetBoolean(section, "No Headshot Armored NOoSE", false);
+            enableLessRagdollNOoSE = settings.GetBoolean(section, "Less NOoSE Ragdoll", false);
+            ragdollTime = settings.GetInteger(section, "Less NOoSE Ragdoll - Default Time MS", 100);
+            ragdollTimeShotgun = settings.GetInteger(section, "Less NOoSE Ragdoll - Shotgun Time MS", 250);
 
-            if (enable)
-                Main.Log("script initialized...");
+            if (enableArmored)
+                Main.Log("Armored Cops enabled...");
+
+            if (enableNoHeadshotNOoSE)
+                Main.Log("No Headshot Armored NOoSE enabled...");
+
+            if (enableLessRagdollNOoSE)
+                Main.Log("Less NOoSE Ragdoll enabled...");
+
         }
 
         public static void LoadFiles()
         {
-            if (!enableVests)
+            if (!loadVests)
                 return;
 
             IVCDStream.AddImage("IVSDKDotNet/scripts/LibertyTweaks/ArmoredCopFiles/armoredCops.img", 1, -1);
@@ -57,7 +64,7 @@ namespace LibertyTweaks
 
         public static void Tick()
         {
-            if (!enable)
+            if (!enableArmored && !enableLessRagdollNOoSE && !enableNoHeadshotNOoSE)
                 return;
 
             foreach (var kvp in PedHelper.PedHandles)
@@ -71,7 +78,7 @@ namespace LibertyTweaks
 
                 if (pedModel == nooseModel)
                     HandleNOoSEBehavior(pedHandle);
-                else if (pedModel == policeModel && enable)
+                else if (pedModel == policeModel)
                     HandleArmoredCops(pedHandle);
             }
 
@@ -80,7 +87,7 @@ namespace LibertyTweaks
 
         private static void HandleNOoSEBehavior(int pedHandle)
         {
-            if (!enableNoHeadshotNOoSE && !enableNoRagdollNOoSE)
+            if (!enableNoHeadshotNOoSE && !enableLessRagdollNOoSE)
                 return;
 
             IVPed noosePed = NativeWorld.GetPedInstanceFromHandle(pedHandle);
@@ -114,7 +121,7 @@ namespace LibertyTweaks
             if (enableNoHeadshotNOoSE)
                 noosePed.PedFlags.NoHeadshots = headgearIndex != -1;
 
-            if (enableNoRagdollNOoSE && !IS_CHAR_ON_FIRE(pedHandle) && noosePed.GetHeightAboveGround() < 3 && IS_PED_RAGDOLL(pedHandle) && HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 57))
+            if (enableLessRagdollNOoSE && !IS_CHAR_ON_FIRE(pedHandle) && noosePed.GetHeightAboveGround() < 3 && IS_PED_RAGDOLL(pedHandle) && HAS_CHAR_BEEN_DAMAGED_BY_WEAPON(pedHandle, 57))
             {
                 HandleRagdollBehavior(pedHandle);
             }
@@ -160,7 +167,7 @@ namespace LibertyTweaks
             {
                 SUPPRESS_PED_MODEL(3924571768);
 
-                if (enableVests)
+                if (loadVests)
                     SET_CHAR_COMPONENT_VARIATION(pedHandle, 1, 4, 0);
                 else
                 {
@@ -168,7 +175,7 @@ namespace LibertyTweaks
                     copsWithArmor.Add(pedHandle);
                 }
 
-                if (GET_CHAR_DRAWABLE_VARIATION(pedHandle, 1) == 4 && enableVests)
+                if (GET_CHAR_DRAWABLE_VARIATION(pedHandle, 1) == 4 && loadVests)
                 {
                     ADD_ARMOUR_TO_CHAR(pedHandle, 100);
                     copsWithArmor.Add(pedHandle);
@@ -178,7 +185,7 @@ namespace LibertyTweaks
             }
             else
             {
-                if (GET_CHAR_DRAWABLE_VARIATION(pedHandle, 1) == 4 && enableVests)
+                if (GET_CHAR_DRAWABLE_VARIATION(pedHandle, 1) == 4 && loadVests)
                 {
                     SET_CHAR_COMPONENT_VARIATION(pedHandle, 2, 0, 0);
                     ADD_ARMOUR_TO_CHAR(pedHandle, 100);

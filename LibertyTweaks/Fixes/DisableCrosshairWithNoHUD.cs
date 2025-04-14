@@ -10,10 +10,11 @@ namespace LibertyTweaks
         private static bool enable;
         private static bool hudState = true;
         private static bool hudWasDisabledBeforeAiming;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Disable Crosshair When No HUD", "Enable", true);
+            DisableCrosshairWithNoHUD.section = section;
+            enable = settings.GetBoolean(section, "Disable Crosshair When No HUD", false);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -32,7 +33,7 @@ namespace LibertyTweaks
             }
 
             // Check if the player is aiming with a sniper since aiming with it doesn't show sniper scope if hud is off
-            if (WeaponHelpers.GetWeaponInfo().WeaponFlags.FirstPerson && PlayerHelper.IsAiming())
+            if (WeaponHelpers.GetCurrentWeaponInfo().WeaponFlags.FirstPerson && WeaponHelpers.IsPlayerAiming())
             {
                 if (!hudState)
                 {

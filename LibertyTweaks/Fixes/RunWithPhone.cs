@@ -11,11 +11,12 @@ namespace LibertyTweaks
         private static bool enable;
         private static bool enableRun;
         private static float moveStateMax = 2f;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "Jog With Phone", true);
-            enableRun = settings.GetBoolean("Fixes", "Run With Phone", false);
+            RunWithPhone.section = section;
+            enable = settings.GetBoolean(section, "Jog With Phone", false);
+            enableRun = settings.GetBoolean(section, "Run With Phone", false);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -36,7 +37,7 @@ namespace LibertyTweaks
 
             if (IS_PED_RAGDOLL(Main.PlayerPed.GetHandle())
                 || IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle())
-                || WeaponHelpers.GetWeaponType() != 46)
+                || WeaponHelpers.GetCurrentWeaponType() != 46)
                 return;
 
             int playerPedHandle = Main.PlayerPed.GetHandle();

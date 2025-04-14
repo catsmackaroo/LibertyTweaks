@@ -11,11 +11,12 @@ namespace LibertyTweaks
         private static bool enable;
         private static float currentFOV;
         private static float targetFOV;
-        private static readonly float lerpSpeed = 0.2f;
-
-        public static void Init(SettingsFile settings)
+        private static readonly float lerpSpeed = 0.3f;
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Smooth Sniper Zoom", "Enable", true);
+            SmoothSniperZoom.section = section;
+            enable = settings.GetBoolean(section, "Smooth Sniper Zoom", false);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -32,14 +33,14 @@ namespace LibertyTweaks
             GET_CURRENT_CHAR_WEAPON(Main.PlayerPed.GetHandle(), out int currentWeapon);
             uint currentWeapSlot = IVWeaponInfo.GetWeaponInfo((uint)currentWeapon).WeaponSlot;
 
-            if (IVWeaponInfo.GetWeaponInfo((uint)currentWeapon).WeaponFlags.FirstPerson == true && PlayerHelper.IsAiming())
+            if (IVWeaponInfo.GetWeaponInfo((uint)currentWeapon).WeaponFlags.FirstPerson == true && WeaponHelpers.IsPlayerAiming())
             {
                 float newFOV = cam.FOV;
 
                 if (newFOV != targetFOV)
                     targetFOV = newFOV;
 
-                currentFOV = CommonHelpers.Lerp(currentFOV, targetFOV, lerpSpeed);
+                currentFOV = CommonHelpers.SmoothStep(currentFOV, targetFOV, lerpSpeed);
                 cam.FOV = currentFOV;
             }
         }

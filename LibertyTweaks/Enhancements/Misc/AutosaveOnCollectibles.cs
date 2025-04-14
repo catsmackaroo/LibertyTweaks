@@ -15,11 +15,12 @@ namespace LibertyTweaks
         private static int seagullsTLAD;
         private static int seagullsTBoGT;
 
-        private static readonly int delayInMilliseconds = 5000;
-
-        public static void Init(SettingsFile settings)
+        private static readonly int delayInMilliseconds = 2500;
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Autosave on Collectibles", "Enable", true);
+            AutosaveOnCollectibles.section = section;
+            enable = settings.GetBoolean(section, "Autosave on Collectibles", false);
 
             if (enable)
                 Main.Log("script initialized...");

@@ -1,9 +1,9 @@
-﻿using IVSDKDotNet;
-using System.Collections.Generic;
-using static IVSDKDotNet.Native.Natives;
-using CCL.GTAIV;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using System;
+using System.Collections.Generic;
 using System.Numerics;
+using static IVSDKDotNet.Native.Natives;
 
 namespace LibertyTweaks
 {
@@ -64,15 +64,16 @@ namespace LibertyTweaks
         private static NativeCamera cam;
         private static int randomNum;
         private static int vehHash;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Pay 'N Spray Overhaul", "Enable", true);
-            CarInitCost = settings.GetInteger("Pay 'N Spray Overhaul", "Initial Deformation Cost", 100);
-            EngInitCost = settings.GetInteger("Pay 'N Spray Overhaul", "Initial Engine Cost", 100);
-            CarCostMult = settings.GetFloat("Pay 'N Spray Overhaul", "Deformation Damage Cost Multiplier", 2.0f);
-            EngCostMult = settings.GetFloat("Pay 'N Spray Overhaul", "Engine Damage Cost Multiplier", 2.0f);
-            ColorCost = settings.GetInteger("Pay 'N Spray Overhaul", "Color Cost", 200);
+            PNSOverhaul.section = section;
+            enable = settings.GetBoolean(section, "Pay 'n' Spray Overhaul", false);
+            CarInitCost = settings.GetInteger(section, "Pay 'n' Spray Overhaul - Initial Deformation Cost", 100);
+            EngInitCost = settings.GetInteger(section, "Pay 'n' Spray Overhaul - Initial Engine Cost", 100);
+            CarCostMult = settings.GetFloat(section, "Pay 'n' Spray Overhaul - Deformation Cost Multiplier", 2.0f);
+            EngCostMult = settings.GetFloat(section, "Pay 'n' Spray Overhaul - Engine Cost Multiplier", 2.0f);
+            ColorCost = settings.GetInteger(section, "Pay 'n' Spray Overhaul - Color Cost", 200);
 
             cHealth = 1000;
             eHealth = 1000;

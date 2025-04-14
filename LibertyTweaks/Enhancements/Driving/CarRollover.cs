@@ -18,12 +18,13 @@ namespace LibertyTweaks
         private static float RollForce;
         private static bool CheckDateTime;
         private static DateTime currentDateTime;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Car Rollover", "Enable", true);
-            amount = settings.GetFloat("Car Rollover", "Amount", 0.2f);
-            speedThreshold = settings.GetFloat("Car Rollover", "Speed Threshold", 30f);
+            CarRollover.section = section;
+            enable = settings.GetBoolean(section, "Hollywood Rollover", false);
+            amount = settings.GetFloat(section, "Hollywood Rollover - Force", 0.2f);
+            speedThreshold = settings.GetFloat(section, "Hollywood Rollover - Speed Threshold", 30f);
 
             if (enable)
                 Main.Log("script initialized...");

@@ -14,13 +14,15 @@ namespace LibertyTweaks
         private static readonly object lockObject = new object();
         private static int minUnseenTimeToLoseStars;
         private static int maxUnseenTimeToLoseStars;
+        public static string section { get; private set; }
 
-        public static void Init(SettingsFile settings)
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Improved Police", "Lose Stars While Unseen", true);
+            LoseStarsWhileUnseen.section = section;
+            enable = settings.GetBoolean(section, "Lose Stars While Unseen", false);
 
-            minUnseenTimeToLoseStars = settings.GetInteger("Improved Police", "Lose Stars Min Count", 60);
-            maxUnseenTimeToLoseStars = settings.GetInteger("Improved Police", "Lose Stars Max Count", 120);
+            minUnseenTimeToLoseStars = settings.GetInteger(section, "Lose Stars While Unseen - Min Time", 60);
+            maxUnseenTimeToLoseStars = settings.GetInteger(section, "Lose Stars While Unseen - Max Time", 120);
 
             if (enable)
                 Main.Log("script initialized...");

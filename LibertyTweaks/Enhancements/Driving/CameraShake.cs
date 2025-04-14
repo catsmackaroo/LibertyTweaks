@@ -14,19 +14,21 @@ namespace LibertyTweaks
         private static Vector3 lastShakeOffset = Vector3.Zero;
 
         private const float MaxCarSpeed = 40f;
-        private const float BaseShakeFactor = 0.05f;
+        private const float BaseShakeFactor = 1f;
         private const float MinEngineRev = 0.7f;
-        private const float RpmPowerExponent = 4f;
-        private const float MaxShakeIntensity = 0.05f;
-        private const float DistanceFactorSpeed = 7f;
-        private const float DistanceFactorRpm = 4f;
-        private const float LerpFactor = 0.1f;
-        private const float HelicopterLerpFactor = 0.005f;
-
-        public static void Init(SettingsFile settings)
+        private const float RpmPowerExponent = 2f;
+        private const float MaxShakeIntensity = 0.5f;
+        private const float DistanceFactorSpeed = 5f;
+        private const float DistanceFactorRpm = 5f;
+        private const float LerpFactor = 0.005f;
+        private const float HelicopterLerpFactor = 0.0005f;
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Vehicle Camera Adjustments", "Speed Shake", true);
-            shakeMultiplier = settings.GetFloat("Vehicle Camera Adjustments", "Speed Shake Multiplier", 1.0f);
+            CameraShake.section = section;
+
+            enable = settings.GetBoolean(section, "Camera - Speed Shake", false);
+            shakeMultiplier = settings.GetFloat(section, "Camera - Speed Shake Multiplier", 1.0f);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -99,8 +101,8 @@ namespace LibertyTweaks
         public static void ApplyCameraShake(float intensity, NativeCamera cam, float lerpFactor)
         {
             Vector3 targetShakeOffset = new Vector3(
-                (float)(random.NextDouble() * 2 - 1) * intensity,  // left-right
-                (float)(random.NextDouble() * 2 - 1) * intensity,  // up-down
+                (float)(random.NextDouble() * 2 - 1) * intensity,
+                (float)(random.NextDouble() * 2 - 1) * intensity,
                 (float)(random.NextDouble() * 2 - 1) * intensity
             );
 

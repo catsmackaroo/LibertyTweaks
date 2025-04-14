@@ -1,4 +1,5 @@
 ﻿using CCL.GTAIV;
+using DocumentFormat.OpenXml.Spreadsheet;
 using IVSDKDotNet;
 using System;
 using System.Windows.Forms;
@@ -22,17 +23,21 @@ namespace LibertyTweaks
         private const uint radarOff = 0;
         private const uint radarBlipsOnly = 2;
         private static uint originalRadarMode = radarOn;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Toggle HUD", "Enable", true);
-            key = settings.GetKey("Toggle HUD", "Key", Keys.LMenu);
+            ToggleHUD.section = section;
+            enable = settings.GetBoolean(section, "Toggle HUD", false);
+            key = settings.GetKey(section, "Toggle HUD - Key", Keys.LMenu);
 
-            controllerKey1 = (ControllerButton)settings.GetInteger("Toggle HUD", "Controller Key 1", (int)ControllerButton.BUTTON_DPAD_DOWN);
-            controllerKey2 = (ControllerButton)settings.GetInteger("Toggle HUD", "Controller Key 2", (int)ControllerButton.BUTTON_B);
+            controllerKey1 = (ControllerButton)settings.GetInteger(section, "Toggle HUD - Controller Key", (int)ControllerButton.BUTTON_DPAD_DOWN);
+            controllerKey2 = (ControllerButton)settings.GetInteger(section, "Toggle HUD - Controller Key 2", (int)ControllerButton.BUTTON_B);
 
             if (enable)
+            {
                 Main.Log("script initialized...");
+                Main.Log($"Key: {key} | Controller Keys: {controllerKey1} + {controllerKey2}");
+            }
         }
 
         public static void Tick()

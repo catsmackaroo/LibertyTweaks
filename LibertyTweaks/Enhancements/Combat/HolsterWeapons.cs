@@ -20,14 +20,15 @@ namespace LibertyTweaks
         private static ControllerButton controllerKey2;
         private static DateTime lastProcessTime = DateTime.MinValue;
         private static readonly TimeSpan delay = TimeSpan.FromMilliseconds(500);
+        public static string section { get; private set; }
 
-        public static void Init(SettingsFile settings)
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Weapon Holstering", "Enable", true);
-            key = settings.GetKey("Weapon Holstering", "Key", Keys.H);
-            controllerKey1 = (ControllerButton)settings.GetInteger("Weapon Holstering", "Controller Key 1", (int)ControllerButton.BUTTON_DPAD_DOWN);
-            controllerKey2 = (ControllerButton)settings.GetInteger("Weapon Holstering", "Controller Key 2", (int)ControllerButton.BUTTON_A);
-
+            HolsterWeapons.section = section;
+            enable = settings.GetBoolean(section, "Weapon Holstering", false);
+            key = settings.GetKey(section, "Weapon Holstering - Key", Keys.H);
+            controllerKey1 = (ControllerButton)settings.GetInteger(section, "Weapon Holstering - Controller Key", (int)ControllerButton.BUTTON_DPAD_DOWN);
+            controllerKey2 = (ControllerButton)settings.GetInteger(section, "Weapon Holstering - Controller Key 2", (int)ControllerButton.BUTTON_A);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -56,14 +57,13 @@ namespace LibertyTweaks
 
             if (IS_PLAYER_PLAYING(Main.PlayerIndex))
             {
-                if (WeaponHelpers.GetWeaponType() != 0)
+                if (WeaponHelpers.GetCurrentWeaponType() != 0)
                 {
-                    lastWeapon = WeaponHelpers.GetWeaponType(); // Initialize lastWeapon
+                    lastWeapon = WeaponHelpers.GetCurrentWeaponType(); 
                     GIVE_DELAYED_WEAPON_TO_CHAR(Main.PlayerPed.GetHandle(), 0, 1, true);
                 }
-                else if (WeaponHelpers.GetWeaponInventory(false).Contains((IVSDKDotNet.Enums.eWeaponType)lastWeapon))
+                else if (WeaponHelpers.GetWeaponInventory(true).Contains((IVSDKDotNet.Enums.eWeaponType)lastWeapon))
                 {
-                    // The player is restoring the last weapon
                     GIVE_DELAYED_WEAPON_TO_CHAR(Main.PlayerPed.GetHandle(), lastWeapon, 1, true);
                     ADD_AMMO_TO_CHAR(Main.PlayerPed.GetHandle(), lastWeapon, -1);
                 }

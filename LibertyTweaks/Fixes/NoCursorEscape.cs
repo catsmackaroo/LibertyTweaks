@@ -8,9 +8,11 @@ namespace LibertyTweaks
     internal class NoCursorEscape
     {
         private static bool enable;
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "No Cursor Escape", true);
+            NoCursorEscape.section = section;
+            enable = settings.GetBoolean(section, "No Cursor Escape", false);
 
             if (enable)
                 Main.Log("script initialized...");

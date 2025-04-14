@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using static IVSDKDotNet.Native.Natives;
+
 namespace LibertyTweaks
 {
     public class Main : Script
@@ -28,11 +29,12 @@ namespace LibertyTweaks
         public static IVPed PlayerPed { get; private set; }
         public static IVVehicle PlayerVehicle { get; private set; }
         public static int PlayerIndex { get; private set; }
-        public static int CarCrashLevel { get; private set; }
-        public static float CarCrashDamageAmountNormalized { get; private set; }
+        public static int CarCrashLevel { get; set; }
+        public static float CarCrashDamageNormalized { get; private set; }
         public static int PlayerWantedLevel { get; private set; }
         public static float PlayerHealth { get; private set; }
         public static Vector3 PlayerPos { get; private set; }
+        public static uint Episode { get; private set; }
         #endregion
 
         #region Functions
@@ -44,7 +46,14 @@ namespace LibertyTweaks
             }
             return rnd.Next(x, y + 1);
         }
-
+        public static float GenerateRandomNumberFloat(float x, float y)
+        {
+            if (y < x)
+            {
+                y = x;
+            }
+            return (float)(rnd.NextDouble() * (y - x) + x);
+        }
         internal static CustomIVSave GetTheSaveGame()
         {
             return saveGame;
@@ -91,7 +100,6 @@ namespace LibertyTweaks
             ArmoredCops.LoadFiles();
         }
         #endregion
-
         private void Main_IngameStartup(object sender, EventArgs e)
         {
             QuickSave.IngameStartup();
@@ -99,10 +107,11 @@ namespace LibertyTweaks
             LoadingFadeIn.IngameStartup();
             WeaponMagazines.IngameStartup();
             ImprovedCrashes.IngameStartup();
+
+            Episode = GET_CURRENT_EPISODE();
             // 1.7 Stuff
             //Killcam.IngameStartup();
         }
-
         private void Main_Initialized(object sender, EventArgs e)
         {
             OnlyRaiseKeyEventsWhenInGame = true;
@@ -114,66 +123,35 @@ namespace LibertyTweaks
 
             // MAIN
             Log($"LibertyTweaks version {version} has loaded.");
-            HolsterWeapons.Init(Settings);
-            ImprovedAI.Init(Settings);
-            WeaponMagazines.Init(Settings);
-            SniperMovement.Init(Settings);
-            SniperScopeToggle.Init(Settings);
-            RemoveWeaponsOnDeath.Init(Settings);
-            DynamicFOV.Init(Settings);
-            QuickSave.Init(Settings);
-            AutosaveOnCollectibles.Init(Settings);
-            MoreCombatLines.Init(Settings);
-            SearchBody.Init(Settings);
-            VLikeScreaming.Init(Settings);
-            ArmoredCops.Init(Settings);
-            LoseStarsWhileUnseen.Init(Settings);
-            HealthRegeneration.Init(Settings);
-            ToggleHUD.Init(Settings);
-            Recoil.Init(Settings);
-            CarFireBreakdown.Init(Settings);
-            RealisticReloading.Init(Settings);
-            PersonalVehicle.Init(this, Settings);
-            ExtendedPedWeaponPool.Init(Settings);
-            PedsLockDoors.Init(Settings);
-            ArmorPenetration.Init(Settings);
-            IncreasedDamage.Init(Settings);
-            CarExplosionsRandomized.Init(Settings);
-            StaminaProgression.Init(Settings);
-            WeaponProgression.Init(Settings);
-            NoOvertaking.Init(Settings);
-            NoCursorEscape.Init(Settings);
-            IceCreamSpeechFix.Init(Settings);
-            WheelFix.Init(Settings);
-            UnholsteredGunFix.Init(Settings);
-            BrakeLights.Init(Settings);
-            ExtraHospitalSpawn.Init(Settings);
-            CopShotgunFix.Init(Settings);
-            LoadingFadeIn.Init(Settings);
-            DynamicMovement.Init(Settings);
-            AllowCopsAllMissions.Init(Settings);
-            CameraShake.Init(Settings);
-            CameraTilt.Init(Settings);
-            HighRPMShaking.Init(Settings);
-            ImprovedCrashes.Init(Settings);
-            DrivebyInPolice.Init(Settings);
-            NoWantedInVigilante.Init(Settings);
-            NoShootWithPhone.Init(Settings);
-            DisableHUDOnBlindfire.Init(Settings);
-            DisableCrosshairWithNoHUD.Init(Settings);
-            CarCrashShake.Init(Settings);
-            CarRollover.Init(Settings);
-            SkipRadioTrack.Init(Settings);
-            ShoulderSwap.Init(Settings);
-            PNSOverhaul.Init(Settings);
-            RunWithPhone.Init(Settings);
-            TimeSkipFix.Init(Settings);
-            SprintInInteriors.Init(Settings);
-            DisableHUDOnCinematic.Init(Settings);
-            CameraDynamicHeight.Init(Settings);
-            SmoothSniperZoom.Init(Settings);
+            WeaponHelpers.InitAddonAnims(Settings);
 
-            // 1.7 Stuff
+            var generalSection = "General";
+            var progressionSection = "Progression";
+            var pedsSection = "Peds";
+            var combatSection = "Weapons & Combat";
+            var vehiclesSection = "Vehicles";
+            var fixesSection = "Fixes";
+
+            Log($"Loading Liberty Tweaks configuration...");
+            Log($"Loading category [General]...");
+            LoadGeneralFeatures(Settings, generalSection);
+
+            Log($"Loading category [Progression]...");
+            LoadProgressionFeatures(Settings, progressionSection);
+
+            Log($"Loading [Peds]...");
+            LoadPedsFeatures(Settings, pedsSection);
+
+            Log($"Loading [Combat]...");
+            LoadCombatFeatures(Settings, combatSection);
+
+            Log($"Loading [Vehicles]...");
+            LoadVehicleFeatures(Settings, vehiclesSection);
+
+            Log($"Loading [Fixes]...");
+            LoadFixes(Settings, fixesSection);
+
+            // Unreleased & unfinished
             //Killcam.Init(Settings);
             //QuickSwitching.Init(Settings); 
             //WarpToShore.Init(Settings);
@@ -185,15 +163,106 @@ namespace LibertyTweaks
             //Hydraulics.Init(Settings);
             //Hydraulics.Init(Settings);
             //RandomizedPedRagdoll.Init(Settings);
+            //FixedShotgunReload.Init(Settings);
+
+        }
+        private void LoadGeneralFeatures(SettingsFile settings, string section)
+        {
+            DynamicFOV.Init(settings, section);
+            QuickSave.Init(settings, section);
+            AutosaveOnCollectibles.Init(settings, section);
+            DialogueCombat.Init(settings, section);
+            DialogueLooting.Init(settings, section);
+            DialogueFalling.Init(settings, section);
+            ToggleHUD.Init(settings, section);
+            SkipRadioSegments.Init(settings, section);
+            LoseStarsWhileUnseen.Init(settings, section);
+
+            WarpToShore.Init(settings, section);
+        }
+        private void LoadProgressionFeatures(SettingsFile settings, string section)
+        {
+            StaminaProgression.Init(settings, section);
+            WeaponProgression.Init(settings, section);
+        }
+        private void LoadPedsFeatures(SettingsFile settings, string section)
+        {
+            PedsLockDoors.Init(settings, section);
+            ImprovedAIAccuracyAndFirerates.Init(settings, section);
+            ArmoredCops.Init(settings, section);
+            ExtendedPedWeaponPool.Init(settings, section);
+
+            RandomizedPedEuphoria.Init(settings, section);
+        }
+
+        private void LoadCombatFeatures(SettingsFile settings, string section)
+        {
+            HolsterWeapons.Init(settings, section);
+            WeaponMagazines.Init(settings, section);
+            SniperMovement.Init(settings, section);
+            RemoveWeaponsOnDeath.Init(settings, section);
+            HealthRegeneration.Init(settings, section);
+            DynamicMovement.Init(settings, section);
+            SniperScopeToggle.Init(settings, section);
+            Recoil.Init(settings, section);
+            RealisticReloading.Init(settings, section);
+            ArmorPenetration.Init(settings, section);
+            ShoulderSwap.Init(settings, section);
+
+            //ImprovedRolling.Init(settings, section);
+            QuickSwitching.Init(settings, section);
+            DisableSprintWithHeavyWeapons.Init(settings, section);
+        }
+
+        private void LoadVehicleFeatures(SettingsFile settings, string section)
+        {
+            PersonalVehicle.Init(this, settings, section);
+            VehiclesBreakOnFire.Init(settings, section);
+            CarExplosionsRandomized.Init(settings, section);
+            CameraTiltAndRotation.Init(settings, section);
+            CameraShake.Init(settings, section);
+            CarCrashShake.Init(settings, section);
+            CameraDynamicHeight.Init(settings, section);
+            CarRollover.Init(settings, section);
+            HighRPMShaking.Init(settings, section);
+            ImprovedCrashes.Init(settings, section);
+            PNSOverhaul.Init(settings, section);
+        }
+
+        private void LoadFixes(SettingsFile settings, string section)
+        {
+            LessOvertaking.Init(settings, section);
+            IceCreamSpeechFix.Init(settings, section);
+            WheelFix.Init(settings, section);
+            BrakeLights.Init(settings, section);
+            ExtraHospitalSpawn.Init(settings, section);
+            CopShotgunFix.Init(settings, section);
+            NoCursorEscape.Init(settings, section);
+            LoadingFadeIn.Init(settings, section);
+            AllowCopsAllMissions.Init(settings, section);
+            DrivebyInPolice.Init(settings, section);
+            NoWantedInVigilante.Init(settings, section);
+            NoShootWithPhone.Init(settings, section);
+            DisableHUDOnBlindfire.Init(settings, section);
+            DisableHUDOnCinematic.Init(settings, section);
+            DisableCrosshairWithNoHUD.Init(settings, section);
+            RunWithPhone.Init(settings, section);
+            TimeSkipFix.Init(settings, section);
+            SprintInInteriors.Init(settings, section);
+            SmoothSniperZoom.Init(settings, section);
+            UnholsteredGunFix.Init(settings, section);
+
+            RollInAirFix.Init(settings, section);
         }
 
         private void Main_ProcessCamera(object sender, EventArgs e)
         {
             DynamicFOV.Tick();
             CameraShake.Tick();
-            CameraTilt.Tick();
+            CameraTiltAndRotation.Tick();
             CameraDynamicHeight.Tick();
             SmoothSniperZoom.Tick();
+            Recoil.Tick();
         }
 
         private void Main_ProcessAutomobile(UIntPtr vehPtr)
@@ -211,14 +280,13 @@ namespace LibertyTweaks
             STORE_WANTED_LEVEL(PlayerIndex, out uint playerWantedLevel);
             PlayerWantedLevel = (int)playerWantedLevel;
 
-
             PedHelper.GrabAllPeds();
             PedHelper.GrabAllVehicles();
 
             PlayerVehicle = IS_CHAR_IN_ANY_CAR(PlayerPed.GetHandle()) ? IVVehicle.FromUIntPtr(PlayerPed.GetVehicle()) : null;
             var (_, damageLevel, normalizedDamage) = PlayerHelper.GetVehicleDamage();
             CarCrashLevel = damageLevel;
-            CarCrashDamageAmountNormalized = normalizedDamage;
+            CarCrashDamageNormalized = normalizedDamage;
 
             GET_GAME_TIMER(out uint gameTimer);
             gameTimer = (uint)(gameTimer / 1000.0);
@@ -235,11 +303,11 @@ namespace LibertyTweaks
 
         private void TickFeatures()
         {
-            ImprovedAI.Tick();
+            ImprovedAIAccuracyAndFirerates.Tick();
             WeaponMagazines.Tick();
             SniperMovement.Tick();
-            MoreCombatLines.Tick();
-            SearchBody.Tick();
+            DialogueCombat.Tick();
+            DialogueLooting.Tick();
             ArmoredCops.Tick();
             HealthRegeneration.Tick();
             Recoil.Tick();
@@ -248,7 +316,6 @@ namespace LibertyTweaks
             ExtendedPedWeaponPool.Tick();
             PedsLockDoors.Tick();
             ArmorPenetration.Tick();
-            IncreasedDamage.Tick();
             RemoveWeaponsOnDeath.Tick();
             CarExplosionsRandomized.Tick();
             StaminaProgression.Tick();
@@ -270,7 +337,7 @@ namespace LibertyTweaks
             DisableCrosshairWithNoHUD.Tick();
             CameraShake.Tick();
             CarCrashShake.Tick();
-            NoOvertaking.Tick();
+            LessOvertaking.Tick();
             CarRollover.Tick();
             ShoulderSwap.Tick();
             PNSOverhaul.Tick();
@@ -280,14 +347,23 @@ namespace LibertyTweaks
             DisableHUDOnCinematic.Tick();
             CameraDynamicHeight.Tick();
             SmoothSniperZoom.Tick();
+
+            // 1.7
+            RollInAirFix.Tick();
+            RandomizedPedEuphoria.Tick();
+            DisableSprintWithHeavyWeapons.Tick();
+            QuickSwitching.Tick();
+            WarpToShore.Tick();
+            //ImprovedRolling.Tick();
+            //FixedShotgunReload.Tick();
         }
 
         private void FixedTickFeatures()
         {
             AutosaveOnCollectibles.Tick();
             LoseStarsWhileUnseen.Tick();
-            VLikeScreaming.Tick();
-            CarFireBreakdown.Tick();
+            DialogueFalling.Tick();
+            VehiclesBreakOnFire.Tick();
             CopShotgunFix.Tick();
             AllowCopsAllMissions.Tick();
             UnholsteredGunFix.Tick();
@@ -298,26 +374,18 @@ namespace LibertyTweaks
         {
             // 1.6 - More gameplay focused
             Killcam.Tick();
-            QuickSwitching.Tick();
-            WarpToShore.Tick();
-            DisableSprintWithHeavyWeapons.Tick();
-            ImprovedRolling.Tick();
             RandomPedCarColors.Tick();
-            RandomizedPedRagdoll.Tick();
 
             // 1.7 - World focused
             Hydraulics.Tick();
         }
         private void Main_KeyDown(object sender, KeyEventArgs e)
         {
-            //if (e.KeyCode == WarpToShore.key)
-            //    WarpToShore.Process();
-
             if (e.KeyCode == ShoulderSwap.key)
                 ShoulderSwap.Process();
 
-            if (e.KeyCode == SkipRadioTrack.key)
-                SkipRadioTrack.Process();
+            if (e.KeyCode == SkipRadioSegments.key)
+                SkipRadioSegments.Process();
 
             if (e.KeyCode == ToggleHUD.key)
                 ToggleHUD.Process();
@@ -342,7 +410,13 @@ namespace LibertyTweaks
             if (verboseLogging == true)
             {
                 var fileName = System.IO.Path.GetFileName(filePath);
-                IVGame.Console.Print($"Liberty Tweaks - [{fileName}] {message}");
+
+                if (fileName == "Main.cs")
+                    fileName = string.Empty;
+                else
+                    fileName = $"[{fileName}]";
+
+                IVGame.Console.Print($"Liberty Tweaks - {fileName} {message}");
             }
         }
         public static void LogError(string message)

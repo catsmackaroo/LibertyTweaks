@@ -1,11 +1,7 @@
-﻿using System;
-using System.Windows.Forms;
-using System.Collections.Generic;
-using System.IO;
+﻿using CCL.GTAIV;
 using IVSDKDotNet;
+using System;
 using static IVSDKDotNet.Native.Natives;
-using CCL;
-using CCL.GTAIV;
 
 namespace LibertyTweaks
 {
@@ -19,9 +15,11 @@ namespace LibertyTweaks
         private static uint day;
         private static uint newDay;
         private static int hour;
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "Time Skip Fix", true);
+            TimeSkipFix.section = section;
+            enable = settings.GetBoolean(section, "Time Skip Fix", false);
 
             if (enable)
                 Main.Log("script initialized...");

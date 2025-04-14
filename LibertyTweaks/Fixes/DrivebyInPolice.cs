@@ -1,19 +1,19 @@
-﻿using IVSDKDotNet;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using static IVSDKDotNet.Native.Natives;
-using CCL.GTAIV;
-using System;
-using IVSDKDotNet.Attributes;
-using System.Numerics;
+
+// Credits: catsmackaroo
 
 namespace LibertyTweaks.Enhancements.Driving
 {
     internal class DrivebyInPolice
     {
         private static bool enable;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "Driveby in Stationary Police Car", true);
+            DrivebyInPolice.section = section;
+            enable = settings.GetBoolean(section, "Driveby in Stationary Police Car", false);
 
             if (enable)
                 Main.Log("script initialized...");

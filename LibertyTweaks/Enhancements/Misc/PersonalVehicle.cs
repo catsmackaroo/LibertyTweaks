@@ -113,23 +113,26 @@ namespace LibertyTweaks
             }
             return Vector3.Zero;
         }
-
-        public static void Init(Script instance, SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(Script instance, SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Personal Vehicle", "Enable", true);
-            enableReplaceParkedVeh = settings.GetBoolean("Personal Vehicle", "Deliveries", true);
-            enableImpound = settings.GetBoolean("Personal Vehicle", "Impound", true);
-            enableAlwaysUnlocked = settings.GetBoolean("Personal Vehicle", "Service Always Unlocked", true);
-            controllerKey1 = (ControllerButton)settings.GetInteger("Personal Vehicle", "Controller Key", (int)ControllerButton.BUTTON_A);
+            PersonalVehicle.section = section;
+            var section2 = "Extensive Settings";    
 
-            northAlgonquinPNS = ParseVector3(settings.GetValue("Extensive Settings", "North Algonquin", "-335,1531,19"));
-            southAlgonquinPNS = ParseVector3(settings.GetValue("Extensive Settings", "South Algonquin", "-481,350,6"));
-            dukesPNS = ParseVector3(settings.GetValue("Extensive Settings", "Dukes", "1044,-332,18"));
-            northAlderneyPNS = ParseVector3(settings.GetValue("Extensive Settings", "North Alderney", "-1125,1185,16"));
-            southAlderneyPNS = ParseVector3(settings.GetValue("Extensive Settings", "South Alderney", "-1308,272,10"));
-            stevieLocation = ParseVector3(settings.GetValue("Extensive Settings", "Stevie", "722,1392,14"));
+            enable = settings.GetBoolean(section, "Personal Vehicles", false);
+            enableReplaceParkedVeh = settings.GetBoolean(section, "Personal Vehicles - Deliveries", false);
+            enableImpound = settings.GetBoolean(section, "Personal Vehicles - Impound", false);
+            enableAlwaysUnlocked = settings.GetBoolean(section, "Personal Vehicles - Service Always Unlocked", false);
+            //controllerKey1 = (ControllerButton)settings.GetInteger(section, "Personal Vehicles - Controller Key", (int)ControllerButton.BUTTON_A);
 
-            int additionalPNSCount = settings.GetInteger("Extensive Settings", "AdditionalCount", 0);
+            northAlgonquinPNS = ParseVector3(settings.GetValue(section2, "North Algonquin", "-335,1531,19"));
+            southAlgonquinPNS = ParseVector3(settings.GetValue(section2, "South Algonquin", "-481,350,6"));
+            dukesPNS = ParseVector3(settings.GetValue(section2, "Dukes", "1044,-332,18"));
+            northAlderneyPNS = ParseVector3(settings.GetValue(section2, "North Alderney", "-1125,1185,16"));
+            southAlderneyPNS = ParseVector3(settings.GetValue(section2, "South Alderney", "-1308,272,10"));
+            stevieLocation = ParseVector3(settings.GetValue(section2, "Stevie", "722,1392,14"));
+
+            int additionalPNSCount = settings.GetInteger(section2, "AdditionalCount", 0);
             Main.Log($"Additional PNS Count: {additionalPNSCount}");
             for (int i = 1; i <= additionalPNSCount; i++)
             {
@@ -157,8 +160,6 @@ namespace LibertyTweaks
                 });
             }
         }
-
-
         public static void IngameStartup()
         {
             if (!enable)
@@ -234,16 +235,16 @@ namespace LibertyTweaks
                 }
 
                 // Controller support
-                if (IS_USING_CONTROLLER())
-                {
-                    bool controllerKeyPressed = NativeControls.IsControllerButtonPressed(padIndex, controllerKey1);
+                //if (IS_USING_CONTROLLER())
+                //{
+                //    bool controllerKeyPressed = NativeControls.IsControllerButtonPressed(padIndex, controllerKey1);
 
-                    if (controllerKeyPressed && DateTime.Now - lastProcessTime >= delay)
-                    {
-                        Process();
-                        lastProcessTime = DateTime.Now;
-                    }
-                }
+                //    if (controllerKeyPressed && DateTime.Now - lastProcessTime >= delay)
+                //    {
+                //        Process();
+                //        lastProcessTime = DateTime.Now;
+                //    }
+                //}
             }
 
             // Cleanup when starting new game
@@ -287,7 +288,6 @@ namespace LibertyTweaks
                     LOCK_CAR_DOORS(savedVehicle.GetHandle(), 1);
 
                 HandleSaving();
-                HandleMissionBlipVisibility();
                 ManageVehicleBlip();
                 HandleMissionCompletion();
                 HandleVehicleStatus();
@@ -315,7 +315,13 @@ namespace LibertyTweaks
             currentEpisode = GET_CURRENT_EPISODE();
 
             newGameCleanup = false;
-            SpawnSavedVehicle();
+
+            // Delaying the spawn to fix a bug where this car would be the only car in the area when first loading
+            Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(0.5), "Main", () =>
+            {
+                SpawnSavedVehicle();
+            });
+
             AddServiceLocations();
             firstFrame = false;
         }
@@ -397,7 +403,6 @@ namespace LibertyTweaks
                 Cleanup();
             }
         }
-
         private static void HandleSaving()
         {
             if (GET_IS_DISPLAYINGSAVEMESSAGE() && !hasSaved)
@@ -408,16 +413,6 @@ namespace LibertyTweaks
             {
                 SaveVehicleData();
                 hasSaved = false;
-            }
-        }
-        private static void HandleMissionBlipVisibility()
-        {
-            if (vehBlip != null)
-            {
-                if (IVTheScripts.IsPlayerOnAMission())
-                    vehBlip.ShowOnlyWhenNear = true;
-                else if (vehBlip.ShowOnlyWhenNear == true)
-                    vehBlip.ShowOnlyWhenNear = false;
             }
         }
         private static (Vector3 nearestLocation, int nearestIndex) FindNearestLocation(Vector3 currentPos, List<Vector3> locations)
@@ -738,6 +733,9 @@ namespace LibertyTweaks
             if (savedVehicle == null)
                 return;
 
+            var distance = Vector3.Distance(Main.PlayerPos, savedVehicle.Matrix.Pos);
+
+            // Deletion management
             if (IS_CHAR_IN_CAR(Main.PlayerPed.GetHandle(), savedVehicle.GetHandle()))
             {
                 if (vehBlip != null)
@@ -764,7 +762,26 @@ namespace LibertyTweaks
                     Main.Log($"Error attaching blip to saved vehicle. Restarting the game may fix this issue.");
                     isBlipAttached = true;
                 }
+            }
 
+            // Scale management
+            if (vehBlip != null)
+            {
+                if (distance <= 8)
+                    vehBlip.Scale = 0f;
+                else if (distance <= 18)
+                    vehBlip.Scale = 0.8f;
+                else
+                    vehBlip.Scale = 1f;
+            }
+
+            // Mission management
+            if (vehBlip != null)
+            {
+                if (IVTheScripts.IsPlayerOnAMission())
+                    vehBlip.ShowOnlyWhenNear = true;
+                else if (vehBlip.ShowOnlyWhenNear == true)
+                    vehBlip.ShowOnlyWhenNear = false;
             }
         }
         private static void HandleImpoundLogic()

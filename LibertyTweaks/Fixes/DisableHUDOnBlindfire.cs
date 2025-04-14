@@ -8,24 +8,26 @@ namespace LibertyTweaks
     internal class DisableHUDOnBlindfire
     {
         private static bool enable;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "BlindFire Disable HUD", true);
+            DisableHUDOnBlindfire.section = section;
+            enable = settings.GetBoolean(section, "BlindFire Disable HUD", false);
 
             if (enable)
                 Main.Log("script initialized...");
         }
         public static void Tick()
         {
+            if (!enable)
+                return;
+
             bool HudIsOn = IVMenuManager.HudOn;
-            if (enable)
-            {
-                if (PlayerHelper.IsBlindfiring()&& HudIsOn)
-                    DISPLAY_HUD(false);
-                else if (!PlayerHelper.IsBlindfiring() && HudIsOn)
-                    DISPLAY_HUD(true);
-            }
+
+            if (WeaponHelpers.IsPlayerBlindfiring()&& HudIsOn)
+                DISPLAY_HUD(false);
+            else if (!WeaponHelpers.IsPlayerBlindfiring() && HudIsOn)
+                DISPLAY_HUD(true);
         }
     }
 }

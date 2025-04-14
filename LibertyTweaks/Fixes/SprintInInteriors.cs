@@ -10,10 +10,11 @@ namespace LibertyTweaks
     internal class SprintInInteriors
     {
         private static bool enable;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "Sprint in Interiors", true);
+            SprintInInteriors.section = section;
+            enable = settings.GetBoolean(section, "Sprint in Interiors", false);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -27,7 +28,7 @@ namespace LibertyTweaks
             if (IS_PED_RAGDOLL(Main.PlayerPed.GetHandle())
                 || IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle())
                 || IVPhoneInfo.ThePhoneInfo.State > 1000
-                || PlayerHelper.IsAiming())
+                || WeaponHelpers.IsPlayerAiming())
                 return;
 
             if (IS_INTERIOR_SCENE() && Main.PlayerPed.PlayerInfo.Stamina > 0)

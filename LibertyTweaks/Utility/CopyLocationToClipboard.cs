@@ -1,8 +1,6 @@
 ﻿using CCL.GTAIV;
 using IVSDKDotNet;
-using System;
 using System.Windows.Forms;
-using static IVSDKDotNet.Native.Natives;
 
 namespace LibertyTweaks
 {
@@ -19,7 +17,7 @@ namespace LibertyTweaks
             if (enable)
                 Main.Log("script initialized...");
         }
-        public static void Process() 
+        public static void Process()
         {
             if (!enable)
                 return;

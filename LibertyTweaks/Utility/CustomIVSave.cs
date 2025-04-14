@@ -1,8 +1,8 @@
 using IVSDKDotNet;
-using static IVSDKDotNet.Native.Natives;
 using System.Drawing;
 using System.Numerics;
 using System.Windows.Forms;
+using static IVSDKDotNet.Native.Natives;
 
 // Credits: ItsClonkAndre
 

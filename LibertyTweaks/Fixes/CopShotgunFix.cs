@@ -9,10 +9,11 @@ namespace LibertyTweaks
     internal class CopShotgunFix
     {
         public static bool enable;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "Cop Shotgun Fix", true);
+            CopShotgunFix.section = section;
+            enable = settings.GetBoolean(section, "Cop Shotgun Fix", false);
 
             if (enable)
                 Main.Log("script initialized...");

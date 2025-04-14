@@ -22,19 +22,21 @@ namespace LibertyTweaks
         private static int regenHealthMaxTimer;
         private static int regenHealthMinHeal;
         private static int regenHealthMaxHeal;
+        public static string section { get; private set; }
 
-        public static void Init(SettingsFile settings)
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Health Regeneration", "Enable", true);
-            enableOutOfCombatRegen = settings.GetBoolean("Health Regeneration", "Out of Combat Health Regen", true);
+            HealthRegeneration.section = section;
+            enable = settings.GetBoolean(section, "Health Regeneration", false);
+            enableOutOfCombatRegen = settings.GetBoolean(section, "Health Regeneration - Out of Combat Regen", false);
 
-            combatHealthRegenTo = (uint)settings.GetInteger("Health Regeneration", "Combat Health Regen To", 126);
-            outOfCombatHealthRegenTo = (uint)settings.GetInteger("Health Regeneration", "Out of Combat Health Regen To", 150);
+            combatHealthRegenTo = (uint)settings.GetInteger(section, "Health Regeneration - In Combat Regen To HP", 126);
+            outOfCombatHealthRegenTo = (uint)settings.GetInteger(section, "Health Regeneration - Out of Combat Regen To HP", 150);
 
-            regenHealthMinTimer = settings.GetInteger("Health Regeneration", "Regen Timer Minimum", 30);
-            regenHealthMaxTimer = settings.GetInteger("Health Regeneration", "Regen Timer Maximum", 60);
-            regenHealthMinHeal = settings.GetInteger("Health Regeneration", "Minimum Heal Amount", 5);
-            regenHealthMaxHeal = settings.GetInteger("Health Regeneration", "Maximum Heal Amount", 10);
+            regenHealthMinTimer = settings.GetInteger(section, "Health Regeneration - Regen Timer Minimum", 30);
+            regenHealthMaxTimer = settings.GetInteger(section, "Health Regeneration - Regen Timer Maximum", 60);
+            regenHealthMinHeal = settings.GetInteger(section, "Health Regeneration - Minimum Heal Amount Per Tick", 5);
+            regenHealthMaxHeal = settings.GetInteger(section, "Health Regeneration - Maximum Heal Amount Per Tick", 10);
 
             if (enable)
                 Main.Log("script initialized...");

@@ -13,9 +13,12 @@ namespace LibertyTweaks
 
         private static bool saidStealingLine;
         private static bool enable;
-        public static void Init(SettingsFile settings)
+
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "Ice Cream Speech Fix", true);
+            IceCreamSpeechFix.section = section;
+            enable = settings.GetBoolean(section, "Ice Cream Theft Speech", false);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -23,7 +26,7 @@ namespace LibertyTweaks
 
         public static void Tick()
         {
-            if (!enable) 
+            if (!enable)
                 return;
 
             // Checks if the player is trying to enter a locked car

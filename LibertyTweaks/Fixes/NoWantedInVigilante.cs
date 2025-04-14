@@ -10,10 +10,11 @@ namespace LibertyTweaks
     internal class NoWantedInVigilante
     {
         private static bool enable;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "Never Wanted in Vigilante", true);
+            NoWantedInVigilante.section = section;
+            enable = settings.GetBoolean(section, "Never Wanted in Vigilante", false);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -32,7 +33,7 @@ namespace LibertyTweaks
                 {
                     STORE_WANTED_LEVEL(Main.PlayerIndex, out uint wantedLevel);
 
-                    if (wantedLevel != 0)
+                    if (wantedLevel != 0 && wantedLevel <= 3)
                     {
                         ALTER_WANTED_LEVEL(Main.PlayerIndex, 0);
                         APPLY_WANTED_LEVEL_CHANGE_NOW(Main.PlayerIndex);

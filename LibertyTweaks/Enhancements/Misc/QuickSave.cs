@@ -1,8 +1,10 @@
 ﻿using CCL.GTAIV;
+using DocumentFormat.OpenXml.Presentation;
 using IVSDKDotNet;
 using IVSDKDotNet.Native;
 using System;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using static IVSDKDotNet.Native.Natives;
 
@@ -27,20 +29,24 @@ namespace LibertyTweaks
 
         private static Vector3 lastSavedPosition;
         private static bool firstFrame = true;
-
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Quick-Saving", "Enable", true);
-            location = settings.GetBoolean("Quick-Saving", "Save Location", true);
-            quickOrSelected = settings.GetBoolean("Quick-Saving", "Select Saves", true);
-            key = settings.GetKey("Quick-Saving", "Key", Keys.F9);
-            controllerKey1 = (ControllerButton)settings.GetInteger("Quick-Saving", "Controller Key 1", (int)ControllerButton.BUTTON_DPAD_DOWN);
-            controllerKey2 = (ControllerButton)settings.GetInteger("Quick-Saving", "Controller Key 2", (int)ControllerButton.BUTTON_START);
+            QuickSave.section = section;
+            enable = settings.GetBoolean(section, "Quick-Saving", false);
+            location = settings.GetBoolean(section, "Quick-Saving - Save Location", false);
+            quickOrSelected = settings.GetBoolean(section, "Quick-Saving - Select Saves", false);
+            key = settings.GetKey(section, "Quick-Saving - Key", Keys.F9);
+            controllerKey1 = (ControllerButton)settings.GetInteger(section, "Quick-Saving - Controller Key", (int)ControllerButton.BUTTON_DPAD_DOWN);
+            controllerKey2 = (ControllerButton)settings.GetInteger(section, "Quick-Saving - Controller Key 2", (int)ControllerButton.BUTTON_START);
 
             if (enable)
+            {
                 Main.Log("script initialized...");
+                Main.Log($"Save Location: {location} | Select Saves: {quickOrSelected} | Key: {key} | Controller Keys: {controllerKey1} + {controllerKey2}");
+            }
         }
+
 
         public static void Tick()
         {
@@ -56,25 +62,18 @@ namespace LibertyTweaks
             // Only teleport player on very first frame
             if (firstFrame)
             {
-                try
-                {
-                    // Teleport player to last saved position if there is a last saved position
-                    lastSavedPosition = Main.GetTheSaveGame().GetVector3("PlayerPosition");
-                    float lastSavedPlayerHeading = Main.GetTheSaveGame().GetFloat("PlayerHeading");
+                // Teleport player to last saved position if there is a last saved position
+                lastSavedPosition = Main.GetTheSaveGame().GetVector3("PlayerPosition");
+                float lastSavedPlayerHeading = Main.GetTheSaveGame().GetFloat("PlayerHeading");
 
-                    if (lastSavedPosition != Vector3.Zero)
+                if (lastSavedPosition != Vector3.Zero)
+                {
+                    if (lastSavedPlayerHeading != 0)
                     {
-                        if (lastSavedPlayerHeading != 0)
-                        {
-                            Main.PlayerPed.Teleport(lastSavedPosition, false, true);
-                            SET_CHAR_HEADING(Main.PlayerPed.GetHandle(), lastSavedPlayerHeading);
-                            CLEAR_ROOM_FOR_CHAR(Main.PlayerPed.GetHandle());
-                        }
+                        Main.PlayerPed.Teleport(lastSavedPosition, false, true);
+                        SET_CHAR_HEADING(Main.PlayerPed.GetHandle(), lastSavedPlayerHeading);
+                        CLEAR_ROOM_FOR_CHAR(Main.PlayerPed.GetHandle());
                     }
-                }
-                catch (System.Exception) 
-                {
-
                 }
 
                 firstFrame = false;
@@ -101,7 +100,6 @@ namespace LibertyTweaks
                 }
             }
         }
-
         public static void IngameStartup()
         {
             if (!enable)

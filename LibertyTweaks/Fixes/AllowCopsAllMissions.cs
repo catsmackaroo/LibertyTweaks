@@ -8,10 +8,11 @@ namespace LibertyTweaks
     internal class AllowCopsAllMissions
     {
         private static bool enable;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "Allow Cops All Missions", true);
+            AllowCopsAllMissions.section = section;
+            enable = settings.GetBoolean(section, "Allow Cops All Missions", false);
 
             if (enable)
                 Main.Log("script initialized...");

@@ -11,10 +11,11 @@ namespace LibertyTweaks
     {
         private static bool enable;
         private static bool added = false;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "Unused Hospital Respawn", true);
+            ExtraHospitalSpawn.section = section;
+            enable = settings.GetBoolean(section, "Unused Hospital Respawn", false);
         }
 
         public static void Tick()

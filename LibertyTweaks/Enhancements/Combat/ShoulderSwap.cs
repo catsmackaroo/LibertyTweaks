@@ -25,17 +25,22 @@ namespace LibertyTweaks
         private static bool IsSwapped = false;
         private static int obj1 = 0;
         private static int obj2 = 0;
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Shoulder Swap", "Enable", true);
-            enableResetWhenNotAiming = settings.GetBoolean("Shoulder Swap", "Reset When Not Aiming", false);
-
-            key = settings.GetKey("Shoulder Swap", "Key", Keys.B);
-            controllerKey1 = (ControllerButton)settings.GetInteger("Shoulder Swap", "Controller Key", (int)ControllerButton.BUTTON_BUMPER_LEFT);
+            ShoulderSwap.section = section;
+            enable = settings.GetBoolean(section, "Shoulder Swap", false);
+            enableResetWhenNotAiming = settings.GetBoolean(section, "Shoulder Swap - Reset When Not Aiming", false);
+            key = settings.GetKey(section, "Shoulder Swap - Key", Keys.B);
+            controllerKey1 = (ControllerButton)settings.GetInteger(section, "Shoulder Swap - Controller Key", (int)ControllerButton.BUTTON_BUMPER_LEFT);
 
 
             if (enable)
+            {
                 Main.Log("script initialized...");
+                Main.Log($"Key: {key} | Controller Key: {controllerKey1} | Reset When Not Aiming: {enableResetWhenNotAiming}");
+
+            }
         }
 
         public static void Process()
@@ -60,7 +65,7 @@ namespace LibertyTweaks
             if (!enable || IS_PAUSE_MENU_ACTIVE() || IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle()))
                 return;
 
-            if (IS_USING_CONTROLLER() && PlayerHelper.IsAiming() || WeaponHelpers.IsReloading())
+            if (IS_USING_CONTROLLER() && WeaponHelpers.IsPlayerAiming())
             {
                 if (NativeControls.IsControllerButtonPressed(padIndex, controllerKey1))
                 {
@@ -75,7 +80,8 @@ namespace LibertyTweaks
             NativeCamera cam = NativeCamera.GetGameCam();
             if (cam == null) return;
 
-            if (PlayerHelper.IsAiming())
+            if (WeaponHelpers.IsPlayerAiming() 
+                || (NativeControls.IsGameKeyPressed(0, GameKey.Aim) || NativeControls.IsGameKeyPressed(0, GameKey.Attack) && WeaponHelpers.IsHoldingGun()))
             {
                 if (IsSwapped == true)
                 {

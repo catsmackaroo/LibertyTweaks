@@ -9,9 +9,11 @@ namespace LibertyTweaks
     {
         private static bool enable;
         private static bool firstFrame = true;
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "Loading Fade In", true);
+            LoadingFadeIn.section = section;
+            enable = settings.GetBoolean(section, "Loading Fade In", false);
 
             if (enable)
                 Main.Log("script initialized...");

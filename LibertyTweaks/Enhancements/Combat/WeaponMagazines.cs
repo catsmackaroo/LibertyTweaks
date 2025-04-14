@@ -23,10 +23,13 @@ namespace LibertyTweaks
         private static bool isAnyGunReloadingAnimPlaying;
         private static int magObj1, magObj2;
 
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Gun Magazines", "Enable", true);
-            disableForWeapons = settings.GetValue("Gun Magazines", "DisabledWeaponTypes", "").Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            WeaponMagazines.section = section;
+            enable = settings.GetBoolean(section, "Weapon Magazines", false);
+            disableForWeapons = settings.GetValue(section, "Weapon Magazines - Disabled Weapon Types", "").Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
             if (enable)
                 Main.Log("script initialized...");
@@ -130,6 +133,8 @@ namespace LibertyTweaks
                 }
                 else if (currentReloadAnimTime.InRange(0.22f, 0.28f)) // Throw away old mag
                 {
+                    RealisticReloading.canQuickReload = false;
+
                     if (magObj1 != 0 && canDispose)
                         DETACH_OBJECT(magObj1, true);
                     else if (magObj1 != 0 && !canDispose)
@@ -272,6 +277,8 @@ namespace LibertyTweaks
                 }
                 else if (currentReloadAnimTime.InRange(0.16f, 0.27f)) // Detach Old Mag Obj
                 {
+                    RealisticReloading.canQuickReload = false;
+
                     if (magObj1 != 0 && canDispose)
                         DETACH_OBJECT(magObj1, true);
                     if (magObj1 != 0 && !canDispose)
@@ -348,6 +355,8 @@ namespace LibertyTweaks
                 }
                 else if (currentReloadAnimTime.InRange(0.21f, 0.3f)) // Detach Old Mag Obj
                 {
+                    RealisticReloading.canQuickReload = false;
+
                     if (magObj1 != 0  && canDispose)
                         DETACH_OBJECT(magObj1, true);
                     if (magObj1 != 0 && !canDispose)
@@ -421,6 +430,8 @@ namespace LibertyTweaks
                 }
                 else if (currentReloadAnimTime.InRange(0.2f, 0.3f)) // Detach Old Mag Obj
                 {
+                    RealisticReloading.canQuickReload = false;
+
                     if (magObj1 != 0 && canDispose)
                         DETACH_OBJECT(magObj1, true);
                     else if (magObj1 != 0 && !canDispose)

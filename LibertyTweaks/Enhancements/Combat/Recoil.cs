@@ -8,7 +8,7 @@ using static IVSDKDotNet.Native.Natives;
 
 namespace LibertyTweaks
 {
-    
+
     [ShowStaticFieldsInInspector]
     internal class Recoil
     {
@@ -54,12 +54,12 @@ namespace LibertyTweaks
         public static float CrouchMultiplier { get; private set; }
 
         private const string ExtensiveSettings = "Extensive Settings";
-        private const string ImmersiveRecoil = "Immersive Recoil";
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean(ImmersiveRecoil, "Enable", true);
-            enableIncrease = settings.GetBoolean(ImmersiveRecoil, "Increasing Recoil", true);
+            Recoil.section = section;
+            enable = settings.GetBoolean(section, "Gun Recoil", false);
+            enableIncrease = settings.GetBoolean(section, "Gun Recoil - Increases Overtime", false);
 
             // Small Pistol Settings
             SmallPistolAmplitude = settings.GetFloat(ExtensiveSettings, "Pistol Amplitude Range 1", 0.4f);
@@ -129,12 +129,11 @@ namespace LibertyTweaks
             if (isPlayerCrouched)
                 appliedRecoil *= CrouchMultiplier;
 
-            if (IS_CHAR_SHOOTING(Main.PlayerPed.GetHandle()) && !IS_CAM_SHAKING())
+            if (IS_CHAR_SHOOTING(Main.PlayerPed.GetHandle()))
             {
                 GET_CURRENT_CHAR_WEAPON(Main.PlayerPed.GetHandle(), out int currentWeapon);
                 IVWeaponInfo currentWeaponInfo = IVWeaponInfo.GetWeaponInfo((uint)currentWeapon);
                 WeaponGroup weaponGroup = (WeaponGroup)currentWeaponInfo.Group;
-
                 ApplyRecoil(cam, weaponGroup, appliedRecoil);
             }
         }

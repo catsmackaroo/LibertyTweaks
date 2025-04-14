@@ -1,21 +1,19 @@
 ﻿using CCL.GTAIV;
-
 using IVSDKDotNet;
-using IVSDKDotNet.Enums;
-using System;
 using static IVSDKDotNet.Native.Natives;
 
-// Credits: AssaultKifle47, ItsClonkAndre
+// Credits: catsmackaroo
 
 namespace LibertyTweaks
 {
     internal class NoShootWithPhone
     {
         private static bool enable;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "Disable Driveby During Phone", true);
+            NoShootWithPhone.section = section;
+            enable = settings.GetBoolean(section, "Disable Driveby During Phone", false);
 
             if (enable)
                 Main.Log("script initialized...");

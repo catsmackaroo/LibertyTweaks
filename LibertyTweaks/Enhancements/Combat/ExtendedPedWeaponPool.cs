@@ -1,9 +1,7 @@
-﻿using System;
+﻿using IVSDKDotNet;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
-using CCL.GTAIV;
-using IVSDKDotNet;
-using IVSDKDotNet.Enums;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: ItsClonkAndre, catsmackaroo
@@ -51,10 +49,11 @@ namespace LibertyTweaks
                 return $"Episode: {Episode}, Area: {Area}, PedTypes: [{string.Join(", ", PedTypes)}], Weapons: [{string.Join(", ", Weapons)}]";
             }
         }
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Extended Ped Weapon Pool", "Enable", true);
+            ExtendedPedWeaponPool.section = section;
+            enable = settings.GetBoolean(section, "Extended Weapon Pool", false);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -65,22 +64,22 @@ namespace LibertyTweaks
             int overrideCount = settings.GetInteger("General", "OverrideCount", 0);
             for (int i = 0; i < overrideCount; i++)
             {
-                string section = i.ToString();
-                int chance = settings.GetInteger(section, "ChancePercentage", 50);
-                uint episode = (uint)settings.GetInteger(section, "Episode", 3);
-                string area = settings.GetValue(section, "Area", "any");
-                int ammoMin = settings.GetInteger(section, "AmmoMin", 100);
-                int ammoMax = settings.GetInteger(section, "AmmoMax", 999);
-                bool forMissionPed = settings.GetBoolean(section, "MissionPeds", true);
+                string section2 = i.ToString();
+                int chance = settings.GetInteger(section2, "ChancePercentage", 50);
+                uint episode = (uint)settings.GetInteger(section2, "Episode", 3);
+                string area = settings.GetValue(section2, "Area", "any");
+                int ammoMin = settings.GetInteger(section2, "AmmoMin", 100);
+                int ammoMax = settings.GetInteger(section2, "AmmoMax", 999);
+                bool forMissionPed = settings.GetBoolean(section2, "MissionPeds", true);
 
                 List<string> pedModelsList = new List<string>();
-                string pedModels = settings.GetValue(section, "PedModels", "");
+                string pedModels = settings.GetValue(section2, "PedModels", "");
                 if (!string.IsNullOrWhiteSpace(pedModels))
                 {
                     pedModelsList.AddRange(pedModels.Split(splitChar, StringSplitOptions.RemoveEmptyEntries));
                 }
 
-                string weaponsString = settings.GetValue(section, "Weapons", "");
+                string weaponsString = settings.GetValue(section2, "Weapons", "");
                 List<int> weaponsList = new List<int>();
                 if (!string.IsNullOrEmpty(weaponsString))
                 {
@@ -95,7 +94,7 @@ namespace LibertyTweaks
                 }
 
                 List<int> pedTypes = new List<int>();
-                string pedTypeString = settings.GetValue(section, "PedType", "");
+                string pedTypeString = settings.GetValue(section2, "PedType", "");
                 if (!string.IsNullOrEmpty(pedTypeString))
                 {
                     string[] pedTypeValues = pedTypeString.Split(',');
@@ -173,7 +172,7 @@ namespace LibertyTweaks
                     if (wO.PedModels.Count > 0 && !wO.PedModels.Contains($"0x{pModel:X}"))
                         continue;
 
-                    if (wO.ForMissionPed && !IS_PED_A_MISSION_PED(ped)) 
+                    if (wO.ForMissionPed && !IS_PED_A_MISSION_PED(ped))
                         continue;
 
                     int randomValue = rnd.Next(0, 101);

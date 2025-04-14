@@ -3,6 +3,7 @@ using IVSDKDotNet;
 using IVSDKDotNet.Attributes;
 using LibertyTweaks.Enhancements.Combat;
 using System;
+using System.Numerics;
 using static IVSDKDotNet.Native.Natives;
 
 namespace LibertyTweaks
@@ -13,8 +14,8 @@ namespace LibertyTweaks
         private static bool enable;
         private static float targetFOV = 1.1f;
         private static float currentFOV = 1.0f;
-        private static float lerpSpeed = 0.005f;
-        private static readonly float defaultLerpSpeed = lerpSpeed;
+        private static float lerpSpeed = 0.05f;
+        private static float defaultLerpSpeed = 0.05f;
 
         public static float MaxFOV { get; private set; }
         public static float MinFOV { get; private set; }
@@ -37,38 +38,40 @@ namespace LibertyTweaks
         public static float FOVCinematic { get; private set; }
         public static bool FOVDriveBy { get; private set; }
         public static float FOVDriveByMultiplier { get; private set; }
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Dynamic Field of View", "Enable", true);
+            DynamicFOV.section = section;
+            string section2 = "Extensive Settings";
 
-            MaxFOV = settings.GetFloat("Extensive Settings", "Max General FOV", 1.35f);
-            MinFOV = settings.GetFloat("Extensive Settings", "Min General FOV", 0.95f);
+            enable = settings.GetBoolean(section, "Dynamic Field of View", false);
 
-            FOVInCombatOnFoot = settings.GetFloat("Extensive Settings", "In Combat - On Foot", 1.035f);
-            FOVInCombatInCar = settings.GetFloat("Extensive Settings", "In Combat - In Car", 1.045f);
-            FOVInCombatInCarMax = settings.GetFloat("Extensive Settings", "In Combat - In Car Max", 1.40f);
-            FOVInCombatInterior = settings.GetFloat("Extensive Settings", "In Combat - In Interior", 1.01f);
-            FOVInCar = settings.GetFloat("Extensive Settings", "In Car", 1.15f);
-            FOVInCarInAir = settings.GetFloat("Extensive Settings", "In Car - In Air", 1.20f);
-            FOVInCarInAirMax = settings.GetFloat("Extensive Settings", "In Car - Air Max", 1.50f);
-            FOVInCarRev = settings.GetFloat("Extensive Settings", "In Car - Rev Multiplier", 0.35f);
-            FOVSkidding = settings.GetFloat("Extensive Settings", "In Car - Skidding", 0.95f);
-            FOVInBoat = settings.GetFloat("Extensive Settings", "In Boat", 1.11f);
-            FOVInHeli = settings.GetFloat("Extensive Settings", "In Heli", 1.0f);
-            FOVInterior = settings.GetFloat("Extensive Settings", "In Interior", 1.0f);
-            FOVKillcam = settings.GetFloat("Extensive Settings", "In Killcam", 0.9f);
-            FOVBlindfire = settings.GetFloat("Extensive Settings", "In Blindfire", 1.3f);
-            FOVCinematic = settings.GetFloat("Extensive Settings", "Cinematic Cam", 0.6f);
-            FOVOnFoot = settings.GetFloat("Extensive Settings", "On Foot", 1.0f);
-            FOVOnFootGunEquipped = settings.GetFloat("Extensive Settings", "On Foot - With Gun", 1.025f);
-
-            FOVDriveBy = settings.GetBoolean("Extensive Settings", "Driveby Decrease", true);
-            FOVDriveByMultiplier = settings.GetFloat("Extensive Settings", "Driveby Multiplier", 0.1f);
+            MaxFOV = settings.GetFloat(section2, "Max General FOV", 1.35f);
+            MinFOV = settings.GetFloat(section2, "Min General FOV", 0.95f);
+            FOVInCombatOnFoot = settings.GetFloat(section2, "In Combat - On Foot", 1.035f);
+            FOVInCombatInCar = settings.GetFloat(section2, "In Combat - In Car", 1.045f);
+            FOVInCombatInCarMax = settings.GetFloat(section2, "In Combat - In Car Max", 1.40f);
+            FOVInCombatInterior = settings.GetFloat(section2, "In Combat - In Interior", 1.01f);
+            FOVInCar = settings.GetFloat(section2, "In Car", 1.15f);
+            FOVInCarInAir = settings.GetFloat(section2, "In Car - In Air", 1.20f);
+            FOVInCarInAirMax = settings.GetFloat(section2, "In Car - Air Max", 1.50f);
+            FOVInCarRev = settings.GetFloat(section2, "In Car - Rev Multiplier", 0.35f);
+            FOVSkidding = settings.GetFloat(section2, "In Car - Skidding", 0.95f);
+            FOVInBoat = settings.GetFloat(section2, "In Boat", 1.11f);
+            FOVInHeli = settings.GetFloat(section2, "In Heli", 1.0f);
+            FOVInterior = settings.GetFloat(section2, "In Interior", 1.0f);
+            FOVKillcam = settings.GetFloat(section2, "In Killcam", 0.9f);
+            FOVBlindfire = settings.GetFloat(section2, "In Blindfire", 1.3f);
+            FOVCinematic = settings.GetFloat(section2, "Cinematic Cam", 0.6f);
+            FOVOnFoot = settings.GetFloat(section2, "On Foot", 1.0f);
+            FOVOnFootGunEquipped = settings.GetFloat(section2, "On Foot - With Gun", 1.025f);
+            FOVDriveByMultiplier = settings.GetFloat(section2, "Driveby Multiplier", 0.1f);
+            lerpSpeed = settings.GetFloat(section2, "Speed", 0.05f);
+            defaultLerpSpeed = lerpSpeed;
 
 
             if (enable)
-                Main.Log("script initialized...");
+                Main.Log($"script initialized...");
         }
 
         public static void Tick()
@@ -85,6 +88,7 @@ namespace LibertyTweaks
             uint currentWeapSlot = IVWeaponInfo.GetWeaponInfo((uint)currentWeapon).WeaponSlot;
 
             ApplyDynamicFOV(playerPedHandle, cam, currentWeapon, currentWeapSlot);
+
         }
 
         private static void ApplyDynamicFOV(int playerPedHandle, IVCam cam, int currentWeapon, uint currentWeapSlot)
@@ -96,7 +100,7 @@ namespace LibertyTweaks
             bool cutsc = HAS_CUTSCENE_FINISHED();
 
             if (IVWeaponInfo.GetWeaponInfo((uint)currentWeapon).WeaponFlags.FirstPerson == true
-                && PlayerHelper.IsAiming()
+                && WeaponHelpers.IsPlayerAiming()
                 || cutsc == false)
                 HandleDefaultFOV();
             else if (cinematicCam != 0)
@@ -110,7 +114,7 @@ namespace LibertyTweaks
             else
                 HandleOnFootFOV(PlayerHelper.IsPlayerInOrNearCombat(), currentWeapSlot);
 
-            currentFOV = CommonHelpers.Lerp(currentFOV, targetFOV, lerpSpeed);
+            currentFOV = CommonHelpers.SmoothStep(currentFOV, targetFOV, lerpSpeed);
             cam.FOV *= currentFOV;
         }
         private static void HandleVehicleFOV(int playerPedHandle, bool isInOrNearCombat)
@@ -123,7 +127,6 @@ namespace LibertyTweaks
             {
                 GET_CAR_CHAR_IS_USING(playerPedHandle, out int vehicleHandle);
                 if (vehicleHandle == 0) return;
-
                 var vehicle = NativeWorld.GetVehicleInstanceFromHandle(vehicleHandle);
                 GET_CHAR_HEIGHT_ABOVE_GROUND(playerPedHandle, out float height);
                 var totalSpeed = PlayerHelper.GetTotalSpeedVehicle(vehicle);
@@ -153,16 +156,32 @@ namespace LibertyTweaks
                     targetFOV = CommonHelpers.Clamp(targetFOV, MinFOV, MaxFOV);
                 }
 
-                if (Main.PlayerPed.PlayerInfo.CanDoDriveby == 1
-                    && NativeControls.IsGameKeyPressed(0, GameKey.Aim) && FOVDriveBy
-                    && WeaponHelpers.IsHoldingGun())
+                // Halve FOV if hood camera (or if they've positioned it super close for some reason)
+                NativeCamera cam = NativeCamera.GetGameCam();
+                float distance = Vector3.Distance(cam.Position, Main.PlayerPos);
+
+                // Drive-by tweaks
+                if (WeaponHelpers.IsTryingToDriveBy() && distance > 2.5f)
                 {
                     targetFOV *= FOVDriveByMultiplier;
                     lerpSpeed = 0.05f;
                     targetFOV = CommonHelpers.Clamp(targetFOV, MinFOV, MaxFOV);
                 }
-                else
-                    lerpSpeed = defaultLerpSpeed;
+                else lerpSpeed = defaultLerpSpeed;
+
+                // Rest of hood cam tweaks
+                if (distance < 2.5f)
+                {
+                    targetFOV *= 0.9F;
+                    lerpSpeed *= 10f;
+                }
+                else lerpSpeed = defaultLerpSpeed;
+
+                // Reduce FOV when car & cam aren't aligned enough
+                float headingDifference = VehicleHelpers.GetCameraCarMisalignment(vehicleHandle, cam);
+
+                if (headingDifference > 120.0f)
+                    targetFOV *= 0.9f;
             }
         }
         private static void HandleInteriorFOV(bool isInOrNearCombat)

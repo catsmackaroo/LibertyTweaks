@@ -18,11 +18,12 @@ namespace LibertyTweaks
         private const float LowIntensityThreshold = 0.2f;
         private const float MediumIntensityThreshold = 0.5f;
         private const float HighIntensityThreshold = 0.8f;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Vehicle Camera Adjustments", "Car Crash Shake", true);
-            cameraShakeAmount = settings.GetFloat("Vehicle Camera Adjustments", "Car Crash Shake Multiplier", 0.25f);
+            CarCrashShake.section = section;
+            enable = settings.GetBoolean(section, "Camera - Car Crash Shake", false);
+            cameraShakeAmount = settings.GetFloat(section, "Camera - Car Crash Shake Multiplier", 0.25f);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -39,17 +40,28 @@ namespace LibertyTweaks
             if (Main.PlayerPed == null || cam == null) return;
 
             if (!IS_CHAR_IN_ANY_CAR(Main.PlayerPed.GetHandle()))
-                return;
-
-            if (WeaponHelpers.HasCarBeenDamagedByAnyWeapon(IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle())))
             {
-                CLEAR_CAR_LAST_WEAPON_DAMAGE(IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle()).GetHandle());
+                Reset();
                 return;
             }
 
-            HandleCrashShake(cam, Main.CarCrashDamageAmountNormalized);
+            if (WeaponHelpers.HasCarBeenDamagedByAnyWeapon(IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle())))
+            {
+                Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(0.1), "Main", () =>
+                {
+                    CLEAR_CAR_LAST_WEAPON_DAMAGE(IVVehicle.FromUIntPtr(Main.PlayerPed.GetVehicle()).GetHandle());
+                });
+                return;
+            }
+
+            HandleCrashShake(cam, Main.CarCrashDamageNormalized);
         }
 
+        private static void Reset()
+        {
+            crashShakeIntensity = 0f;
+            crashShakeTimer = 0f;
+        }
         public static void HandleCrashShake(NativeCamera cam, float amount)
         {
             if (amount > 0)
@@ -70,7 +82,7 @@ namespace LibertyTweaks
                     shakeAmount = 0.1f;
 
                 CameraShake.ApplyCameraShake(crashShakeIntensity, cam, shakeAmount);
-                crashShakeIntensity = CommonHelpers.Lerp(crashShakeIntensity, 0f, CrashShakeDecayRate * NativeGame.FrameTime);
+                crashShakeIntensity = CommonHelpers.SmoothStep(crashShakeIntensity, 0f, CrashShakeDecayRate * NativeGame.FrameTime);
                 crashShakeTimer -= NativeGame.FrameTime;
             }
         }

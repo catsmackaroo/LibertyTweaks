@@ -33,19 +33,21 @@ namespace LibertyTweaks
         private static int ThrownPrice;
         private static readonly int DefaultPrice;
         private static int CompletePrice = 0;
+        public static string section { get; private set; }
 
-        public static void Init(SettingsFile settings)
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Remove Weapons On Death", "Enable", true);
+            RemoveWeaponsOnDeath.section = section;
+            enable = settings.GetBoolean(section, "Remove Weapons On Death", false);
 
-            SmallPistolPrice = settings.GetInteger("Remove Weapons On Death", "Small Pistol Price", 500);
-            HeavyPistolPrice = settings.GetInteger("Remove Weapons On Death", "Heavy Pistol Price", 1000);
-            SMGPrice = settings.GetInteger("Remove Weapons On Death", "SMG Price", 300);
-            ShotgunPrice = settings.GetInteger("Remove Weapons On Death", "Shotgun Price", 1500);
-            AssaultRiflePrice = settings.GetInteger("Remove Weapons On Death", "Assault Rifle Price", 4000);
-            SniperPrice = settings.GetInteger("Remove Weapons On Death", "Sniper Price", 5000);
-            HeavyPrice = settings.GetInteger("Remove Weapons On Death", "Heavy Price", 6000);
-            ThrownPrice = settings.GetInteger("Remove Weapons On Death", "Thrown Price", 250);
+            SmallPistolPrice = settings.GetInteger(section, "Remove Weapons On Death - Small Pistol Price", 500);
+            HeavyPistolPrice = settings.GetInteger(section, "Remove Weapons On Death - Heavy Pistol Price", 1000);
+            SMGPrice = settings.GetInteger(section, "Remove Weapons On Death - SMG Price", 300);
+            ShotgunPrice = settings.GetInteger(section, "Remove Weapons On Death - Shotgun Price", 1500);
+            AssaultRiflePrice = settings.GetInteger(section, "Remove Weapons On Death - Assault Rifle Price", 4000);
+            SniperPrice = settings.GetInteger(section, "Remove Weapons On Death - Sniper Price", 5000);
+            HeavyPrice = settings.GetInteger(section, "Remove Weapons On Death - Heavy Price", 6000);
+            ThrownPrice = settings.GetInteger(section, "Remove Weapons On Death - Thrown Price", 250);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -121,7 +123,7 @@ namespace LibertyTweaks
             if (Main.PlayerPed.PlayerInfo.GetMoney() < CompletePrice)
                 return;
 
-            int oldWeap = WeaponHelpers.GetWeaponType();
+            int oldWeap = WeaponHelpers.GetCurrentWeaponType();
             PLAY_SOUND_FRONTEND(-1, "FRONTEND_OTHER_INFO");
 
             foreach (var weapon in inventory)
@@ -146,6 +148,8 @@ namespace LibertyTweaks
         {
             CalculateBribePrice(inventory);
             string message;
+
+            if (CompletePrice == 0) return;
 
             if (Main.PlayerPed.PlayerInfo.GetMoney() < CompletePrice)
             {

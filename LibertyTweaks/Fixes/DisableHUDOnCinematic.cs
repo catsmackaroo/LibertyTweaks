@@ -10,9 +10,11 @@ namespace LibertyTweaks
         private static bool enable;
         private static bool hudWasOn = false;
         private static uint originalRadarMode = 0;
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "Cinematics Disable HUD", true);
+            DisableHUDOnCinematic.section = section;
+            enable = settings.GetBoolean(section, "Cinematics Disable HUD", false);
 
             if (enable)
                 Main.Log("script initialized...");

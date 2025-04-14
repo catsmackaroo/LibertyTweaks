@@ -9,9 +9,11 @@ namespace LibertyTweaks
     internal class SniperMovement
     {
         private static bool enable;
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Move With Sniper", "Enable", true);
+            SniperMovement.section = section;
+            enable = settings.GetBoolean(section, "Move With Sniper", false);
 
             Main.Log("script initialized...");
         }
@@ -20,7 +22,7 @@ namespace LibertyTweaks
         {
             if (!enable) return;
 
-            int currentWeapon = WeaponHelpers.GetWeaponType();
+            int currentWeapon = WeaponHelpers.GetCurrentWeaponType();
             if (currentWeapon == (int)IVSDKDotNet.Enums.eWeaponType.WEAPON_M40A1
                 || currentWeapon == (int)IVSDKDotNet.Enums.eWeaponType.WEAPON_SNIPERRIFLE
                 || currentWeapon == (int)IVSDKDotNet.Enums.eWeaponType.WEAPON_EPISODIC_15)
@@ -31,16 +33,16 @@ namespace LibertyTweaks
                     Reset();
                     return;
                 }
-                if (PlayerHelper.IsAiming())
+                if (WeaponHelpers.IsPlayerAiming())
                 {
-                    if (WeaponHelpers.GetWeaponInfo().WeaponSlot != 9)
-                        WeaponHelpers.GetWeaponInfo().WeaponSlot = 9;
+                    if (WeaponHelpers.GetCurrentWeaponInfo().WeaponSlot != 9)
+                        WeaponHelpers.GetCurrentWeaponInfo().WeaponSlot = 9;
                     return;
                 }
                 if (WeaponHelpers.IsReloading())
                 {
-                    if (WeaponHelpers.GetWeaponInfo().WeaponSlot != 9)
-                        WeaponHelpers.GetWeaponInfo().WeaponSlot = 9;
+                    if (WeaponHelpers.GetCurrentWeaponInfo().WeaponSlot != 9)
+                        WeaponHelpers.GetCurrentWeaponInfo().WeaponSlot = 9;
                     return;
                 }
                 else

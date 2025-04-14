@@ -7,6 +7,7 @@ namespace LibertyTweaks
 {
     public class PlayerHelper
     {
+        
         public static float GetTotalSpeedVehicle(IVVehicle vehicleIV)
         {
             var speedVector = vehicleIV.GetSpeedVector(true);
@@ -134,9 +135,16 @@ namespace LibertyTweaks
             }
 
             GET_CAR_CHAR_IS_USING(Main.PlayerPed.GetHandle(), out int currentVehicle);
+
+            GET_DRIVER_OF_CAR(currentVehicle, out int driverHandle);
+            if (driverHandle != Main.PlayerPed.GetHandle())
+                return (0, 0, 0f);
+
             GET_CAR_HEALTH(currentVehicle, out uint currentHealth);
 
-            if (previousVehicleHealth == 0 || currentVehicleHealth == 0)
+            if (previousVehicleHealth == 0 
+                || currentVehicleHealth == 0
+                || currentHealth > previousVehicleHealth)
             {
                 previousVehicleHealth = currentHealth;
                 currentVehicleHealth = currentHealth;
@@ -160,42 +168,7 @@ namespace LibertyTweaks
 
             return (damageAmount, damageLevel, normalizedDamage);
         }
-        public static bool IsPlayerAiming()
-        {
-            string[] animations = new string[]
-            {
-                "gun@handgun|fire", "gun@handgun|fire_crouch",
-                "gun@deagle|fire", "gun@deagle|fire_crouch",
-                "gun@uzi|fire", "gun@uzi|fire_crouch",
-                "gun@mp5k|fire", "gun@mp5k|fire_crouch",
-                "gun@sawnoff|fire", "gun@sawnoff|fire_crouch",
-                "gun@shotgun|fire", "gun@shotgun|fire_crouch",
-                "gun@baretta|fire", "gun@baretta|fire_crouch",
-                "gun@cz75|fire", "gun@cz75|fire_crouch",
-                "gun@grnde_launch|fire", "gun@grnde_launch|fire_crouch",
-                "gun@p90|fire", "gun@p90|fire_crouch",
-                "gun@gold_uzi|fire", "gun@gold_uzi|fire_crouch",
-                "gun@aa12|fire", "gun@aa12|fire_crouch",
-                "gun@44a|fire", "gun@44a|fire_crouch",
-                "gun@ak47|fire", "gun@ak47|fire_crouch", "gun@ak47|fire_up", "gun@ak47|fire_down",
-                "gun@test_gun|fire", "gun@test_gun|fire_crouch", "gun@test_gun|fire_up", "gun@test_gun|fire_down",
-                "gun@m249|fire", "gun@m249|fire_crouch", "gun@m249|fire_up", "gun@m249|fire_down",
-                "gun@rifle|fire", "gun@rifle|fire_crouch", "gun@rifle|fire_alt", "gun@rifle|fire_crouch_alt",
-                "gun@dsr1|fire", "gun@dsr1|fire_crouch", "gun@dsr1|fire_alt", "gun@dsr1|fire_crouch_alt",
-                "gun@rocket|fire", "gun@rocket|fire_crouch"
-            };
-
-            foreach (var anim in animations)
-            {
-                var parts = anim.Split('|');
-                if (IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), parts[0], parts[1]))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        
         public static bool IsJumping() => IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), "jump_std", "jump_inair_l") || IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), "jump_std", "jump_inair_r") || IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), "jump_rifle", "jump_inair_l") || IS_CHAR_PLAYING_ANIM(Main.PlayerPed.GetHandle(), "jump_rifle", "jump_inair_r");
         public static bool IsPlayerSkidding()
         {

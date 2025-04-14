@@ -48,17 +48,19 @@ namespace LibertyTweaks
             return value;
         }
 
-        public static float Lerp(float a, float b, float t)
+        public static float SmoothStep(float a, float b, float t)
         {
             t = Clamp(t, 0f, 1f);
+            t = t * t * (3f - 2f * t);
             return a + (b - a) * t;
         }
-        public static Vector3 LerpVector(Vector3 a, Vector3 b, float t)
+
+        public static Vector3 SmoothStepVector3(Vector3 a, Vector3 b, float t)
         {
             return new Vector3(
-                Lerp(a.X, b.X, t),
-                Lerp(a.Y, b.Y, t),
-                Lerp(a.Z, b.Z, t)
+                SmoothStep(a.X, b.X, t),
+                SmoothStep(a.Y, b.Y, t),
+                SmoothStep(a.Z, b.Z, t)
             );
         }
         public static float[] ParseFloatArray(string input)

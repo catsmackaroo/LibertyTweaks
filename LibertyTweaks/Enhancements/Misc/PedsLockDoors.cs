@@ -1,7 +1,6 @@
 ﻿using CCL.GTAIV;
 using IVSDKDotNet;
 using System.Collections.Generic;
-using System.Numerics;
 using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
@@ -14,12 +13,12 @@ namespace LibertyTweaks
         private static readonly List<int> lockedVehicles = new List<int>();
         private static readonly Dictionary<int, int> pedToVehicleMap = new Dictionary<int, int>();
         private static bool pEnteringLocked = false;
-
-        // Optimization Stuff
         private static int tickCounter = 0;
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Peds Lock Car Doors", "Enable", true);
+            PedsLockDoors.section = section;
+            enable = settings.GetBoolean(section, "Peds Lock Car Doors", false);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -68,7 +67,7 @@ namespace LibertyTweaks
 
                 GET_DRIVER_OF_CAR(pedVehicle, out int pedDriver);
 
-                if (pedDriver == 0 || pedDriver == Main.PlayerPed.GetHandle() || IS_PED_A_MISSION_PED(pedDriver))
+                if (pedDriver == 0 || pedDriver == Main.PlayerPed.GetHandle() || IS_PED_A_MISSION_PED(pedDriver) || IS_CHAR_IN_TAXI(pedDriver))
                     continue;
 
                 if (!lockedVehicles.Contains(pedVehicle))
@@ -86,44 +85,16 @@ namespace LibertyTweaks
         }
         private static void HandleCancelling()
         {
-            if (IS_CHAR_TRYING_TO_ENTER_A_LOCKED_CAR(Main.PlayerPed.GetHandle()))
-                pEnteringLocked = true;
-
-            if (!pEnteringLocked || lockedVehicles.Count == 0)
-                return;
-
-            GET_CHAR_COORDINATES(Main.PlayerPed.GetHandle(), out float playerX, out float playerY, out float playerZ);
-            Vector3 playerPos = new Vector3(playerX, playerY, playerZ);
-
-            float minDistance = float.MaxValue;
-            int closestVehicle = 0;
-
             foreach (int vehicleHandle in lockedVehicles)
             {
                 if (!DOES_VEHICLE_EXIST(vehicleHandle))
                     continue;
 
-                GET_CAR_COORDINATES(vehicleHandle, out float carX, out float carY, out float carZ);
-                Vector3 carPos = new Vector3(carX, carY, carZ);
-
-                float distance = Vector3.Distance(playerPos, carPos);
-
-                if (distance < minDistance)
-                {
-                    minDistance = distance;
-                    closestVehicle = vehicleHandle;
-                }
-            }
-
-            // Threshold for extreme distances where animations break
-            if (minDistance > 1.0f && minDistance < 4f && closestVehicle != 0)
-            {
-                GET_CAR_COORDINATES(closestVehicle, out float carX, out float carY, out float carZ);
-                Vector3 carPos = new Vector3(carX, carY, carZ);
-                SWITCH_PED_TO_ANIMATED(Main.PlayerPed.GetHandle(), true);
-                SWITCH_PED_TO_RAGDOLL(Main.PlayerPed.GetHandle(), 14, 500, true, true, true, true);
-                pEnteringLocked = false;
-                return;
+                GET_CAR_SPEED(vehicleHandle, out float speed);
+                if (speed > 2f)
+                    LOCK_CAR_DOORS(vehicleHandle, 3);
+                else
+                    LOCK_CAR_DOORS(vehicleHandle, 7);
             }
         }
     }

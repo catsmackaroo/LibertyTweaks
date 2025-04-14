@@ -15,18 +15,21 @@ namespace LibertyTweaks
         private static bool isFpEnabled;
         private static DateTime lastToggleTime;
         private static TimeSpan toggleCooldown = TimeSpan.FromMilliseconds(500);
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Toggle Sniper Scope", "Enable", true);
-            key = settings.GetKey("Toggle Sniper Scope", "Key", Keys.C);
+            SniperScopeToggle.section = section;
+            enable = settings.GetBoolean(section, "Toggle Sniper Scope", false);
+            key = settings.GetKey(section, "Toggle Sniper Scope - Key", Keys.C);
 
-            Main.Log("script initialized...");
+            if (enable)
+                Main.Log("script initialized...");
         }
         public static void Process()
         {
             if (!enable) return;
 
-            int currentWeapon = WeaponHelpers.GetWeaponType();
+            int currentWeapon = WeaponHelpers.GetCurrentWeaponType();
             if (currentWeapon == (int)IVSDKDotNet.Enums.eWeaponType.WEAPON_M40A1
                 || currentWeapon == (int)IVSDKDotNet.Enums.eWeaponType.WEAPON_SNIPERRIFLE
                 || currentWeapon == (int)IVSDKDotNet.Enums.eWeaponType.WEAPON_EPISODIC_15)

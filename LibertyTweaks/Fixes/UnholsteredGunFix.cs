@@ -35,17 +35,19 @@ namespace LibertyTweaks
 
         private static readonly List<int> excludedWeapons = new List<int>
         {
-            0,
-            1,
-            2,
+            (int)eWeaponType.WEAPON_UNARMED,
+            (int)eWeaponType.WEAPON_BASEBALLBAT,
+            (int)eWeaponType.WEAPON_KNIFE,
             46,
             41,
             24,
             (int)eWeaponType.WEAPON_KNIFE
         };
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Improved Police", "Unholstered Wanted Fix", true);
+            UnholsteredGunFix.section = section;
+            enable = settings.GetBoolean(section, "Unholstered Wanted Fix", false);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -72,6 +74,8 @@ namespace LibertyTweaks
         }
         private static void HandleUnholsteredWantedFix()
         {
+            if (Main.PlayerWantedLevel > 2) return;
+
             if (PlayerHelper.IsPlayerSeenByPolice())
             {
                 if (policeSeePlayerStartTime == null)
@@ -90,6 +94,7 @@ namespace LibertyTweaks
                     if (Main.PlayerWantedLevel < wantedLevel)
                         ApplyWantedLevelChange(wantedLevel);
                 }
+
             }
             else
             {

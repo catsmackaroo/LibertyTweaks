@@ -1,6 +1,6 @@
-﻿using System;
-using CCL.GTAIV;
+﻿using CCL.GTAIV;
 using IVSDKDotNet;
+using System;
 
 // Credits: ClonkAndre
 
@@ -13,10 +13,11 @@ namespace LibertyTweaks
         private static bool canWheelFixCodeBeExecuted;
         private static bool canChangeWheelValue;
         private static float newWheelValue;
-        
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Fixes", "Wheel Fix", true);
+            WheelFix.section = section;
+            enable = settings.GetBoolean(section, "Wheel Fix", false);
 
             if (enable)
                 Main.Log("script initialized...");
@@ -64,7 +65,7 @@ namespace LibertyTweaks
 
             // Get the last/current vehicle of the player ped
             IVVehicle veh = IVVehicle.FromUIntPtr(Main.PlayerPed.Vehicle);
- 
+
             // Check if the veh is null
             if (veh is null || veh == null)
                 return;

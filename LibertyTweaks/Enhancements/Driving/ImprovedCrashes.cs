@@ -27,24 +27,30 @@ namespace LibertyTweaks
         private static List<int> excludedVehicleIDs;
         private static List<string> excludedVehicleModelsList;
         private static bool firstFrame = true;
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Improved Car Crashes", "Enable", true);
-            enableDoors = settings.GetBoolean("Improved Car Crashes", "Doors Can Open", true);
-            enableDetachables = settings.GetBoolean("Improved Car Crashes", "General Detachables", true);
-            enableTireBursts = settings.GetBoolean("Improved Car Crashes", "Tires Can Burst", true);
-            enableWheelDetach = settings.GetBoolean("Improved Car Crashes", "Wheels Can Detach", true);
-            enableEngineCutoff = settings.GetBoolean("Improved Car Crashes", "Engine Can Break", true);
+            ImprovedCrashes.section = section;
+            enable = settings.GetBoolean(section, "Improved Car Crashes", false);
+            enableDoors = settings.GetBoolean(section, "Improved Car Crashes - Doors Can Open", false);
+            enableDetachables = settings.GetBoolean(section, "Improved Car Crashes - General Detachables", false);
+            enableTireBursts = settings.GetBoolean(section, "Improved Car Crashes - Tires Can Burst", false);
+            enableWheelDetach = settings.GetBoolean(section, "Improved Car Crashes - Wheels Can Detach", false);
+            enableEngineCutoff = settings.GetBoolean(section, "Improved Car Crashes - Engine Can Break", false);
 
             excludedVehicleModelsList = new List<string>();
-            string vehicleModels = settings.GetValue("Improved Car Crashes", "Excluded Vehicles", "");
+            string vehicleModels = settings.GetValue(section, "Improved Car Crashes - Excluded Vehicles", "");
             if (!string.IsNullOrWhiteSpace(vehicleModels))
                 if (!string.IsNullOrWhiteSpace(vehicleModels))
                     excludedVehicleModelsList.AddRange(vehicleModels.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
 
             if (enable)
+            {
                 Main.Log("script initialized...");
+                Main.Log($"Doors: {enableDoors} | Detachables: {enableDetachables} | Tires: {enableTireBursts} | Wheels: {enableWheelDetach} | Engine: {enableEngineCutoff}");
+                Main.Log($"Excluded vehicles: {string.Join(", ", excludedVehicleModelsList)}");
+            }
+                
         }
         private static int ConvertStringToID(string modelName)
         {
@@ -82,6 +88,7 @@ namespace LibertyTweaks
                 || IS_CHAR_IN_ANY_BOAT(Main.PlayerPed.GetHandle())
                 || IS_CHAR_IN_ANY_HELI(Main.PlayerPed.GetHandle()))
             {
+                Main.CarCrashLevel = 0;
                 return;
             }
 
@@ -90,9 +97,13 @@ namespace LibertyTweaks
             if (excludedVehicleIDs.Contains(vehicleIV.ModelIndex))
                 return;
 
+            // Avoid fucking up from weapons
             if (WeaponHelpers.HasCarBeenDamagedByAnyWeapon(vehicleIV))
             {
-                CLEAR_CAR_LAST_WEAPON_DAMAGE(vehicleIV.GetHandle());
+                Main.TheDelayedCaller.Add(TimeSpan.FromSeconds(0.1), "Main", () =>
+                {
+                    CLEAR_CAR_LAST_WEAPON_DAMAGE(vehicleIV.GetHandle());
+                });
                 return;
             }
 
@@ -141,14 +152,14 @@ namespace LibertyTweaks
 
         private static uint GenerateUniqueRandomPart(IVVehicle vehicleIV, bool only2wheels)
         {
-            uint randomPart = (uint)Main.GenerateRandomNumber(1, 30);
+            uint randomPart = (uint)Main.GenerateRandomNumber(1, 27);
             IVVehicleWheel vehWheel1 = vehicleIV.Wheels[0];
             IVVehicleWheel vehWheel2 = vehicleIV.Wheels[1];
             ushort vehwheelgroup1 = vehWheel1.GroupID;
             ushort vehwheelgroup2 = vehWheel2.GroupID;
 
             if (randomPart == vehwheelgroup1 || randomPart == vehwheelgroup2)
-                randomPart = (uint)Main.GenerateRandomNumber(1, 30);
+                randomPart = (uint)Main.GenerateRandomNumber(1, 27);
 
             if (!only2wheels)
             {

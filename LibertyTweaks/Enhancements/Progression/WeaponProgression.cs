@@ -12,6 +12,7 @@ namespace LibertyTweaks
     internal class WeaponProgression
     {
         private static bool enable;
+        private static bool enableLogging;
         private static bool firstFrame = true;
         private static bool hasSaved = true;
 
@@ -142,18 +143,26 @@ namespace LibertyTweaks
             1.15f // 4 // added
         };
 
-
-        public static void Init(SettingsFile Settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile Settings, string section)
         {
-            enable = Settings.GetBoolean("Weapon Progression", "Enable", true);
-            levelMultipliersMaxAmmo = CommonHelpers.ParseFloatArray(Settings.GetValue("Weapon Progression", "Max Ammo Multipliers", "0.6,0.7,0.8,0.9,1.0"));
-            levelMultipliersRange = CommonHelpers.ParseFloatArray(Settings.GetValue("Weapon Progression", "Range Multipliers", "1.0,1.1,1.2,1.3,1.4"));
-            levelMultipliersFirerate = CommonHelpers.ParseFloatArray(Settings.GetValue("Weapon Progression", "Firerate Multipliers", "0.95,0.95,1.0,1.02,1.04"));
-            levelMultipliersAccuracy = CommonHelpers.ParseFloatArray(Settings.GetValue("Weapon Progression", "Accuracy Multipliers", "1.0,1.0,1.0,0.9,0.8"));
-            levelMultipliersDamage = CommonHelpers.ParseFloatArray(Settings.GetValue("Weapon Progression", "Damage Multipliers", "1.0,1.0,1.0,1.0,1.15"));
+            WeaponProgression.section = section;
+            enable = Settings.GetBoolean(section, "Weapon Progression", false);
+            enableLogging = Settings.GetBoolean(section, "Weapon Progression - Verbose Logging", false);
+            levelMultipliersMaxAmmo = CommonHelpers.ParseFloatArray(Settings.GetValue(section, "Weapon Progression - Max Ammo Multipliers", "0.6,0.7,0.8,0.9,1.0"));
+            levelMultipliersRange = CommonHelpers.ParseFloatArray(Settings.GetValue(section, "Weapon Progression - Range Multipliers", "1.0,1.1,1.2,1.3,1.4"));
+            levelMultipliersFirerate = CommonHelpers.ParseFloatArray(Settings.GetValue(section, "Weapon Progression - Firerate Multipliers", "0.95,0.95,1.0,1.02,1.04"));
+            levelMultipliersAccuracy = CommonHelpers.ParseFloatArray(Settings.GetValue(section, "Weapon Progression - Accuracy Multipliers", "1.0,1.0,1.0,0.9,0.8"));
+            levelMultipliersDamage = CommonHelpers.ParseFloatArray(Settings.GetValue(section, "Weapon Progression - Damage Multipliers", "1.0,1.0,1.0,1.0,1.15"));
 
             if (enable)
+            {
                 Main.Log("script initialized...");
+                Main.Log($"Max Ammo Multipliers: {string.Join(", ", levelMultipliersMaxAmmo)}");
+                Main.Log($"Range Multipliers: {string.Join(", ", levelMultipliersRange)}");
+                Main.Log($"Firerate Multipliers: {string.Join(", ", levelMultipliersFirerate)}");
+                Main.Log($"Accuracy Multipliers: {string.Join(", ", levelMultipliersAccuracy)}");
+            }
         }
 
         public static void IngameStartup()
@@ -199,12 +208,18 @@ namespace LibertyTweaks
             // Initialize saved weapon levels from saved game
             for (int slot = 0; slot < SLOT_COUNT; slot++)
             {
-                savedWeaponLevels[slot] = Main.GetTheSaveGame().GetInteger($"Slot{slot}WeaponLevel");
-                activeWeaponLevels[slot] = Main.GetTheSaveGame().GetInteger($"Slot{slot}WeaponLevel");
+                int savedLevel = Main.GetTheSaveGame().GetInteger($"Slot{slot}WeaponLevel");
+                if (savedLevel == null)
+                {
+                    savedLevel = 0;
+                }
+                savedWeaponLevels[slot] = savedLevel;
+                activeWeaponLevels[slot] = savedLevel;
             }
 
             firstFrame = false;
         }
+
 
         private static bool HasPlayerLevelChanged()
         {
@@ -236,11 +251,18 @@ namespace LibertyTweaks
                     if (newLevel != savedWeaponLevels[slot])
                     {
                         Notifications(newLevel, slot);
-                        Main.Log($"Unlocked Weapon Level {newLevel} for Slot {slot} with kills: {totalKills}");
+
+                        if (enableLogging)
+                        {
+                            Main.Log($"Unlocked Weapon Level {newLevel} for Slot {slot} with kills: {totalKills}");
+                        }
                     }
                     else
                     {
-                        Main.Log($"Downgraded Weapon Level to {newLevel} for Slot {slot} due to reduced kills: {totalKills}");
+                        if (enableLogging)
+                        {
+                            Main.Log($"Downgraded Weapon Level to {newLevel} for Slot {slot} due to reduced kills: {totalKills}");
+                        }
                     }
                 }
             }
@@ -260,9 +282,12 @@ namespace LibertyTweaks
             // If either the count or the content has changed
             if (inventoryCountChanged || inventoryContentChanged)
             {
-                Main.Log($"Player inventory has changed. Previous count: {lastInventoryCount}, Current count: {currentInventory.Count}");
-                Main.Log($"Previous inventory: {string.Join(", ", lastInventory)}");
-                Main.Log($"Current inventory: {string.Join(", ", currentInventory)}");
+                if (enableLogging)
+                {
+                    Main.Log($"Player inventory has changed. Previous count: {lastInventoryCount}, Current count: {currentInventory.Count}");
+                    Main.Log($"Previous inventory: {string.Join(", ", lastInventory)}");
+                    Main.Log($"Current inventory: {string.Join(", ", currentInventory)}");
+                }
 
                 // Update the record
                 lastInventoryCount = currentInventory.Count;
@@ -287,7 +312,10 @@ namespace LibertyTweaks
 
         private static void ApplyWeaponStatsForLevel(int slot, int level)
         {
-            Main.Log($"Applying stats for Slot {slot} at Level {level}...");
+            if (enableLogging)
+            {
+                Main.Log($"Applying stats for Slot {slot} at Level {level}...");
+            }
 
             if (!slotStats.ContainsKey(slot)) return;
 
@@ -334,11 +362,13 @@ namespace LibertyTweaks
                 if (weaponInfo.WeaponSlot == SLOT_SNIPER && weaponInfo.MaxAmmo < 15 && level < 2)
                     weaponInfo.MaxAmmo = (uint)(maxAmmo * ammoMultiplier * 2);
 
-
-                Main.Log($"Updated MaxAmmo for {weapon} (Slot {slot}, Level {level}): {maxAmmo} -> {weaponInfo.MaxAmmo}");
-                Main.Log($"Updated Accuracy for {weapon} (Slot {slot}, Level {level}): {accuracy} -> {weaponInfo.Accuracy}");
-                Main.Log($"Updated Damage for {weapon} (Slot {slot}, Level {level}): {damage} -> {weaponInfo.Damage}");
-                Main.Log($"Updated Range for {weapon} (Slot {slot}, Level {level}): {range} -> {weaponInfo.WeaponRange}");
+                if (enableLogging)
+                {
+                    Main.Log($"Updated MaxAmmo for {weapon} (Slot {slot}, Level {level}): {maxAmmo} -> {weaponInfo.MaxAmmo}");
+                    Main.Log($"Updated Accuracy for {weapon} (Slot {slot}, Level {level}): {accuracy} -> {weaponInfo.Accuracy}");
+                    Main.Log($"Updated Damage for {weapon} (Slot {slot}, Level {level}): {damage} -> {weaponInfo.Damage}");
+                    Main.Log($"Updated Range for {weapon} (Slot {slot}, Level {level}): {range} -> {weaponInfo.WeaponRange}");
+                }
             }
         }
 
@@ -348,7 +378,11 @@ namespace LibertyTweaks
             {
                 return gameID;
             }
-            Main.Log($"Invalid Slot {slot}");
+
+            if (enableLogging)
+            {
+                Main.Log($"Invalid Slot {slot}");
+            }
             return 0;
         }
 
@@ -474,7 +508,7 @@ namespace LibertyTweaks
                     Main.GetTheSaveGame().SetInteger($"Slot{slot}WeaponLevel", activeWeaponLevels[slot]);
                     savedWeaponLevels[slot] = activeWeaponLevels[slot];
                 }
-                Main.GetTheSaveGame().Save(); 
+                Main.GetTheSaveGame().Save();
                 Main.Log($"Saved WeaponLevels as {string.Join(", ", activeWeaponLevels)}");
 
                 hasSaved = false;
