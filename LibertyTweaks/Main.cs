@@ -1,7 +1,5 @@
 ﻿using CCL.GTAIV;
 using IVSDKDotNet;
-using LibertyTweaks.Enhancements.Combat;
-using LibertyTweaks.Enhancements.Driving;
 using System;
 using System.Numerics;
 using System.Reflection;
@@ -35,6 +33,7 @@ namespace LibertyTweaks
         public static float PlayerHealth { get; private set; }
         public static Vector3 PlayerPos { get; private set; }
         public static uint Episode { get; private set; }
+        public static bool GameSaved { get; private set; }
         #endregion
 
         #region Functions
@@ -103,7 +102,7 @@ namespace LibertyTweaks
         private void Main_IngameStartup(object sender, EventArgs e)
         {
             QuickSave.IngameStartup();
-            PersonalVehicle.IngameStartup();
+            PersonalVehicleOld.IngameStartup();
             LoadingFadeIn.IngameStartup();
             WeaponMagazines.IngameStartup();
             ImprovedCrashes.IngameStartup();
@@ -111,6 +110,8 @@ namespace LibertyTweaks
             Episode = GET_CURRENT_EPISODE();
             // 1.7 Stuff
             //Killcam.IngameStartup();
+            //PersonalVehicleHandler.IngameStartup();
+            ImprovedWardrobe.IngameStartup();
         }
         private void Main_Initialized(object sender, EventArgs e)
         {
@@ -151,6 +152,7 @@ namespace LibertyTweaks
             Log($"Loading [Fixes]...");
             LoadFixes(Settings, fixesSection);
 
+            //CopyLocationToClipboard.Init(Settings);
             // Unreleased & unfinished
             //Killcam.Init(Settings);
             //QuickSwitching.Init(Settings); 
@@ -179,6 +181,7 @@ namespace LibertyTweaks
             LoseStarsWhileUnseen.Init(settings, section);
 
             WarpToShore.Init(settings, section);
+            ImprovedWardrobe.Init(settings, section);
         }
         private void LoadProgressionFeatures(SettingsFile settings, string section)
         {
@@ -216,7 +219,8 @@ namespace LibertyTweaks
 
         private void LoadVehicleFeatures(SettingsFile settings, string section)
         {
-            PersonalVehicle.Init(this, settings, section);
+            PersonalVehicleOld.Init(this, settings, section);
+            //PersonalVehicleHandler.Init(settings, section);
             VehiclesBreakOnFire.Init(settings, section);
             CarExplosionsRandomized.Init(settings, section);
             CameraTiltAndRotation.Init(settings, section);
@@ -249,10 +253,11 @@ namespace LibertyTweaks
             RunWithPhone.Init(settings, section);
             TimeSkipFix.Init(settings, section);
             SprintInInteriors.Init(settings, section);
-            SmoothSniperZoom.Init(settings, section);
+            SmoothZooms.Init(settings, section);
             UnholsteredGunFix.Init(settings, section);
 
             RollInAirFix.Init(settings, section);
+            DeathTimescaleFix.Init(settings, section);
         }
 
         private void Main_ProcessCamera(object sender, EventArgs e)
@@ -261,8 +266,7 @@ namespace LibertyTweaks
             CameraShake.Tick();
             CameraTiltAndRotation.Tick();
             CameraDynamicHeight.Tick();
-            SmoothSniperZoom.Tick();
-            Recoil.Tick();
+            SmoothZooms.Tick();
         }
 
         private void Main_ProcessAutomobile(UIntPtr vehPtr)
@@ -287,6 +291,9 @@ namespace LibertyTweaks
             var (_, damageLevel, normalizedDamage) = PlayerHelper.GetVehicleDamage();
             CarCrashLevel = damageLevel;
             CarCrashDamageNormalized = normalizedDamage;
+
+            GameSaved = CommonHelpers.HasGameSaved();
+            Episode = GET_CURRENT_EPISODE();
 
             GET_GAME_TIMER(out uint gameTimer);
             gameTimer = (uint)(gameTimer / 1000.0);
@@ -331,7 +338,7 @@ namespace LibertyTweaks
             HighRPMShaking.Tick();
             ImprovedCrashes.Tick();
             DrivebyInPolice.Tick();
-            PersonalVehicle.Tick();
+            PersonalVehicleOld.Tick();
             NoShootWithPhone.Tick();
             DisableHUDOnBlindfire.Tick();
             DisableCrosshairWithNoHUD.Tick();
@@ -346,14 +353,17 @@ namespace LibertyTweaks
             SprintInInteriors.Tick();
             DisableHUDOnCinematic.Tick();
             CameraDynamicHeight.Tick();
-            SmoothSniperZoom.Tick();
-
+            SmoothZooms.Tick();
+            
             // 1.7
             RollInAirFix.Tick();
             RandomizedPedEuphoria.Tick();
             DisableSprintWithHeavyWeapons.Tick();
             QuickSwitching.Tick();
             WarpToShore.Tick();
+            //PersonalVehicleHandler.Tick();
+            ImprovedWardrobe.Tick();
+            DeathTimescaleFix.Tick();
             //ImprovedRolling.Tick();
             //FixedShotgunReload.Tick();
         }
@@ -381,6 +391,9 @@ namespace LibertyTweaks
         }
         private void Main_KeyDown(object sender, KeyEventArgs e)
         {
+            //if (e.KeyCode == CopyLocationToClipboard.key)
+            //    CopyLocationToClipboard.Process();
+
             if (e.KeyCode == ShoulderSwap.key)
                 ShoulderSwap.Process();
 
@@ -399,8 +412,8 @@ namespace LibertyTweaks
             if (e.KeyCode == Keys.LShiftKey)
                 DynamicMovement.Process();
 
-            if (NativeControls.IsGameKeyPressed(0, GameKey.Action) && PersonalVehicle.canBeTracked)
-                PersonalVehicle.Process();
+            if (NativeControls.IsGameKeyPressed(0, GameKey.Action) && PersonalVehicleOld.canBeTracked)
+                PersonalVehicleOld.Process();
 
             if (e.KeyCode == SniperScopeToggle.key)
                 SniperScopeToggle.Process();
@@ -427,6 +440,15 @@ namespace LibertyTweaks
         internal static int GenerateRandomNumber(int v, uint wheelCount)
         {
             throw new NotImplementedException();
+        }
+
+        public static void ShowMessage(string message)
+        {
+            if (!string.IsNullOrEmpty(message))
+            {
+                IVText.TheIVText.ReplaceTextOfTextLabel("PLACEHOLDER_1", message);
+                PRINT_HELP("PLACEHOLDER_1");
+            }
         }
     }
 }

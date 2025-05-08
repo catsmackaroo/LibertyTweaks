@@ -4,7 +4,7 @@ using static IVSDKDotNet.Native.Natives;
 
 // Credits: catsmackaroo
 
-namespace LibertyTweaks.Enhancements.Driving
+namespace LibertyTweaks
 {
     internal class DrivebyInPolice
     {

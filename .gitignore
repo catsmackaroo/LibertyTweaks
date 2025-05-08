@@ -4,3 +4,8 @@
 **/[Rr]elease/LibertyTweaks.zip
 [Pp]ackages/
 .vs/
+LibertyTweaks/release/IVSDKDotNet/scripts/LibertyTweaks.ini
+LibertyTweaks/release/IVSDKDotNet/scripts/LibertyTweaks.ivsdk.dll
+LibertyTweaks/release/IVSDKDotNet/scripts/LibertyTweaks/ImprovedWardrobeFiles/ClothesVanLocations.txt
+LibertyTweaks/release/IVSDKDotNet/scripts/LibertyTweaks/WarpToShoreFiles/WarpLocations.txt
+LibertyTweaks/release/LibertyTweaks1.7.zip

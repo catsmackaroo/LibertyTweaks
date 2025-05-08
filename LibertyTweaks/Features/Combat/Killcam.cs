@@ -1,17 +1,13 @@
-﻿using System;
-using System.Numerics;
-using System.Diagnostics;
-
-using CCL.GTAIV;
-
+﻿using CCL.GTAIV;
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
+using System.Diagnostics;
+using System.Numerics;
 using static IVSDKDotNet.Native.Natives;
-using System.Collections.Generic;
 
-// Credits: ItsClonkAndre
+// Credits: ItsClonkAndre & catsmackaroo
 
-namespace LibertyTweaks.Enhancements.Combat
+namespace LibertyTweaks
 {
     internal class Killcam
     {
@@ -20,13 +16,13 @@ namespace LibertyTweaks.Enhancements.Combat
         private static int targetedPed;
         private static int missionChance;
         private static int freeroamChance;
+        private static bool killcamActive = false;
         public static NativeCamera cam;
         private static bool wasSetToShowPlayer;
         private static bool wasHudOn;
         private static uint whatRadarMode;
-        //private static bool canStillActivate;
         private static Stopwatch watch = new Stopwatch();
-        private static Stopwatch cooldownWatch = new Stopwatch(); 
+        private static Stopwatch cooldownWatch = new Stopwatch();
         private static bool firstFrame = true;
 
         private const double standardKillcamDuration = 8.0;
@@ -49,11 +45,11 @@ namespace LibertyTweaks.Enhancements.Combat
         {
             if (!enable)
                 return;
-            
+
             firstFrame = true;
         }
 
-        // todo: task bug when player is ragdolled during killcam || add regular kill check with higher rarity
+        // todo: task bug when player is ragdolled during killcam || cam not resetting sometimes
         public static void Tick()
         {
             if (!enable)
@@ -69,12 +65,15 @@ namespace LibertyTweaks.Enhancements.Combat
                 firstFrame = false;
             }
 
-            //IVGame.ShowSubtitleMessage(canStillActivate.ToString());
+            if (killcamActive == true && watch.IsRunning)
+            {
+                EndKillcam();
+            }
 
             if (cooldownWatch.IsRunning && cooldownWatch.Elapsed.TotalSeconds >= killcamCooldown)
             {
                 useQuickKillcam = false;
-                cooldownWatch.Stop(); // Stop the cooldown timer since it's no longer needed
+                cooldownWatch.Stop();
             }
 
             if (enableOnlyForMissions && !IVTheScripts.IsPlayerOnAMission())
@@ -87,7 +86,6 @@ namespace LibertyTweaks.Enhancements.Combat
                 return;
             }
 
-            // Target acquisition logic
             FindTarget();
 
             if (targetedPed != 0)
@@ -112,7 +110,7 @@ namespace LibertyTweaks.Enhancements.Combat
             {
                 int handle = kvp.Value;
 
-                if (IS_CHAR_DEAD(handle))
+                if (IS_CHAR_DEAD(handle) || IS_CHAR_IN_ANY_CAR(handle))
                     continue;
 
                 // Disabling car KillCam as it's a bit buggy atm
@@ -146,12 +144,16 @@ namespace LibertyTweaks.Enhancements.Combat
             GET_CHAR_COORDINATES(targetedPed, out Vector3 pos);
             cam.SetTargetPed(targetedPed);
 
-            if (IS_CHAR_IN_ANY_CAR(targetedPed) || Main.PlayerPed.IsInVehicle())
-                cam.PointAtPed(targetedPed);
-            else
-                cam.PointAtPed(Main.PlayerPed.GetHandle());
+            cam.PointAtPed(Main.PlayerPed.GetHandle());
 
-            if (WAS_PED_KILLED_BY_HEADSHOT(targetedPed)/* || canStillActivate*/)
+            // Car kills quite buggy so disabling for now as well
+            //if (IS_CHAR_IN_ANY_CAR(targetedPed) || IS_CHAR_IN_ANY_HELI(targetedPed) || IS_CHAR_IN_ANY_BOAT(targetedPed))
+            //{
+            //    cam.PointAtVehicle(targetVehicle);
+            //}
+            //else
+
+            if (WAS_PED_KILLED_BY_HEADSHOT(targetedPed))
                 ActivateKillcam(pos);
             else
                 PositionCameraForDynamicView();
@@ -161,17 +163,14 @@ namespace LibertyTweaks.Enhancements.Combat
         {
             ResetTarget();
             wasSetToShowPlayer = false;
+            killcamActive = true;
 
-            // Set time scaling
             IVTimer.TimeScale = 0.2f;
             IVTimer.TimeScale2 = 0.2f;
             IVTimer.TimeScale3 = 0.2f;
 
-            // Simulate aim task
-            //if (!Main.PlayerPed.IsInVehicle())
             _TASK_AIM_GUN_AT_COORD(Main.PlayerPed.GetHandle(), pos.X, pos.Y, pos.Z, 6000);
 
-            // Apply visual effects
             SET_TIMECYCLE_MODIFIER("church");
             SaveHudAndRadarState();
             IVMenuManager.HudOn = false;
@@ -179,7 +178,6 @@ namespace LibertyTweaks.Enhancements.Combat
 
             TRIGGER_PTFX_ON_PED_BONE("blood_stun_punch", targetedPed, 0f, 0f, 0f, 90f, 0f, 0f, (int)eBone.BONE_HEAD, 1065353216);
 
-            // Activate the camera
             cam.Activate();
             watch.Reset();
             watch.Start();
@@ -196,18 +194,16 @@ namespace LibertyTweaks.Enhancements.Combat
         {
             if (watch.IsRunning)
             {
-
                 double duration = useQuickKillcam ? shortKillcamDuration : standardKillcamDuration;
 
                 if (NativeControls.IsGameKeyPressed(0, GameKey.Attack)
                 || NativeControls.IsGameKeyPressed(0, GameKey.Jump))
                 {
-                    if (/*!Main.PlayerPed.IsInVehicle() && */watch.Elapsed.TotalSeconds > 1)
+                    if (watch.Elapsed.TotalSeconds > 1)
                         EndKillcam();
                 }
 
-                // Transition to player camera if enough time has passed and the player hasn't been shown yet
-                if (watch.Elapsed.TotalSeconds > duration - 2.0 && !wasSetToShowPlayer && !useQuickKillcam /*&& !Main.PlayerPed.IsInVehicle()*/)
+                if (watch.Elapsed.TotalSeconds > duration - 2.0 && !wasSetToShowPlayer && !useQuickKillcam)
                     TransitionToPlayerCam();
 
                 // End the killcam when the duration has passed
@@ -227,12 +223,8 @@ namespace LibertyTweaks.Enhancements.Combat
             cam.Position = offset;
             cam.PointAtCoord(headPos);
 
-            // Set flag to prevent re-triggering this transition
             wasSetToShowPlayer = true;
-            // Check if cooldown has passed to determine the type of killcam
-            // issue: the usequickkillcam is enabled during activekillcam and thus needs to be moved so that it won't show the player during quickkillcams only
         }
-
 
         private static void EndKillcam()
         {
@@ -242,16 +234,16 @@ namespace LibertyTweaks.Enhancements.Combat
             IVTimer.TimeScale2 = 1f;
             IVTimer.TimeScale3 = 1f;
 
+            killcamActive = true;
             CLEAR_CHAR_TASKS(Main.PlayerPed.GetHandle());
             CLEAR_TIMECYCLE_MODIFIER();
 
             RestoreHudAndRadarState();
             cam.Deactivate();
 
-            // Reset flags for the next killcam
             watch.Stop();
-            cooldownWatch.Start();  // Start cooldown timer after killcam ends
-            wasSetToShowPlayer = false;  // Reset this flag
+            cooldownWatch.Start();
+            wasSetToShowPlayer = false;
             useQuickKillcam = cooldownWatch.Elapsed.TotalSeconds < killcamCooldown;
         }
 
@@ -269,8 +261,8 @@ namespace LibertyTweaks.Enhancements.Combat
 
         private static void ResetTarget()
         {
-            targetedPed = 0;
-            //canStillActivate = false;
+            if (targetedPed != 0)
+                targetedPed = 0;
         }
     }
 }

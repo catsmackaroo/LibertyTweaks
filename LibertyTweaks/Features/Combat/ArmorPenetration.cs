@@ -18,16 +18,19 @@ namespace LibertyTweaks
         public static int ArmourThreshold1;
         public static int ArmourThreshold2;
         private static readonly List<eWeaponType> StrongWeapons = new List<eWeaponType>();
-
-        public static void Init(SettingsFile settings)
+        public static string section { get; private set; }
+        public static void Init(SettingsFile settings, string section)
         {
-            enable = settings.GetBoolean("Armor Penetration", "Enable", true);
-            DamageMinimumPercent = settings.GetInteger("Armor Penetration", "Damage Minimum Percent", 0);
-            DamageMaximumPercent = settings.GetInteger("Armor Penetration", "Damage Maximum Percent", 5);
-            ArmourThreshold1 = settings.GetInteger("Armor Penetration", "Armour Threshold 1", 33);
-            ArmourThreshold2 = settings.GetInteger("Armor Penetration", "Armour Threshold 2", 66);
+            ArmorPenetration.section = section;
+            var section2 = "Extensive Settings";
 
-            string weaponsString = settings.GetValue("Extensive Settings", "Included Weapons", "");
+            enable = settings.GetBoolean(section, "Armor Penetration", false);
+            DamageMinimumPercent = settings.GetInteger(section, "Armor Penetration - HP Damage Minimum Percent", 0);
+            DamageMaximumPercent = settings.GetInteger(section, "Armor Penetration - HP Damage Maximum Percent", 5);
+            ArmourThreshold1 = settings.GetInteger(section  , "Armor Penetration - Armor Threshold Level 1", 33);
+            ArmourThreshold2 = settings.GetInteger(section, "Armor Penetration - ArmorThreshold Level 2", 66);
+
+            string weaponsString = settings.GetValue(section2, "Included Weapons", "");
             StrongWeapons.Clear();
             foreach (var weaponName in weaponsString.Split(','))
             {

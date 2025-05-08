@@ -12,7 +12,7 @@ using static IVSDKDotNet.Native.Natives;
 namespace LibertyTweaks
 {
 
-    internal class PersonalVehicle
+    internal class PersonalVehicleOld
     {
         #region Variables
 
@@ -97,8 +97,8 @@ namespace LibertyTweaks
 
         // Controller Support
         private static readonly uint padIndex = 0;
-        private static ControllerButton controllerKey1;
-        private static DateTime lastProcessTime = DateTime.MinValue;
+        private static readonly ControllerButton controllerKey1;
+        private static readonly DateTime lastProcessTime = DateTime.MinValue;
         private static readonly TimeSpan delay = TimeSpan.FromMilliseconds(500);
         private static readonly List<Vector3> additionalServiceLocations = new List<Vector3>();
         private static Vector3 ParseVector3(string value)
@@ -116,14 +116,13 @@ namespace LibertyTweaks
         public static string section { get; private set; }
         public static void Init(Script instance, SettingsFile settings, string section)
         {
-            PersonalVehicle.section = section;
+            PersonalVehicleOld.section = section;
             var section2 = "Extensive Settings";    
 
             enable = settings.GetBoolean(section, "Personal Vehicles", false);
             enableReplaceParkedVeh = settings.GetBoolean(section, "Personal Vehicles - Deliveries", false);
             enableImpound = settings.GetBoolean(section, "Personal Vehicles - Impound", false);
             enableAlwaysUnlocked = settings.GetBoolean(section, "Personal Vehicles - Service Always Unlocked", false);
-            //controllerKey1 = (ControllerButton)settings.GetInteger(section, "Personal Vehicles - Controller Key", (int)ControllerButton.BUTTON_A);
 
             northAlgonquinPNS = ParseVector3(settings.GetValue(section2, "North Algonquin", "-335,1531,19"));
             southAlgonquinPNS = ParseVector3(settings.GetValue(section2, "South Algonquin", "-481,350,6"));
@@ -712,10 +711,7 @@ namespace LibertyTweaks
                         // Round the price up to the nearest hundred
                         priceForTracking = (uint)Math.Ceiling(priceForTracking / 100.0) * 100;
 
-                        if (!IS_USING_CONTROLLER())
-                            IVGame.ShowSubtitleMessage("Press ~INPUT_PICKUP~ to add a tracker to this vehicle. " + "Price: $" + priceForTracking);
-                        else
-                            IVGame.ShowSubtitleMessage("Press " + controllerKey1 + " to add a tracker to this vehicle. " + "Price: $" + priceForTracking);
+                        IVGame.ShowSubtitleMessage("Press ~INPUT_PICKUP~ to add a tracker to this vehicle. " + "Price: $" + priceForTracking);
                         messageShown[location] = true;
                     }
 

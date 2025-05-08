@@ -1,4 +1,5 @@
-﻿using IVSDKDotNet;
+﻿using CCL.GTAIV;
+using IVSDKDotNet;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -58,10 +59,10 @@ namespace LibertyTweaks
             if (enable)
                 Main.Log("script initialized...");
 
-            executeIn = settings.GetInteger("General", "ExecuteIn", 1000);
-            showAreaName = settings.GetBoolean("General", "ShowAreaName", false);
+            executeIn = settings.GetInteger("Main", "ExecuteIn", 1000);
+            showAreaName = settings.GetBoolean("Main", "ShowAreaName", false);
 
-            int overrideCount = settings.GetInteger("General", "OverrideCount", 0);
+            int overrideCount = settings.GetInteger("Main", "OverrideCount", 0);
             for (int i = 0; i < overrideCount; i++)
             {
                 string section2 = i.ToString();
@@ -151,7 +152,8 @@ namespace LibertyTweaks
                 if (processedPeds.Contains(ped)) continue;
 
                 GET_PED_TYPE(ped, out uint pType);
-                GET_CHAR_MODEL(ped, out int pModel);
+                IVPed pPed = NativeWorld.GetPedInstanceFromHandle(ped);
+                var pModel = pPed.GetCharModel();
                 GET_CHAR_COORDINATES(ped, out Vector3 pos);
                 string currentPedArea = GET_NAME_OF_ZONE(pos.X, pos.Y, pos.Z);
 
@@ -169,10 +171,7 @@ namespace LibertyTweaks
                     if (wO.Episode != currentEpisode && wO.Episode != 3)
                         continue;
 
-                    if (wO.PedModels.Count > 0 && !wO.PedModels.Contains($"0x{pModel:X}"))
-                        continue;
-
-                    if (wO.ForMissionPed && !IS_PED_A_MISSION_PED(ped))
+                    if (wO.PedModels.Count > 0 && !wO.PedModels.Contains($"{pModel}"))
                         continue;
 
                     int randomValue = rnd.Next(0, 101);
@@ -187,7 +186,7 @@ namespace LibertyTweaks
                             {
                                 REMOVE_ALL_CHAR_WEAPONS(ped);
                                 GIVE_WEAPON_TO_CHAR(ped, weapon, rnd.Next(wO.AmmoMin, wO.AmmoMax), false);
-
+                                Main.Log($"Assigned weapon {weapon} to ped {ped} in area {currentPedArea} with type {pType} and model {pModel:X}");
                                 processedPeds.Add(ped);
                                 weaponAssigned = true;
                             }

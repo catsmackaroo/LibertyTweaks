@@ -1,7 +1,6 @@
 ﻿using CCL.GTAIV;
 using IVSDKDotNet;
 using IVSDKDotNet.Attributes;
-using LibertyTweaks.Enhancements.Combat;
 using System;
 using System.Numerics;
 using static IVSDKDotNet.Native.Natives;
@@ -88,7 +87,6 @@ namespace LibertyTweaks
             uint currentWeapSlot = IVWeaponInfo.GetWeaponInfo((uint)currentWeapon).WeaponSlot;
 
             ApplyDynamicFOV(playerPedHandle, cam, currentWeapon, currentWeapSlot);
-
         }
 
         private static void ApplyDynamicFOV(int playerPedHandle, IVCam cam, int currentWeapon, uint currentWeapSlot)
@@ -133,7 +131,7 @@ namespace LibertyTweaks
                 var rev = vehicle.EngineRevs;
                 var isCarInAir = IS_CAR_IN_AIR_PROPER(vehicleHandle);
 
-                if (isCarInAir && height > 0.6)
+                if (isCarInAir && height > 0.4)
                 {
                     float heightFactor = Math.Min(height * 0.75f, 10);
 
@@ -179,6 +177,9 @@ namespace LibertyTweaks
 
                 // Reduce FOV when car & cam aren't aligned enough
                 float headingDifference = VehicleHelpers.GetCameraCarMisalignment(vehicleHandle, cam);
+
+                if (IS_CHAR_IN_ANY_BOAT(Main.PlayerPed.GetHandle()))
+                    targetFOV *= FOVInBoat;
 
                 if (headingDifference > 120.0f)
                     targetFOV *= 0.9f;

@@ -237,6 +237,8 @@ namespace LibertyTweaks
         }
         public static bool IsTryingToDriveBy()
         {
+            if (Main.PlayerPed.PlayerInfo.CanDoDriveby == 0) return false;
+
             if (IS_USING_CONTROLLER() && IsDrivebying()) return true;
 
             if (!IS_USING_CONTROLLER())
@@ -254,27 +256,23 @@ namespace LibertyTweaks
         {
             List<eWeaponType> inventory = new List<eWeaponType>();
 
-            HashSet<eWeaponType> melee = new HashSet<eWeaponType>
+            for (int i = 0; i <= 8; i++)
             {
-                eWeaponType.WEAPON_UNARMED,
-                eWeaponType.WEAPON_BASEBALLBAT,
-                eWeaponType.WEAPON_KNIFE,
-                eWeaponType.WEAPON_ANYMELEE,
-                eWeaponType.WEAPON_ANYWEAPON
-            };
+                GET_CHAR_WEAPON_IN_SLOT(Main.PlayerPed.GetHandle(), i, out int weaponInSlot, out _, out _);
+                if (weaponInSlot == 0) continue;
 
+                var info = IVWeaponInfo.GetWeaponInfo((uint)weaponInSlot);
+                if (info == null) continue;
 
-            foreach (eWeaponType weapon in Enum.GetValues(typeof(eWeaponType)))
-            {
-                if (melee.Contains(weapon) && !IncludeMelee)
-                    melee.Add(weapon);
-
-                if (HAS_CHAR_GOT_WEAPON(Main.PlayerPed.GetHandle(), (int)weapon) && !melee.Contains(weapon))
-                    inventory.Add(weapon);
+                if (info.FireType != 0 || IncludeMelee)
+                {
+                    inventory.Add((eWeaponType)weaponInSlot);
+                }
             }
 
             return inventory;
         }
+
         public static void PrintWeaponInventory()
         {
             // Example to use WeaponInventory 
@@ -453,6 +451,8 @@ namespace LibertyTweaks
         }
         public static bool IsDrivebying()
         {
+            if (Main.PlayerPed.PlayerInfo.CanDoDriveby == 0) return false;
+
             string[] animations = new string[]
             {
         "veh@drivebylow|ds_aim_in", "veh@drivebylow|ds_aim_loop", "veh@drivebylow|ds_aim_out",

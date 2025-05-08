@@ -15,6 +15,9 @@ namespace LibertyTweaks
         }
         public static bool IsPlayerInOrNearCombat()
         {
+            if (Main.PlayerWantedLevel > 0)
+                return true;
+
             IVPool pedPool = IVPools.GetPedPool();
             for (int i = 0; i < pedPool.Count; i++)
             {
@@ -161,8 +164,8 @@ namespace LibertyTweaks
 
             previousVehicleHealth = currentVehicleHealth;
 
-            if (damageAmount > 450) damageLevel = 4;
-            else if (damageAmount > 250) damageLevel = 3;
+            if (damageAmount > 400) damageLevel = 4;
+            else if (damageAmount > 200) damageLevel = 3;
             else if (damageAmount > 100) damageLevel = 2;
             else if (damageAmount > 0) damageLevel = 1;
 

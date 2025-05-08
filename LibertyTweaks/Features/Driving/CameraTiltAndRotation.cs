@@ -18,7 +18,7 @@ namespace LibertyTweaks
         private static float tiltMultiplier = 0f;
         private static float tiltCustomMultiplier;
         private static float tiltAmount;
-        private const float maxRollClamp = 2f;
+        private const float maxTiltClamp = 4f;
         private static float lastTiltAmount = 0f;
 
         private const float rotationIntensityFactor = 0.3f;
@@ -28,10 +28,10 @@ namespace LibertyTweaks
         private static float lastRotationAmount = 0f;
 
         private static float pitchAmount;
-        private static float maxPitchClamp = 7f;
-        private static float maxPitchHardCap = 8f;
-        private static float minPitchClamp = -7f;
-        private static float minPitchHardCap = -8f;
+        private static float maxPitchClamp = 10f;
+        private static float maxPitchHardCap = 15f;
+        private static float minPitchClamp = -10f;
+        private static float minPitchHardCap = -12f;
 
         private static float upDownRotationCustomMultiplier;
 
@@ -83,7 +83,7 @@ namespace LibertyTweaks
 
             GET_CAR_ROLL(Main.PlayerVehicle.GetHandle(), out float roll);
 
-            float clampedRoll = CommonHelpers.Clamp(roll, -maxRollClamp, maxRollClamp);
+            float clampedRoll = CommonHelpers.Clamp(roll, -maxTiltClamp, maxTiltClamp);
             clampedRoll = -clampedRoll;
 
             float forwardSpeed = speedVector.Y;
@@ -97,7 +97,7 @@ namespace LibertyTweaks
 
             tiltAmount = clampedRoll * speedFactor * tiltIntensityFactor;
             tiltAmount *= tiltCustomMultiplier;
-            tiltAmount = CommonHelpers.SmoothStep(lastTiltAmount, tiltAmount, 0.01f);
+            tiltAmount = CommonHelpers.SmoothStep(lastTiltAmount, tiltAmount, 0.05f);
         }
         private static void DetermineRotateAmount()
         {
@@ -120,6 +120,9 @@ namespace LibertyTweaks
                 rotationAmount -= 0.1f;
             else if (WeaponHelpers.IsTryingToDriveBy() && rotationAmount < 0)
                 rotationAmount += 0.1f;
+
+            if (IS_CHAR_IN_ANY_HELI(Main.PlayerPed.GetHandle()))
+                rotationAmount *= 0.5f;
 
             rotationAmount *= rotationCustomMultiplier;
             rotationAmount = CommonHelpers.SmoothStep(lastRotationAmount, rotationAmount, 0.05f);
@@ -145,7 +148,7 @@ namespace LibertyTweaks
             if (pitch <= minPitchHardCap)
                 pitch = minPitchHardCap;
 
-            pitchAmount = CommonHelpers.SmoothStep(pitchAmount, pitch, 0.05f);
+            pitchAmount = CommonHelpers.SmoothStep(pitchAmount, pitch, 0.1f);
         }
 
         private static void ApplyCameraPitch(NativeCamera cam)

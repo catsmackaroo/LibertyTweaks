@@ -20,7 +20,7 @@ namespace LibertyTweaks
         private static bool enableEngineCutoff;
 
         private const int MinorCrashThreshold = 15;
-        private const int TireBurstThreshold = 10;
+        private const int TireBurstThreshold = 13;
         private const int WheelDetachThreshold = 40;
         private const int EngineCutOffThreshold = 40;
 
@@ -125,7 +125,7 @@ namespace LibertyTweaks
 
             if (Main.CarCrashLevel >= 3 && vehicleIV.WheelCount != 0)
             {
-                int rndMax = 100 - Main.CarCrashLevel;
+                int rndMax = 10 - Main.CarCrashLevel;
                 int rnd = Main.GenerateRandomNumber(0, rndMax);
                 HandleHarshCrashes(rnd, vehicleIV);
             }
@@ -139,7 +139,7 @@ namespace LibertyTweaks
                 IVPhInstGta.FromUIntPtr(vehicleIV.InstGta).DetachFragmentGroup(randomPart);
 
             if (rnd <= TireBurstThreshold && vehicleIV.WheelCount != 0 && enableTireBursts)
-                BurstRandomTire(vehicleIV, rnd);
+                DetermineTireToBurst(vehicleIV, rnd);
         }
         private static void HandleHarshCrashes(int rnd, IVVehicle vehicleIV)
         {
@@ -147,7 +147,7 @@ namespace LibertyTweaks
                 CutOffEngine(rnd, vehicleIV);
 
             if (enableWheelDetach)
-                DetachWheels(rnd, vehicleIV);
+                DetermineWheels(rnd, vehicleIV);
         }
 
         private static uint GenerateUniqueRandomPart(IVVehicle vehicleIV, bool only2wheels)
@@ -183,16 +183,46 @@ namespace LibertyTweaks
                 BREAK_CAR_DOOR(vehicleIV.GetHandle(), door, false);
             });
         }
-        private static void BurstRandomTire(IVVehicle vehicleIV, int rnd)
+        private static void DetermineTireToBurst(IVVehicle vehicleIV, int rnd)
         {
-            if (rnd <= 5)
+            // Get the speed vector from the vehicle
+            Vector3 speedVector = Main.PlayerVehicle.GetSpeedVector(true);
+
+            // Determine which tire to burst based on the speed vector
+            if (speedVector.X > 0) // Moving to the right
             {
-                IVVehicleWheel vehWheel = vehicleIV.Wheels[Main.GenerateRandomNumber(0, 3)];
-                if (vehWheel != null && vehWheel.TireHealth != 0)
-                    vehWheel.TireHealth = 0;
+                if (rnd <= TireBurstThreshold && vehicleIV.WheelCount != 0 && enableTireBursts)
+                {
+                    BurstSpecificTire(vehicleIV, 2); // Front right tire
+                }
             }
-            else if (rnd >= 6)
-                BURST_CAR_TYRE(vehicleIV.GetHandle(), (uint)Main.GenerateRandomNumber(0, 3));
+            else if (speedVector.X < 0) // Moving to the left
+            {
+                if (rnd <= TireBurstThreshold && vehicleIV.WheelCount != 0 && enableTireBursts)
+                {
+                    BurstSpecificTire(vehicleIV, 0); // Front left tire
+                }
+            }
+            else // No significant side movement, burst a random tire
+            {
+                if (rnd <= TireBurstThreshold && vehicleIV.WheelCount != 0 && enableTireBursts)
+                {
+                    BurstSpecificTire(vehicleIV, Main.GenerateRandomNumber(0, 3));
+                }
+            }
+        }
+
+        private static void BurstSpecificTire(IVVehicle vehicleIV, int tireIndex)
+        {
+            IVVehicleWheel vehWheel = vehicleIV.Wheels[tireIndex];
+            if (vehWheel != null && vehWheel.TireHealth != 0)
+            {
+                vehWheel.TireHealth = 0;
+            }
+            else
+            {
+                BURST_CAR_TYRE(vehicleIV.GetHandle(), (uint)tireIndex);
+            }
         }
         private static void CutOffEngine(int rnd, IVVehicle vehicleIV)
         {
@@ -204,7 +234,8 @@ namespace LibertyTweaks
                 SET_CAR_ENGINE_ON(vehicleIV.GetHandle(), false, false);
             }
         }
-        private static void DetachWheels(int rnd, IVVehicle vehicleIV)
+
+        private static void DetermineWheels(int rnd, IVVehicle vehicleIV)
         {
             ushort vehwheelgroup0 = vehicleIV.Wheels[0].GroupID;
             ushort vehwheelgroup1 = vehicleIV.Wheels[1].GroupID;
@@ -218,21 +249,44 @@ namespace LibertyTweaks
             if (frontDeformation)
             {
                 minGroup = vehwheelgroup0;
-                maxGroup = vehwheelgroup2;
+                maxGroup = vehwheelgroup1;
             }
             else if (backDeformation)
             {
-                minGroup = vehwheelgroup1;
+                minGroup = vehwheelgroup2;
                 maxGroup = vehwheelgroup3;
             }
             else
                 return;
 
-            if (rnd <= WheelDetachThreshold)
-                DetachWheel(vehicleIV, minGroup, maxGroup);
+            // Get the speed vector from the vehicle
+            Vector3 speedVector = Main.PlayerVehicle.GetSpeedVector(true);
 
-            if (rnd <= WheelDetachThreshold / 2)
-                DetachWheel(vehicleIV, minGroup, maxGroup);
+            // Determine which side to detach based on the speed vector
+            if (speedVector.X > 0) // Moving to the right
+            {
+                if (rnd <= WheelDetachThreshold)
+                    DetachWheel(vehicleIV, vehwheelgroup2, vehwheelgroup3); // Detach right wheels
+
+                if (rnd <= WheelDetachThreshold / 2)
+                    DetachWheel(vehicleIV, vehwheelgroup2, vehwheelgroup3); // Detach right wheels
+            }
+            else if (speedVector.X < 0) // Moving to the left
+            {
+                if (rnd <= WheelDetachThreshold)
+                    DetachWheel(vehicleIV, vehwheelgroup0, vehwheelgroup1); // Detach left wheels
+
+                if (rnd <= WheelDetachThreshold / 2)
+                    DetachWheel(vehicleIV, vehwheelgroup0, vehwheelgroup1); // Detach left wheels
+            }
+            else // No significant side movement, detach based on front/back deformation
+            {
+                if (rnd <= WheelDetachThreshold)
+                    DetachWheel(vehicleIV, minGroup, maxGroup);
+
+                if (rnd <= WheelDetachThreshold / 2)
+                    DetachWheel(vehicleIV, minGroup, maxGroup);
+            }
         }
 
         private static void DetachWheel(IVVehicle vehicleIV, ushort minGroup, ushort maxGroup)
@@ -240,7 +294,6 @@ namespace LibertyTweaks
             IVPhInstGta.FromUIntPtr(vehicleIV.InstGta).DetachFragmentGroup((uint)Main.GenerateRandomNumber(minGroup, maxGroup));
             SET_CAR_ENGINE_ON(vehicleIV.GetHandle(), false, false);
         }
-
 
         private static (bool backDeformation, bool frontDeformation) GetDeformation(IVVehicle vehicleIV)
         {
