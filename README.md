@@ -1,12 +1,21 @@
-![](https://i.imgur.com/FEKUiAf.png)
-Check out the [GTAForums](https://gtaforums.com/topic/991160-liberty-tweaks/) page for a better layout.
+<p align="center"><img src="https://i.imgur.com/FEKUiAf.png" /></p>
+
+# Requirements
+
+#### These mods must be installed in order for **Liberty Tweaks** to work.
+
+
+- [IV SDK .NET](https://github.com/ClonkAndre/IV-SDK-DotNet)
+- [Clonk's Coding Library](https://github.com/ClonkAndre/ClonksCodingLib.GTAIV)
 
 # Installation
-- Install requirements [IV SDK .NET](https://github.com/ClonkAndre/IV-SDK-DotNet) & [Clonk's Coding Library](https://github.com/ClonkAndre/ClonksCodingLib.GTAIV)
-- [Download Liberty Tweaks](https://github.com/catsmackaroo/LibertyTweaks/releases)
-- Drag & drop all contents into main directory. 
-- Note: if you're updating this mod, you should avoid replacing "LibertyTweaks.save" as it will reset various things such as: Quick Saved locations, Personal Vehicles, & Tracked Clothing 
+- Download Liberty Tweaks [here](https://github.com/catsmackaroo/LibertyTweaks/releases)
+- Drag & drop all contents into main directory.
 
+> [!WARNING]
+> If you're updating the mod, replace all files except the `LibertyTweaks.save` file.
+> 
+> You will lose save progress data such as quick-save location, personal vehicles, tracked clothing, and more.
+  
 [Video Guide](https://www.youtube.com/watch?v=6dMkwexv2EY)
-
 [Video Showcase (1.4)](https://www.youtube.com/watch?v=NnbC1-kv8q0)
