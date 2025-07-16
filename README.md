@@ -45,7 +45,7 @@ There are well over **50 features** in this project, so here's a rundown.
 </details>
 
 > [!NOTE]
-> There are over 60 features for this project, you can see a full feature list on the **GTAForums** page [here](https://gtaforums.com/topic/991160-liberty-tweaks/).
+> This is not a complete list. You can see a full feature list on the **GTAForums** page [here](https://gtaforums.com/topic/991160-liberty-tweaks/).
 
 # Requirements
 
