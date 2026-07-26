@@ -60,7 +60,9 @@ There are well over **50 features** in this project, so here's a rundown.
 - Drag & drop all contents into main directory.
 
 > [!WARNING]
-> If you're updating the mod, replace all files except the `LibertyTweaks.save` file.
+> **THIS WARNING ONLY APPLIES TO 1.6 AND BELOW!**
+> 
+> If you're updating/reinstalling the mod, replace all files except the `LibertyTweaks.save` file.
 > 
 > You will lose save progress data such as quick-save location, personal vehicles, tracked clothing, and more.
   
